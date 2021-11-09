@@ -56,25 +56,39 @@ for file_name in list_of_files:
 
         srl_res = run_srl(
         path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz", # pre-trained model
-        sentences=split_sentences[1][0:5],
-        #cuda_device=-1,
+        sentences=split_sentences[1],
+        cuda_device=-1,
         progress_bar=True,
         )
 
         print(srl_res[0])
 
         list_of_verbs = []
-        list_of_tags = []
+        #list_of_args = []
         list_of_words = []
 
         for item in srl_res:
 
             list_of_verbs.append(item['verbs'])
-            list_of_tags.append(item['tags'])
+            #list_of_args.append(item['verbs'][1])
             list_of_words.append(item['words'])
 
         print(len(list_of_verbs))
-        print(len(list_of_tags))
+        #print(len(list_of_args))
         print(len(list_of_words))
+
+        id_dataframe = pd.DataFrame(split_sentences[0])
+        sent_dataframe = pd.DataFrame(split_sentences[1])
+        verbs_dataframe = pd.DataFrame(list_of_verbs)
+        words_dataframe = pd.DataFrame(list_of_words)
+        df_values = [id_dataframe, sent_dataframe, verbs_dataframe, words_dataframe]
+        df_keys = ['id', 'sentence', 'verb_action', 'words']
+
+        final_dataframe = pd.concat(df_values, axis=1, keys = df_keys)
+        print(final_dataframe.head())
+
+        final_dataframe.to_csv("test.csv", index = False)
         break
+
+
 

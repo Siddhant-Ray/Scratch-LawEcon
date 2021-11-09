@@ -6,7 +6,7 @@ if ls lsf.* 1> /dev/null 2>&1
 then
     echo "lsf files do exist"
     echo "removing older lsf files"
-    rm lsf.*
+    #rm lsf.*
 fi
 
 module load gcc/8.2.0 python_gpu/3.8.5 eth_proxy
