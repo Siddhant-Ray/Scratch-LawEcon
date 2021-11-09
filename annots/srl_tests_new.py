@@ -25,6 +25,7 @@ for file_name in list_of_files:
         original_df = pd.read_csv(absolute_file_path)
         #print(df.head())
         #print(df['paragraph'])
+        print(len(original_df.index))
 
         # make a doc_ID for the file in form of the date without - eg. 20050101
         document_ID = file_name.replace(".csv","").split("-")
@@ -47,19 +48,43 @@ for file_name in list_of_files:
         # new data frame has two columns, IDs and doc(paragraph), as required
         # by the split_into_sentences_method
         new_data_frame = pd.concat(data, axis=1, keys=headers)
-        #print(new_data_frame.head())
+        print(new_data_frame.head())
+        print(len(new_data_frame.index))
 
-        split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
+        '''split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
         for i in range(5):
             print("document id: ", split_sentences[0][i])
-            print("doc_in_sentences: ", split_sentences[1][i])
+            print("doc_in_sentences: ", split_sentences[1][i])'''
 
-        srl_res = run_srl(
+        srl_results_per_paragraph = []
+        
+        for index, value in new_data_frame.iterrows():
+            temp_df = pd.DataFrame([value])
+            split_sentences = split_into_sentences(temp_df, progress_bar=False)
+            srl_res = run_srl(
+            path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz", # pre-trained model
+            sentences=split_sentences[1],
+            cuda_device=-1,
+            progress_bar=False)
+            # print(len(split_sentences[1]))
+
+            srl_results_per_paragraph.append(srl_res)
+            break
+
+
+        print(len(srl_results_per_paragraph))
+        print(srl_results_per_paragraph)
+
+        '''srl_res = run_srl(
         path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz", # pre-trained model
         sentences=split_sentences[1],
         cuda_device=-1,
         progress_bar=True,
         )
+
+
+
+
 
         print(srl_res[0])
 
@@ -87,7 +112,7 @@ for file_name in list_of_files:
         final_dataframe = pd.concat(df_values, axis=1, keys = df_keys)
         print(final_dataframe.head())
 
-        final_dataframe.to_csv("test.csv", index = False)
+        final_dataframe.to_csv("test.csv", index = False)'''
         break
 
 
