@@ -15,7 +15,7 @@ source venv/bin/activate
 if [[ $1 == "gpu" ]]
 then
     echo "GPU mode selected"
-    bsub -n 20 -W 4:00 -R "rusage[mem=4500, ngpus_excl_p=1]" -R "select[gpu_model0==GeForceGTX1080Ti]" python annots/srl_tests_new.py
+    bsub -n 2 -W 4:00 -R "rusage[mem=4500, ngpus_excl_p=1]" -R "select[gpu_model0==GeForceGTX1080Ti]" python annots/srl_tests_new.py
 else
     echo "CPU mode selected"
     bsub python annots/srl_tests_new.py

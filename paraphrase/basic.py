@@ -1,5 +1,16 @@
-import json 
+import json, pickle 
 import random
+import math
+
+import torch
+torch.manual_seed(0)
+
+import numpy as np
+np.random.seed(0)
+
+import random
+random.seed(0)
+
 from sentence_transformers import SentenceTransformer
 
 file_path_1 = "paraphrase/MSRParaphraseCorpus/msr_paraphrase_train.txt"
@@ -65,15 +76,55 @@ sentence_1_list = [item[1][0] for item in final_list_of_pairs]
 sentence_2_list = [item[1][1] for item in final_list_of_pairs]
 
 #print(len(train_labels),len(sentence_1_list),len(sentence_2_list))
-embeddings_1 = model.encode(sentence_1_list)
+'''embeddings_1 = model.encode(sentence_1_list)
 embeddings_2 = model.encode(sentence_2_list)
 
-with open('embeddings_1.pkl', "wb") as fOut1:
-    pickle.dump({'sentences': sentences_1_list, 'embeddings': embeddings_1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+with open('paraphrase/embeddings_1.pkl', "wb") as fOut1:
+    pickle.dump({'sentences': sentence_1_list, 'embeddings': embeddings_1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
 
-with open('embeddings_2.pkl', "wb") as fOut2:
-    pickle.dump({'sentences': sentences_2_list, 'embeddings': embeddings_2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)
+with open('paraphrase/embeddings_2.pkl', "wb") as fOut2:
+    pickle.dump({'sentences': sentence_2_list, 'embeddings': embeddings_2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+with open('paraphrase/embeddings_1.pkl', "rb") as em1:
+    stored_data_1 = pickle.load(em1)
+
+with open('paraphrase/embeddings_2.pkl', "rb") as em2:
+    stored_data_2 = pickle.load(em2)
+
+print(len(stored_data_1['embeddings']), type(stored_data_1['embeddings']))
+print(len(stored_data_2['embeddings']), type(stored_data_2['embeddings']))
+
+
+class SNNLinear(nn.Module):
+    def __init__(self, input_size, output_size):
+        super().__init__()
+        self.fc = nn.Linear(input_size, output_size)
+        nn.init.normal_(self.fc.weight, std = math.sqrt(1/input_size))
+        
+    def forward(self, inputs):
+        return self.fc(inputs)
+
+class NN(nn.Module):
+    """ Simple NN architecture """
     
+    def __init__(self, input_size1, input_size_2, hidden_size, output_size):
+        super().__init__()
+        self.fc1 = nn.Linear(input_size_1)
+        self.fc2 = nn.Linear(input_size_2)
+        self.fc3 = SNNLinear(2*input_size_1, hidden_size)
+        self.fc4 = SNNLinear(hidden_size, output_size)
+        self.dropout = nn.AlphaDropout(0.2)
+        
+    def forward(self, input1, input2):
+        c1 = self.fc1(input1)
+        c2 = self.fc2(input2)
+        combined = torch.cat(c1.view(c1.size(0), -1),
+                                     c2.view(0), -1), dim =1)
+        out1 = self.fc3(combined)
+        out2 = nn.SELU()(out1)
+        out2 = self.dropout(out2)
+        out2 = self.fc4(out2)
 
+        return out2
 
  
