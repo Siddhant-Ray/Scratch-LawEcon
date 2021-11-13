@@ -2,7 +2,7 @@ import json, pickle
 import random
 import math
 
-import torch
+import torch, torch.nn as nn
 torch.manual_seed(0)
 
 import numpy as np
@@ -95,36 +95,75 @@ print(len(stored_data_1['embeddings']), type(stored_data_1['embeddings']))
 print(len(stored_data_2['embeddings']), type(stored_data_2['embeddings']))
 
 
-class SNNLinear(nn.Module):
-    def __init__(self, input_size, output_size):
-        super().__init__()
-        self.fc = nn.Linear(input_size, output_size)
-        nn.init.normal_(self.fc.weight, std = math.sqrt(1/input_size))
-        
-    def forward(self, inputs):
-        return self.fc(inputs)
+class SNNLinear(nn.Linear):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        nn.init.normal_(self.fc.weight, std=math.sqrt(1 / self.fc.weight.shape[1]))
+        nn.init.zeros_(self.fc.bias)
 
-class NN(nn.Module):
+class SimilarityNN(nn.Module):
     """ Simple NN architecture """
     
-    def __init__(self, input_size1, input_size_2, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
-        self.fc1 = nn.Linear(input_size_1)
-        self.fc2 = nn.Linear(input_size_2)
-        self.fc3 = SNNLinear(2*input_size_1, hidden_size)
-        self.fc4 = SNNLinear(hidden_size, output_size)
-        self.dropout = nn.AlphaDropout(0.2)
+        self.transform = nn.Sequential(
+            nn.AlphaDropout(0.2),
+            SNNLinear(input_size, hidden_size),
+            nn.SELU(),
+            nn.AlphaDropout(0.2),
+            SNNLinear(hidden_size, hidden_size // 2),
+        )
+        self.combination = nn.Sequential(
+            nn.SELU(),
+            nn.AlphaDropout(0.2),
+            SNNLinear(hidden_size // 2, output_size),
+        )
         
     def forward(self, input1, input2):
-        c1 = self.fc1(input1)
-        c2 = self.fc2(input2)
-        combined = torch.cat(c1.view(c1.size(0), -1),
-                                     c2.view(0), -1), dim =1)
-        out1 = self.fc3(combined)
-        out2 = nn.SELU()(out1)
-        out2 = self.dropout(out2)
-        out2 = self.fc4(out2)
+        c1 = self.transform(input1)
+        c2 = self.transform(input2)
+        return self.combination(c1 + c2)
 
-        return out2
+class DatasetManager(torch.utils.data.Dataset):
+    def __init__(self, list_of_sent1, list_of_sent2, class_labels):
+        self.list_of_sent1 = list_of_sent1
+        self.list_of_sent2 = list_of_sent2
+        self.class_labels = class_labels
 
- 
+    # get one sample
+    def __getitem__(self, idx):
+        
+        input_tensor1 = torch.from_numpy(self.list_of_sent1[idx]).float()
+        input_tensor2 = torch.from_numpy(self.list_of_sent2[idx]).float()
+        target_tensor = torch.tensor(self.class_labels[idx])
+    
+        return input_tensor1, input_tensor2, target_tensor
+
+    def __len__(self):
+        return len(self.list_of_sent1)
+    
+dataset = DatasetManager(stored_data_1['embeddings'], stored_data_2['embeddings'], train_labels)
+
+_input1, _input2,  _target = dataset.__getitem__(0)
+print(_input1.shape, _input2.shape, _target.shape)
+
+
+val_size = 0.2
+val_amount = int(dataset.__len__() * val_size)
+
+train_set, val_set = torch.utils.data.random_split(dataset, [
+            (dataset.__len__() - (val_amount)),
+            val_amount
+])
+
+train_dataloader = torch.utils.data.DataLoader(
+            train_set,
+            batch_size=64,
+            shuffle=True,
+)
+val_dataloader = torch.utils.data.DataLoader(
+            val_set,
+            batch_size=64,
+            shuffle=False,
+)
+

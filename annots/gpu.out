@@ -1,0 +1,137 @@
+Sender: LSF System <lsfadmin@eu-g3-029>
+Subject: Job 191844748: <python annots/srl_tests_new.py> in cluster <euler> Done
+
+Job <python annots/srl_tests_new.py> was submitted from host <eu-login-05> by user <sidray> in cluster <euler> at Sat Nov 13 17:36:29 2021
+Job was executed on host(s) <4*eu-g3-029>, in queue <gpu.4h>, as user <sidray> in cluster <euler> at Sat Nov 13 17:37:02 2021
+</cluster/home/sidray> was used as the home directory.
+</cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon> was used as the working directory.
+Started at Sat Nov 13 17:37:02 2021
+Terminated at Sat Nov 13 17:38:02 2021
+Results reported at Sat Nov 13 17:38:02 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python annots/srl_tests_new.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   20.27 sec.
+    Max Memory :                                 4622 MB
+    Average Memory :                             1005.50 MB
+    Total Requested Memory :                     18000.00 MB
+    Delta Memory :                               13378.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                7
+    Run time :                                   60 sec.
+    Turnaround time :                            93 sec.
+
+The output (if any) follows:
+
+/cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon/venv/lib64/python3.8/site-packages/allennlp/tango/__init__.py:17: UserWarning: AllenNLP Tango is an experimental API and parts of it might change or disappear every time we release a new version.
+  warnings.warn(
+2021-11-13 17:37:45,293 - INFO - allennlp.common.plugins - Plugin allennlp_models available
+2021-11-13 17:37:45,537 - INFO - allennlp.common.file_utils - cache of https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz is up-to-date
+2021-11-13 17:37:45,537 - INFO - allennlp.models.archival - loading archive file https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz from cache at /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25
+2021-11-13 17:37:45,538 - INFO - allennlp.models.archival - extracting archive file /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25 to temp dir /scratch/191844748.tmpdir/tmphxs8hbne
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.type = srl
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.max_instances = None
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
+2021-11-13 17:37:46,023 - INFO - allennlp.common.params - dataset_reader.type = srl
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.max_instances = None
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
+2021-11-13 17:37:46,024 - INFO - allennlp.common.params - type = from_instances
+2021-11-13 17:37:46,024 - INFO - allennlp.data.vocabulary - Loading token dictionary from /scratch/191844748.tmpdir/tmphxs8hbne/vocabulary.
+2021-11-13 17:37:46,081 - INFO - allennlp.common.params - model.type = srl
+2021-11-13 17:37:46,081 - INFO - allennlp.common.params - model.regularizer = None
+2021-11-13 17:37:46,081 - INFO - allennlp.common.params - model.ddp_accelerator = None
+2021-11-13 17:37:46,082 - INFO - allennlp.common.params - model.text_field_embedder.type = ref
+2021-11-13 17:37:46,083 - INFO - allennlp.common.params - model.text_field_embedder.type = basic
+2021-11-13 17:37:46,084 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.type = ref
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.embedding_dim = 100
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.num_embeddings = None
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.projection_dim = None
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.weight = None
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.padding_index = None
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.trainable = True
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.max_norm = None
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.norm_type = 2.0
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.scale_grad_by_freq = False
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.sparse = False
+2021-11-13 17:37:46,085 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.vocab_namespace = tokens
+2021-11-13 17:37:46,086 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.pretrained_file = None
+2021-11-13 17:37:46,194 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
+2021-11-13 17:37:46,194 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
+2021-11-13 17:37:46,194 - INFO - allennlp.common.params - model.encoder.input_size = 200
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.hidden_size = 300
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.num_layers = 8
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.recurrent_dropout_probability = 0.1
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.use_highway = True
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.use_input_projection_bias = True
+2021-11-13 17:37:46,195 - INFO - allennlp.common.params - model.encoder.stateful = False
+2021-11-13 17:37:46,901 - INFO - allennlp.common.params - model.binary_feature_dim = 100
+2021-11-13 17:37:46,902 - INFO - allennlp.common.params - model.embedding_dropout = 0.0
+2021-11-13 17:37:46,902 - INFO - allennlp.common.params - model.initializer = <allennlp.nn.initializers.InitializerApplicator object at 0x2b6251f2e940>
+2021-11-13 17:37:46,902 - INFO - allennlp.common.params - model.label_smoothing = None
+2021-11-13 17:37:46,902 - INFO - allennlp.common.params - model.ignore_span_metric = False
+2021-11-13 17:37:46,902 - INFO - allennlp.common.params - model.srl_eval_path = /cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon/venv/lib/python3.8/site-packages/allennlp_models/structured_prediction/tools/srl-eval.pl
+2021-11-13 17:37:46,902 - INFO - allennlp.nn.initializers - Initializing parameters
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers - Done initializing parameters; the following parameters are using their default initialization from their code
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    binary_feature_embedding.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.weight
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.bias
+2021-11-13 17:37:46,903 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.weight
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.bias
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.weight
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.bias
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.weight
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.bias
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.weight
+2021-11-13 17:37:46,904 - INFO - allennlp.nn.initializers -    text_field_embedder.token_embedder_tokens.weight
+2021-11-13 17:37:58,490 - INFO - allennlp.modules.token_embedders.embedding - Loading a model trained before embedding extension was implemented; pass an explicit vocab namespace if you want to extend the vocabulary.
+2021-11-13 17:37:58,557 - INFO - allennlp.models.archival - removing temporary unarchived model dir at /scratch/191844748.tmpdir/tmphxs8hbne
+2005-01-01.csv
+25965
+Using CUDA:0
+1
+5

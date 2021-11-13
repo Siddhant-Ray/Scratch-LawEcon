@@ -1,6 +1,5 @@
 #!/bin/bash
-
-echo "script to run paraphrase tasks"
+echo "script to run srl tasks"
 
 if ls lsf.* 1> /dev/null 2>&1
 then
@@ -12,11 +11,29 @@ fi
 module load gcc/8.2.0 python_gpu/3.8.5 eth_proxy
 source venv_para/bin/activate
 
-if [[ $1 == "gpu" ]]
-then
-    echo "GPU mode selected"
-    bsub -n 2 -W 4:00 -R "rusage[mem=4500, ngpus_excl_p=1]" -R "select[gpu_model0==GeForceGTX1080Ti]" python paraphrase/basic.py
-else
-    echo "CPU mode selected"
-    bsub python paraphrase/basic.py
-fi
+args=(
+    -n 4
+    -W 4:00
+    -R "rusage[mem=4500]"
+)
+
+echo "getting into paraphrase directory"
+echo "removing .pyc files"
+find . -name \*.pyc -delete
+
+if [ -z "$1" ]; then echo "CPU mode selected"; fi
+while [ ! -z "$1" ]; do
+    case "$1" in
+	gpu)
+	    echo "GPU mode selected"
+	    args+=(-R "rusage[ngpus_excl_p=1]")
+	    ;;
+	intr)
+	    echo "Interactive mode selected"
+	    args+=(-Is)
+	    ;;
+    esac
+    shift
+done
+
+bsub "${args[@]}" python paraphrase/main.py

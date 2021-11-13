@@ -136,6 +136,7 @@ lsf.*
 # Datasets
 paraphrase/MSRParaphraseCorpus
 paraphrase/multinli_1.0
+paraphrase/data
 
 # .csv files
 *.csv
