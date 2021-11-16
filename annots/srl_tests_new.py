@@ -34,7 +34,8 @@ for file_name in list_of_files:
         document_ID = "".join(document_ID)
         
         # Copy of IDs to match the number of rows in the csv
-        list_of_ID_for_df = [document_ID for i in range(len(original_df.index))]
+        # Add the row number to map the paragraph_ID
+        list_of_ID_for_df = [document_ID+"-"+str(i) for i in range(len(original_df.index))]
         
         id_df = pd.DataFrame({'id':list_of_ID_for_df})
         #print(id_df.head())
@@ -50,20 +51,32 @@ for file_name in list_of_files:
         # new data frame has two columns, IDs and doc(paragraph), as required
         # by the split_into_sentences_method
         new_data_frame = pd.concat(data, axis=1, keys=headers)
-        #print(new_data_frame.head())
+        print(new_data_frame.head())
         #print(len(new_data_frame.index))
 
-        '''split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
+        split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
         for i in range(5):
             print("document id: ", split_sentences[0][i])
-            print("doc_in_sentences: ", split_sentences[1][i])'''
+            print("doc_in_sentences: ", split_sentences[1][i])
+        
+        len(split_sentences)
 
         srl_results_per_paragraph = []
 
         cuda_str = os.environ["CUDA_VISIBLE_DEVICES"].split(",")
         cuda_device = int(cuda_str[0]) if cuda_str[0] else -1
         print(f"Using CUDA:{cuda_device}")
+
+        srl_res = run_srl(
+                path = "https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz", # pre-trained model
+                sentences = split_sentences[1],
+                cuda_device = cuda_device,
+                progress_bar = False)
+
+        print(len(srl_res))
+        break
         
+
         for index, value in new_data_frame.iterrows():
 
             temp_df = pd.DataFrame([value])
@@ -76,13 +89,14 @@ for file_name in list_of_files:
             cuda_device=cuda_device,
             progress_bar=False)
             #print(len(split_sentences[1]))
-
+            pd.set_option('display.max_colwidth', -1)
+            print(value['doc'])
             srl_results_per_paragraph.append(srl_res)
             break
     
         print(len(srl_results_per_paragraph))
         print(len(srl_res))
-       # print(srl_results_per_paragraph)
+        print(srl_results_per_paragraph)
 
         '''srl_dataframe = original_df 
         srl_dataframe['srl_resutls'] = srl_results_per_paragraph
