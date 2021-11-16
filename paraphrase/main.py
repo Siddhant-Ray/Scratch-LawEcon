@@ -4,24 +4,21 @@ import os, sys, time, math
 import torch
 import torch.nn as nn
 import numpy as np
+from torch import optim
 
 from utils import DatasetManager
 from utils import train, evaluate
 from utils import asMinutes, timeSince
 
-from model import SNNLinear
 from model import SimilarityNN
 
-import torch, torch.nn as nn
 torch.manual_seed(0)
-
-import numpy as np
 np.random.seed(0)
 
 import random
 random.seed(0)
 
-from torch.optim.lr_scheduler import *
+from torch.optim.lr_scheduler import StepLR
 from tqdm.notebook import tqdm
 
 with open('paraphrase/data/embeddings_1.pkl', "rb") as em1:
@@ -68,10 +65,11 @@ print(device)
 
 ## Hyperparameters
 learning_rate = 1e-4
-hidden_size = 128
-input_size = stored_data_1['embeddings'].shape
+hidden_size = 512
+input_size1 = stored_data_1['embeddings'].shape[1]
+input_size2 = stored_data_2['embeddings'].shape[1]
 output_size = 1
-epochs = 100 
+epochs = 25 
 
 def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rate=learning_rate):
     start = time.time()
@@ -98,9 +96,9 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
     model_optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 1e-5)
     
     #TODO: Learning rate scheduler
-    scheduler = StepLR(model_optimizer, step_size=50, gamma=0.1)
+    #scheduler = StepLR(model_optimizer, step_size=50, gamma=0.1)
 
-    criterion = nn.BinaryCrossEntropyLoss() 
+    criterion = nn.BCEWithLogitsLoss()
     
     total_steps = n_iters*len(embedded)
     
@@ -108,8 +106,8 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
                 
         for local_step, (_input1, _input2, _target) in enumerate(embedded, 1):
 
-            input_tensor1 = _input.to(device)
-            input_tensor2 = _input.to(device)
+            input_tensor1 = _input1.to(device)
+            input_tensor2 = _input2.to(device)
 
             #noise = torch.randn_like(input_tensor1) * 1e-3 
             #input_tensor1, input_tensor2 = input_tensor1 + noise, input_tensor2 + noise
@@ -119,7 +117,7 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             output, loss = train(input_tensor1, input_tensor2, target_tensor, model,
              model_optimizer, criterion)
             
-            accuracy = (output.argmax(-1) == target_tensor).float().mean()
+            accuracy = ((output > 0) == target_tensor).float().mean()
 
             print_loss_total_train += loss
             plot_loss_total_train += loss
@@ -129,12 +127,16 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
 
             global_step = epoch * len(embedded) + local_step
 
-            if global_step % print_every == 0:
+            '''if global_step % print_every == 0:
                 print_loss_avg_train = print_loss_total_train / print_every
                 print_loss_total_train = 0
                 
                 print('%s (%d %d%%) train_loss = %.4f' % (timeSince(start, global_step / total_steps),
                                              global_step, global_step / total_steps * 100, print_loss_avg_train))
+        '''
+        print_loss_avg_train = print_loss_total_train/ len(embedded)
+        print_loss_total_train = 0 
+        print('train_loss = %.4f' %(print_loss_avg_train))
 
 
         plot_loss_avg_train = plot_loss_total_train / len(embedded)
@@ -143,6 +145,7 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
         plot_avg_acc_train = plot_acc_total_train / len(embedded)
         plot_acc_train.append(plot_avg_acc_train)
         
+
         plot_loss_total_train = 0
         plot_acc_total_train = 0
         
@@ -158,10 +161,10 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
                 input_tensor2 = _input2.to(device)
                 target_tensor = _target.to(device)
 
-                output, loss = _eval(input_tensor1, input_tensor2, target_tensor, model,
+                output, loss = evaluate(input_tensor1, input_tensor2, target_tensor, model,
                              model_optimizer, criterion)
 
-                accuracy = (output.argmax(-1) == target_tensor).float().mean()
+                accuracy = ((output > 0) == target_tensor).float().mean()
 
                 print_loss_total_val += loss
                 plot_loss_total_val += loss
@@ -189,5 +192,19 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             
             val_epochs.append(epoch)
        
-        scheduler.step()
+       # scheduler.step()
 
+
+def run_model():
+
+    hidden_size_model = hidden_size
+    input_size_model = input_size1
+    output_size_model = output_size 
+    epochs_model = epochs
+    learning_rate_model = learning_rate 
+
+    model = SimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+    trainIters(model, epochs_model, train_dataloader, val_dataloader, print_every=1, learning_rate = learning_rate_model)
+
+if __name__ == '__main__':
+    run_model()

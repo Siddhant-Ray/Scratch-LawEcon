@@ -1,4 +1,6 @@
 import torch
+import time
+import math 
 
 class DatasetManager(torch.utils.data.Dataset):
     def __init__(self, list_of_sent1, list_of_sent2, class_labels):
@@ -11,7 +13,7 @@ class DatasetManager(torch.utils.data.Dataset):
 
         input_tensor1 = torch.from_numpy(self.list_of_sent1[idx]).float()
         input_tensor2 = torch.from_numpy(self.list_of_sent2[idx]).float()
-        target_tensor = torch.tensor(self.class_labels[idx])
+        target_tensor = torch.tensor(self.class_labels[idx]).unsqueeze(0).float()
 
         return input_tensor1, input_tensor2, target_tensor
 
@@ -26,7 +28,7 @@ def train(input_tensor1, input_tensor2, target_tensor, model, model_optimizer, c
 
     input_length = input_tensor1.shape
     target_length = target_tensor.shape
-    output = model(input_tensor)
+    output = model(input_tensor1, input_tensor2)
 
     loss = criterion(output, target_tensor)
     loss.backward()
@@ -51,7 +53,7 @@ def evaluate(input_tensor1, input_tensor2, target_tensor, model, model_optimizer
 
 def asMinutes(secs):
     mins = math.floor(secs / 60)
-    secs -= m * 60
+    secs -= mins * 60
     return '%dm %ds' % (mins, secs)
 
 def timeSince(since, percent):

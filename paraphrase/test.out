@@ -1,0 +1,67 @@
+Sender: LSF System <lsfadmin@eu-g3-029>
+Subject: Job 192346509: <python paraphrase/main.py> in cluster <euler> Done
+
+Job <python paraphrase/main.py> was submitted from host <eu-login-36> by user <sidray> in cluster <euler> at Tue Nov 16 21:48:51 2021
+Job was executed on host(s) <4*eu-g3-029>, in queue <gpu.4h>, as user <sidray> in cluster <euler> at Tue Nov 16 21:49:00 2021
+</cluster/home/sidray> was used as the home directory.
+</cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon> was used as the working directory.
+Started at Tue Nov 16 21:49:00 2021
+Terminated at Tue Nov 16 21:49:46 2021
+Results reported at Tue Nov 16 21:49:46 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python paraphrase/main.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   31.02 sec.
+    Max Memory :                                 3530 MB
+    Average Memory :                             2710.25 MB
+    Total Requested Memory :                     18000.00 MB
+    Delta Memory :                               14470.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                8
+    Run time :                                   45 sec.
+    Turnaround time :                            55 sec.
+
+The output (if any) follows:
+
+torch.Size([384]) torch.Size([384]) torch.Size([1])
+cuda
+train_loss = 0.6697
+val_loss = 0.5030 acc = 0.8064
+train_loss = 0.5808
+train_loss = 0.5621
+train_loss = 0.5498
+train_loss = 0.5469
+train_loss = 0.5401
+val_loss = 0.5945 acc = 0.8064
+train_loss = 0.5327
+train_loss = 0.5331
+train_loss = 0.5326
+train_loss = 0.5262
+train_loss = 0.5245
+val_loss = 0.6025 acc = 0.8064
+train_loss = 0.5289
+train_loss = 0.5222
+train_loss = 0.5231
+train_loss = 0.5186
+train_loss = 0.5190
+val_loss = 0.5923 acc = 0.8064
+train_loss = 0.5150
+train_loss = 0.5168
+train_loss = 0.5142
+train_loss = 0.5110
+train_loss = 0.5106
+val_loss = 0.5860 acc = 0.8064
+train_loss = 0.5107
+train_loss = 0.5114
+train_loss = 0.5087
+train_loss = 0.5063

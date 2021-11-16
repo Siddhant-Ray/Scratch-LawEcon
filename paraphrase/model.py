@@ -1,12 +1,24 @@
 import torch
 import torch.nn as nn
 import numpy
+import math 
 
-class SNNLinear(nn.Linear):
+'''class SNNLinear(nn.Linear):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         nn.init.normal_(self.fc.weight, std=math.sqrt(1 / self.fc.weight.shape[1]))
+        nn.init.zeros_(self.fc.bias)'''
+
+class SNNLinear(nn.Module):
+    def __init__(self, input_size, output_size):
+        super().__init__()
+        self.fc = nn.Linear(input_size, output_size)
+        nn.init.normal_(self.fc.weight, std = math.sqrt(1/ self.fc.weight.shape[1]))
         nn.init.zeros_(self.fc.bias)
+        
+    def forward(self, inputs):
+        return self.fc(inputs)
+
 
 class SimilarityNN(nn.Module):
     """ Simple NN architecture """
