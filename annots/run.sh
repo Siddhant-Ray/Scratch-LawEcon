@@ -32,4 +32,15 @@ while [ ! -z "$1" ]; do
     shift
 done
 
+declare -a arrFiles
+
+path=/cluster/work/lawecon/Projects/Ash_Galletta_Widmer/data/scrapes_clean
+#filenames=$(ls $path/*.csv)
+for eachfile in "$path"/*.csv
+do
+   echo $eachfile
+   bsub "${args[@]}" python annots/test1.py $eachfile
+   break
+done
+
 bsub "${args[@]}" python annots/srl_tests_new.py

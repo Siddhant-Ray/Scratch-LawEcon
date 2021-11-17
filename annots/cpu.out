@@ -1,13 +1,13 @@
-Sender: LSF System <lsfadmin@eu-a2p-066>
-Subject: Job 191844234: <python annots/srl_tests_new.py> in cluster <euler> Done
+Sender: LSF System <lsfadmin@eu-a2p-032>
+Subject: Job 192176398: <python annots/srl_tests_new.py> in cluster <euler> Done
 
-Job <python annots/srl_tests_new.py> was submitted from host <eu-login-10> by user <sidray> in cluster <euler> at Sat Nov 13 17:30:53 2021
-Job was executed on host(s) <4*eu-a2p-066>, in queue <normal.4h>, as user <sidray> in cluster <euler> at Sat Nov 13 17:44:20 2021
+Job <python annots/srl_tests_new.py> was submitted from host <eu-login-04> by user <sidray> in cluster <euler> at Mon Nov 15 22:51:31 2021
+Job was executed on host(s) <4*eu-a2p-032>, in queue <normal.4h>, as user <sidray> in cluster <euler> at Mon Nov 15 22:52:05 2021
 </cluster/home/sidray> was used as the home directory.
 </cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon> was used as the working directory.
-Started at Sat Nov 13 17:44:20 2021
-Terminated at Sat Nov 13 17:45:04 2021
-Results reported at Sat Nov 13 17:45:04 2021
+Started at Mon Nov 15 22:52:05 2021
+Terminated at Mon Nov 15 22:52:41 2021
+Results reported at Mon Nov 15 22:52:41 2021
 
 Your job looked like:
 
@@ -20,118 +20,122 @@ Successfully completed.
 
 Resource usage summary:
 
-    CPU time :                                   26.27 sec.
-    Max Memory :                                 1738 MB
-    Average Memory :                             1090.00 MB
+    CPU time :                                   21.62 sec.
+    Max Memory :                                 1737 MB
+    Average Memory :                             1304.25 MB
     Total Requested Memory :                     18000.00 MB
-    Delta Memory :                               16262.00 MB
+    Delta Memory :                               16263.00 MB
     Max Swap :                                   -
     Max Processes :                              3
     Max Threads :                                6
-    Run time :                                   42 sec.
-    Turnaround time :                            851 sec.
+    Run time :                                   41 sec.
+    Turnaround time :                            70 sec.
 
 The output (if any) follows:
 
 /cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon/venv/lib64/python3.8/site-packages/allennlp/tango/__init__.py:17: UserWarning: AllenNLP Tango is an experimental API and parts of it might change or disappear every time we release a new version.
   warnings.warn(
-2021-11-13 17:44:58,588 - INFO - allennlp.common.plugins - Plugin allennlp_models available
-2021-11-13 17:44:58,859 - INFO - allennlp.common.file_utils - cache of https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz is up-to-date
-2021-11-13 17:44:58,860 - INFO - allennlp.models.archival - loading archive file https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz from cache at /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25
-2021-11-13 17:44:58,860 - INFO - allennlp.models.archival - extracting archive file /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25 to temp dir /scratch/191844234.tmpdir/tmph2tymajo
-2021-11-13 17:44:59,709 - INFO - allennlp.common.params - dataset_reader.type = srl
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.max_instances = None
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
-2021-11-13 17:44:59,711 - INFO - allennlp.common.params - dataset_reader.type = srl
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.max_instances = None
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
-2021-11-13 17:44:59,712 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
-2021-11-13 17:44:59,713 - INFO - allennlp.common.params - type = from_instances
-2021-11-13 17:44:59,713 - INFO - allennlp.data.vocabulary - Loading token dictionary from /scratch/191844234.tmpdir/tmph2tymajo/vocabulary.
-2021-11-13 17:44:59,818 - INFO - allennlp.common.params - model.type = srl
-2021-11-13 17:44:59,819 - INFO - allennlp.common.params - model.regularizer = None
-2021-11-13 17:44:59,819 - INFO - allennlp.common.params - model.ddp_accelerator = None
-2021-11-13 17:44:59,820 - INFO - allennlp.common.params - model.text_field_embedder.type = ref
-2021-11-13 17:44:59,824 - INFO - allennlp.common.params - model.text_field_embedder.type = basic
-2021-11-13 17:44:59,824 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.type = ref
-2021-11-13 17:44:59,826 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
-2021-11-13 17:44:59,826 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
-2021-11-13 17:44:59,826 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.embedding_dim = 100
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.num_embeddings = None
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.projection_dim = None
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.weight = None
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.padding_index = None
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.trainable = True
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.max_norm = None
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.norm_type = 2.0
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.scale_grad_by_freq = False
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.sparse = False
-2021-11-13 17:44:59,827 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.vocab_namespace = tokens
-2021-11-13 17:44:59,828 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.pretrained_file = None
-2021-11-13 17:44:59,930 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
-2021-11-13 17:44:59,930 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
-2021-11-13 17:44:59,930 - INFO - allennlp.common.params - model.encoder.input_size = 200
-2021-11-13 17:44:59,930 - INFO - allennlp.common.params - model.encoder.hidden_size = 300
-2021-11-13 17:44:59,931 - INFO - allennlp.common.params - model.encoder.num_layers = 8
-2021-11-13 17:44:59,931 - INFO - allennlp.common.params - model.encoder.recurrent_dropout_probability = 0.1
-2021-11-13 17:44:59,931 - INFO - allennlp.common.params - model.encoder.use_highway = True
-2021-11-13 17:44:59,931 - INFO - allennlp.common.params - model.encoder.use_input_projection_bias = True
-2021-11-13 17:44:59,931 - INFO - allennlp.common.params - model.encoder.stateful = False
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.binary_feature_dim = 100
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.embedding_dropout = 0.0
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.initializer = <allennlp.nn.initializers.InitializerApplicator object at 0x2b98fb4f7910>
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.label_smoothing = None
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.ignore_span_metric = False
-2021-11-13 17:45:00,882 - INFO - allennlp.common.params - model.srl_eval_path = /cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon/venv/lib/python3.8/site-packages/allennlp_models/structured_prediction/tools/srl-eval.pl
-2021-11-13 17:45:00,883 - INFO - allennlp.nn.initializers - Initializing parameters
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers - Done initializing parameters; the following parameters are using their default initialization from their code
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    binary_feature_embedding.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.weight
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.bias
-2021-11-13 17:45:00,884 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.bias
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.weight
-2021-11-13 17:45:00,885 - INFO - allennlp.nn.initializers -    text_field_embedder.token_embedder_tokens.weight
-2021-11-13 17:45:00,886 - INFO - allennlp.modules.token_embedders.embedding - Loading a model trained before embedding extension was implemented; pass an explicit vocab namespace if you want to extend the vocabulary.
-2021-11-13 17:45:00,931 - INFO - allennlp.models.archival - removing temporary unarchived model dir at /scratch/191844234.tmpdir/tmph2tymajo
+2021-11-15 22:52:36,444 - INFO - allennlp.common.plugins - Plugin allennlp_models available
+2021-11-15 22:52:36,674 - INFO - allennlp.common.file_utils - cache of https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz is up-to-date
+2021-11-15 22:52:36,675 - INFO - allennlp.models.archival - loading archive file https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz from cache at /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25
+2021-11-15 22:52:36,675 - INFO - allennlp.models.archival - extracting archive file /cluster/home/sidray/.allennlp/cache/60314a853eb0aaa774d176d878c62469d49872feb4f2bfd071a75c77f6d76707.1b91cc27e347f2df04ce771a304bee2b70a2c487626b67e277d44c593b868c25 to temp dir /scratch/192176398.tmpdir/tmpnbpqf09_
+2021-11-15 22:52:37,515 - INFO - allennlp.common.params - dataset_reader.type = srl
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.max_instances = None
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
+2021-11-15 22:52:37,516 - INFO - allennlp.common.params - dataset_reader.type = srl
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.max_instances = None
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.manual_distributed_sharding = False
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.manual_multiprocess_sharding = False
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.token_indexers = None
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.domain_identifier = None
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - dataset_reader.bert_model_name = None
+2021-11-15 22:52:37,517 - INFO - allennlp.common.params - type = from_instances
+2021-11-15 22:52:37,518 - INFO - allennlp.data.vocabulary - Loading token dictionary from /scratch/192176398.tmpdir/tmpnbpqf09_/vocabulary.
+2021-11-15 22:52:37,614 - INFO - allennlp.common.params - model.type = srl
+2021-11-15 22:52:37,614 - INFO - allennlp.common.params - model.regularizer = None
+2021-11-15 22:52:37,614 - INFO - allennlp.common.params - model.ddp_accelerator = None
+2021-11-15 22:52:37,615 - INFO - allennlp.common.params - model.text_field_embedder.type = ref
+2021-11-15 22:52:37,618 - INFO - allennlp.common.params - model.text_field_embedder.type = basic
+2021-11-15 22:52:37,618 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.type = ref
+2021-11-15 22:52:37,619 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.type = embedding
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.embedding_dim = 100
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.num_embeddings = None
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.projection_dim = None
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.weight = None
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.padding_index = None
+2021-11-15 22:52:37,620 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.trainable = True
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.max_norm = None
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.norm_type = 2.0
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.scale_grad_by_freq = False
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.sparse = False
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.vocab_namespace = tokens
+2021-11-15 22:52:37,621 - INFO - allennlp.common.params - model.text_field_embedder.token_embedders.tokens.pretrained_file = None
+2021-11-15 22:52:37,712 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
+2021-11-15 22:52:37,712 - INFO - allennlp.common.params - model.encoder.type = alternating_lstm
+2021-11-15 22:52:37,712 - INFO - allennlp.common.params - model.encoder.input_size = 200
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.hidden_size = 300
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.num_layers = 8
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.recurrent_dropout_probability = 0.1
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.use_highway = True
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.use_input_projection_bias = True
+2021-11-15 22:52:37,713 - INFO - allennlp.common.params - model.encoder.stateful = False
+2021-11-15 22:52:38,439 - INFO - allennlp.common.params - model.binary_feature_dim = 100
+2021-11-15 22:52:38,440 - INFO - allennlp.common.params - model.embedding_dropout = 0.0
+2021-11-15 22:52:38,440 - INFO - allennlp.common.params - model.initializer = <allennlp.nn.initializers.InitializerApplicator object at 0x2b24b1f869d0>
+2021-11-15 22:52:38,440 - INFO - allennlp.common.params - model.label_smoothing = None
+2021-11-15 22:52:38,440 - INFO - allennlp.common.params - model.ignore_span_metric = False
+2021-11-15 22:52:38,440 - INFO - allennlp.common.params - model.srl_eval_path = /cluster/work/lawecon/Projects/Siddhant_Ray/Scratch-LawEcon/venv/lib/python3.8/site-packages/allennlp_models/structured_prediction/tools/srl-eval.pl
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers - Initializing parameters
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers - Done initializing parameters; the following parameters are using their default initialization from their code
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    binary_feature_embedding.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.input_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_0.cell.state_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.input_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_1.cell.state_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.input_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_2.cell.state_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.input_linearity.weight
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.bias
+2021-11-15 22:52:38,441 - INFO - allennlp.nn.initializers -    encoder._module.layer_3.cell.state_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.input_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_4.cell.state_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.input_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_5.cell.state_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.input_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_6.cell.state_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.input_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    encoder._module.layer_7.cell.state_linearity.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.bias
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    tag_projection_layer._module.weight
+2021-11-15 22:52:38,442 - INFO - allennlp.nn.initializers -    text_field_embedder.token_embedder_tokens.weight
+2021-11-15 22:52:38,443 - INFO - allennlp.modules.token_embedders.embedding - Loading a model trained before embedding extension was implemented; pass an explicit vocab namespace if you want to extend the vocabulary.
+2021-11-15 22:52:38,487 - INFO - allennlp.models.archival - removing temporary unarchived model dir at /scratch/192176398.tmpdir/tmpnbpqf09_
+annots/srl_tests_new.py:79: FutureWarning: Passing a negative integer is deprecated in version 1.0 and will not be supported in future version. Instead, use None to not limit the column width.
+  pd.set_option('display.max_colwidth', -1)
 2005-01-01.csv
 25965
 Using CUDA:-1
+ Woodbury, Minn. --- Edward I. Biegler, age 93, passed away peacefully Dec. 30, 2004, at Regions Hospital in St. Paul, Minn.Preceded in death by wife, Magdalen.Survived by sons, Don Biegler of Texas, and Paul Biegler of Minnesota; his five grandchildren; and five great-grandchildren.Graveside service will be held at 2 p.m. Sunday at St. Mary's Cemetery in Aberdeen. Arrangements handled by Wulff Woodbury Funeral Home of Woodbury, Minn
 1
 5
+[[{'verbs': [{'verb': 'passed', 'description': '[ARG1: Woodbury , Minn. --- Edward I. Biegler , age 93] , [V: passed] away [ARGM-MNR: peacefully] [ARGM-TMP: Dec. 30 , 2004] , [ARGM-LOC: at Regions Hospital in St. Paul] ,', 'tags': ['B-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'I-ARG1', 'O', 'B-V', 'O', 'B-ARGM-MNR', 'B-ARGM-TMP', 'I-ARGM-TMP', 'I-ARGM-TMP', 'I-ARGM-TMP', 'O', 'B-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'O']}], 'words': ['Woodbury', ',', 'Minn.', '---', 'Edward', 'I.', 'Biegler', ',', 'age', '93', ',', 'passed', 'away', 'peacefully', 'Dec.', '30', ',', '2004', ',', 'at', 'Regions', 'Hospital', 'in', 'St.', 'Paul', ',']}, {'verbs': [{'verb': 'Preceded', 'description': '[ARG0: Minn.] [V: Preceded] [ARGM-MNR: in death] [ARG0: by wife] , [C-ARG0: Magdalen] .', 'tags': ['B-ARG0', 'B-V', 'B-ARGM-MNR', 'I-ARGM-MNR', 'B-ARG0', 'I-ARG0', 'O', 'B-C-ARG0', 'O']}], 'words': ['Minn.', 'Preceded', 'in', 'death', 'by', 'wife', ',', 'Magdalen', '.']}, {'verbs': [{'verb': 'Survived', 'description': '[V: Survived] [ARG0: by sons , Don Biegler of Texas , and Paul Biegler of Minnesota ; his five grandchildren ; and five great - grandchildren] .', 'tags': ['B-V', 'B-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'I-ARG0', 'O']}], 'words': ['Survived', 'by', 'sons', ',', 'Don', 'Biegler', 'of', 'Texas', ',', 'and', 'Paul', 'Biegler', 'of', 'Minnesota', ';', 'his', 'five', 'grandchildren', ';', 'and', 'five', 'great', '-', 'grandchildren', '.']}, {'verbs': [{'verb': 'will', 'description': "Graveside service [V: will] be held at 2 p.m. Sunday at St. Mary 's Cemetery in Aberdeen .", 'tags': ['O', 'O', 'B-V', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']}, {'verb': 'be', 'description': "Graveside service will [V: be] held at 2 p.m. Sunday at St. Mary 's Cemetery in Aberdeen .", 'tags': ['O', 'O', 'O', 'B-V', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']}, {'verb': 'held', 'description': "[ARG1: Graveside service] [ARGM-MOD: will] be [V: held] [ARGM-TMP: at 2 p.m. Sunday] [ARGM-LOC: at St. Mary 's Cemetery in Aberdeen] .", 'tags': ['B-ARG1', 'I-ARG1', 'B-ARGM-MOD', 'O', 'B-V', 'B-ARGM-TMP', 'I-ARGM-TMP', 'I-ARGM-TMP', 'I-ARGM-TMP', 'B-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'I-ARGM-LOC', 'O']}], 'words': ['Graveside', 'service', 'will', 'be', 'held', 'at', '2', 'p.m.', 'Sunday', 'at', 'St.', 'Mary', "'s", 'Cemetery', 'in', 'Aberdeen', '.']}, {'verbs': [{'verb': 'handled', 'description': '[ARG1: Arrangements] [V: handled] [ARG2: by] [ARGM-MNR: Wulff Woodbury Funeral Home of Woodbury] , Minn', 'tags': ['B-ARG1', 'B-V', 'B-ARG2', 'B-ARGM-MNR', 'I-ARGM-MNR', 'I-ARGM-MNR', 'I-ARGM-MNR', 'I-ARGM-MNR', 'I-ARGM-MNR', 'O', 'O']}], 'words': ['Arrangements', 'handled', 'by', 'Wulff', 'Woodbury', 'Funeral', 'Home', 'of', 'Woodbury', ',', 'Minn']}]]
