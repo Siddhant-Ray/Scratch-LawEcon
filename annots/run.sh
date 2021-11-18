@@ -35,12 +35,23 @@ done
 declare -a arrFiles
 
 path=/cluster/work/lawecon/Projects/Ash_Galletta_Widmer/data/scrapes_clean
-#filenames=$(ls $path/*.csv)
+
+count=0
+
 for eachfile in "$path"/*.csv
 do
    echo $eachfile
-   bsub "${args[@]}" python annots/test1.py $eachfile
-   break
+   ((count++))
+   echo $count
+   if [ "$count" -gt 0 ]
+   then
+       bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
+       break
+   fi
+   if [ "$count" -eq 20 ]
+   then
+       break
+   fi
 done
 
-bsub "${args[@]}" python annots/srl_tests_new.py
+#bsub "${args[@]}" python annots/srl_tests_new.py
