@@ -140,3 +140,6 @@ paraphrase/data
 
 # .csv files
 *.csv
+
+# Runs directory for tensorboard
+runs/

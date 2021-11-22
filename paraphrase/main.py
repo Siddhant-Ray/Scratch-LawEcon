@@ -21,6 +21,9 @@ random.seed(0)
 from torch.optim.lr_scheduler import StepLR
 from tqdm.notebook import tqdm
 
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter()
+
 with open('paraphrase/data/embeddings_1.pkl', "rb") as em1:
     stored_data_1 = pickle.load(em1)
 
@@ -64,12 +67,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 ## Hyperparameters
-learning_rate = 1e-4
+learning_rate = 1e-3
 hidden_size = 512
 input_size1 = stored_data_1['embeddings'].shape[1]
 input_size2 = stored_data_2['embeddings'].shape[1]
 output_size = 1
-epochs = 25 
+epochs = 25
 
 def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rate=learning_rate):
     start = time.time()
@@ -96,7 +99,7 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
     model_optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 1e-5)
     
     #TODO: Learning rate scheduler
-    #scheduler = StepLR(model_optimizer, step_size=50, gamma=0.1)
+    scheduler = StepLR(model_optimizer, step_size=50, gamma=0.1)
 
     criterion = nn.BCEWithLogitsLoss()
     
@@ -109,15 +112,15 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             input_tensor1 = _input1.to(device)
             input_tensor2 = _input2.to(device)
 
-            #noise = torch.randn_like(input_tensor1) * 1e-3 
-            #input_tensor1, input_tensor2 = input_tensor1 + noise, input_tensor2 + noise
+            noise = torch.randn_like(input_tensor1) * 1e-3 
+            input_tensor1, input_tensor2 = input_tensor1 + noise, input_tensor2 + noise
 
             target_tensor = _target.to(device)
 
             output, loss = train(input_tensor1, input_tensor2, target_tensor, model,
              model_optimizer, criterion)
             
-            accuracy = ((output > 0) == target_tensor).float().mean()
+            accuracy = ((output >  0) == target_tensor).float().mean()
 
             print_loss_total_train += loss
             plot_loss_total_train += loss
@@ -138,6 +141,12 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
         print_loss_total_train = 0 
         print('train_loss = %.4f' %(print_loss_avg_train))
 
+        print_acc_avg_train = print_acc_total_train/ len(embedded)
+        print_acc_total_train = 0
+        print('train_acc = %.4f' %(print_acc_avg_train))
+
+        writer.add_scalar("Loss/train", print_loss_avg_train, epoch)
+        writer.add_scalar("Acc/train", print_acc_avg_train, epoch)
 
         plot_loss_avg_train = plot_loss_total_train / len(embedded)
         plot_losses_train.append(plot_loss_avg_train)
@@ -164,7 +173,7 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
                 output, loss = evaluate(input_tensor1, input_tensor2, target_tensor, model,
                              model_optimizer, criterion)
 
-                accuracy = ((output > 0) == target_tensor).float().mean()
+                accuracy = ((output >  0) == target_tensor).float().mean()
 
                 print_loss_total_val += loss
                 plot_loss_total_val += loss
@@ -175,10 +184,13 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             print_loss_avg_val = print_loss_total_val / len(val_embedded)
             print_loss_total_val = 0
             
-            print_avg_acc = print_acc_total_val/ len(val_embedded)
+            print_avg_acc_val = print_acc_total_val/ len(val_embedded)
             print_acc_total_val = 0
            
-            print('val_loss = %.4f acc = %.4f' % (print_loss_avg_val, print_avg_acc))
+            print('val_loss = %.4f acc = %.4f' % (print_loss_avg_val, print_avg_acc_val))
+
+            writer.add_scalar("Loss/val", print_loss_avg_val, epoch)
+            writer.add_scalar("Acc/val", print_avg_acc_val, epoch)
 
             plot_loss_avg_val = plot_loss_total_val / len(val_embedded)
             plot_avg_acc_val = plot_acc_total_val / len(val_embedded)
@@ -192,8 +204,9 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             
             val_epochs.append(epoch)
        
-       # scheduler.step()
+        scheduler.step()
 
+writer.close()
 
 def run_model():
 

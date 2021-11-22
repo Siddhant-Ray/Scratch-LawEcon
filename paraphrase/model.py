@@ -26,15 +26,15 @@ class SimilarityNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
         self.transform = nn.Sequential(
-            nn.AlphaDropout(0.2),
+            nn.AlphaDropout(0.5),
             SNNLinear(input_size, hidden_size),
             nn.SELU(),
-            nn.AlphaDropout(0.2),
+            nn.AlphaDropout(0.5),
             SNNLinear(hidden_size, hidden_size // 2),
         )
         self.combination = nn.Sequential(
             nn.SELU(),
-            nn.AlphaDropout(0.2),
+            nn.AlphaDropout(0.5),
             SNNLinear(hidden_size // 2, output_size),
         )
 
