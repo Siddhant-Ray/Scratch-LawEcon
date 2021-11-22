@@ -1,1 +1,1 @@
-docker container stop doccano 
+docker container stop doccano -t 5
