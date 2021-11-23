@@ -1,0 +1,157 @@
+Sender: LSF System <lsfadmin@eu-lo-s4-063>
+Subject: Job 193023578: <python paraphrase/main.py> in cluster <euler> Done
+
+Job <python paraphrase/main.py> was submitted from host <eu-login-37> by user <sidray> in cluster <euler> at Tue Nov 23 15:08:14 2021
+Job was executed on host(s) <4*eu-lo-s4-063>, in queue <gpu.4h>, as user <sidray> in cluster <euler> at Tue Nov 23 15:08:48 2021
+</cluster/home/sidray> was used as the home directory.
+</cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon> was used as the working directory.
+Started at Tue Nov 23 15:08:48 2021
+Terminated at Tue Nov 23 15:10:33 2021
+Results reported at Tue Nov 23 15:10:33 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python paraphrase/main.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   40.89 sec.
+    Max Memory :                                 2984 MB
+    Average Memory :                             1696.67 MB
+    Total Requested Memory :                     18000.00 MB
+    Delta Memory :                               15016.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                9
+    Run time :                                   105 sec.
+    Turnaround time :                            139 sec.
+
+The output (if any) follows:
+
+torch.Size([384]) torch.Size([384]) torch.Size([1])
+cuda
+Training phase ========================= >
+epoch = 1 train_loss = 1.4568 train_acc = 0.7105
+train_F1 score for epoch = 1 is 0.18703241895261846
+
+Training phase ========================= >
+epoch = 2 train_loss = 0.5603 train_acc = 0.7827
+train_F1 score for epoch = 2 is 0.05775895263765883
+
+Training phase ========================= >
+epoch = 3 train_loss = 0.5167 train_acc = 0.7992
+train_F1 score for epoch = 3 is 0.009636443276390712
+
+Training phase ========================= >
+epoch = 4 train_loss = 0.5059 train_acc = 0.8024
+train_F1 score for epoch = 4 is 0.008908685968819599
+
+Training phase ========================= >
+epoch = 5 train_loss = 0.5026 train_acc = 0.8031
+train_F1 score for epoch = 5 is 0.003595505617977528
+
+Validation phase ========================= >
+epoch = 5 val_loss = 0.5220 val_acc = 0.8064
+val_f1 score for epoch = 5 is 0.0
+
+Training phase ========================= >
+epoch = 6 train_loss = 0.4981 train_acc = 0.8032
+train_F1 score for epoch = 6 is 0.0018018018018018018
+
+Training phase ========================= >
+epoch = 7 train_loss = 0.4982 train_acc = 0.8039
+train_F1 score for epoch = 7 is 0.0036084799278304014
+
+Training phase ========================= >
+epoch = 8 train_loss = 0.4987 train_acc = 0.8038
+train_F1 score for epoch = 8 is 0.0009041591320072334
+
+Training phase ========================= >
+epoch = 9 train_loss = 0.4983 train_acc = 0.8033
+train_F1 score for epoch = 9 is 0.0
+
+Training phase ========================= >
+epoch = 10 train_loss = 0.4983 train_acc = 0.8037
+train_F1 score for epoch = 10 is 0.0
+
+Validation phase ========================= >
+epoch = 10 val_loss = 0.4958 val_acc = 0.8064
+val_f1 score for epoch = 10 is 0.0
+
+Training phase ========================= >
+epoch = 11 train_loss = 0.4971 train_acc = 0.8040
+train_F1 score for epoch = 11 is 0.0
+
+Training phase ========================= >
+epoch = 12 train_loss = 0.4974 train_acc = 0.8038
+train_F1 score for epoch = 12 is 0.0009045680687471733
+
+Training phase ========================= >
+epoch = 13 train_loss = 0.4972 train_acc = 0.8038
+train_F1 score for epoch = 13 is 0.0
+
+Training phase ========================= >
+epoch = 14 train_loss = 0.4972 train_acc = 0.8039
+train_F1 score for epoch = 14 is 0.0009049773755656109
+
+Training phase ========================= >
+epoch = 15 train_loss = 0.4972 train_acc = 0.8038
+train_F1 score for epoch = 15 is 0.0009045680687471733
+
+Validation phase ========================= >
+epoch = 15 val_loss = 0.4902 val_acc = 0.8064
+val_f1 score for epoch = 15 is 0.0
+
+Training phase ========================= >
+epoch = 16 train_loss = 0.4967 train_acc = 0.8040
+train_F1 score for epoch = 16 is 0.0009053870529651426
+
+Training phase ========================= >
+epoch = 17 train_loss = 0.4963 train_acc = 0.8039
+train_F1 score for epoch = 17 is 0.0
+
+Training phase ========================= >
+epoch = 18 train_loss = 0.4967 train_acc = 0.8037
+train_F1 score for epoch = 18 is 0.0
+
+Training phase ========================= >
+epoch = 19 train_loss = 0.4976 train_acc = 0.8039
+train_F1 score for epoch = 19 is 0.0
+
+Training phase ========================= >
+epoch = 20 train_loss = 0.4975 train_acc = 0.8038
+train_F1 score for epoch = 20 is 0.0
+
+Validation phase ========================= >
+epoch = 20 val_loss = 0.4926 val_acc = 0.8064
+val_f1 score for epoch = 20 is 0.0
+
+Training phase ========================= >
+epoch = 21 train_loss = 0.4970 train_acc = 0.8038
+train_F1 score for epoch = 21 is 0.0
+
+Training phase ========================= >
+epoch = 22 train_loss = 0.4972 train_acc = 0.8036
+train_F1 score for epoch = 22 is 0.0
+
+Training phase ========================= >
+epoch = 23 train_loss = 0.4983 train_acc = 0.8039
+train_F1 score for epoch = 23 is 0.0
+
+Training phase ========================= >
+epoch = 24 train_loss = 0.4979 train_acc = 0.8039
+train_F1 score for epoch = 24 is 0.0
+
+Training phase ========================= >
+epoch = 25 train_loss = 0.4968 train_acc = 0.8039
+train_F1 score for epoch = 25 is 0.0
+
+Validation phase ========================= >
+epoch = 25 val_loss = 0.4911 val_acc = 0.8064
+val_f1 score for epoch = 25 is 0.0
+

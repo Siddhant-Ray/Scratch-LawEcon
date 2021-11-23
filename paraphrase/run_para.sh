@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "script to run srl tasks"
+echo "script to run paraphrase tasks"
 
 if ls lsf.* 1> /dev/null 2>&1
 then
@@ -7,12 +7,14 @@ then
     echo "removing older lsf files"
     rm lsf.*
 fi
+rm -r runs/
 
 module load gcc/8.2.0 python_gpu/3.8.5 eth_proxy
 source venv_para/bin/activate
 
 args=(
-    -n 4 
+    -G ls_lawecon
+    -n 1 
     -W 4:00
     -R "rusage[mem=4500]"
 )

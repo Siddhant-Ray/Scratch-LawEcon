@@ -24,6 +24,8 @@ from tqdm.notebook import tqdm
 from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter()
 
+from sklearn.metrics import f1_score
+
 with open('paraphrase/data/embeddings_1.pkl', "rb") as em1:
     stored_data_1 = pickle.load(em1)
 
@@ -62,7 +64,6 @@ val_dataloader = torch.utils.data.DataLoader(
             shuffle=False,
 )
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
@@ -76,21 +77,11 @@ epochs = 25
 
 def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rate=learning_rate):
     start = time.time()
-    plot_losses_train = []
-    plot_losses_val =[]
     print_loss_total_train = 0  # Reset every print_every
-    plot_loss_total_train = 0  # Reset every plot_every
-    
     print_loss_total_val = 0  # Reset every print_every
-    plot_loss_total_val = 0  # Reset every plot_every
     
     print_acc_total_train = 0
-    plot_acc_total_train = 0
-    plot_acc_train = []
-    
     print_acc_total_val = 0
-    plot_acc_total_val = 0
-    plot_acc_val = []
     
     train_epochs = []
     val_epochs = []
@@ -105,15 +96,22 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
     
     total_steps = n_iters*len(embedded)
     
-    for epoch in range(n_iters):
-                
+    for epoch in range(1, n_iters + 1):
+        
+        pred_temp = 0
+        true_temp = 0
+        y_true = []
+        y_pred = []
+
+        print("Training phase", "=" * 25, ">")
+
         for local_step, (_input1, _input2, _target) in enumerate(embedded, 1):
 
             input_tensor1 = _input1.to(device)
             input_tensor2 = _input2.to(device)
 
             noise = torch.randn_like(input_tensor1) * 1e-3 
-            input_tensor1, input_tensor2 = input_tensor1 + noise, input_tensor2 + noise
+            input_tensor1, input_tensor2 = input_tensor1, input_tensor2 + noise
 
             target_tensor = _target.to(device)
 
@@ -123,11 +121,21 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             accuracy = ((output >  0) == target_tensor).float().mean()
 
             print_loss_total_train += loss
-            plot_loss_total_train += loss
             print_acc_total_train += accuracy
-            plot_acc_total_train += accuracy
-            
 
+            #predictions for f1 score
+            pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
+            true_temp = target_tensor.cpu().detach().numpy()
+            # print("target batch",true_temp)
+            # print("predicted batch",pred_temp)
+            # breakpoint()
+
+            for item in pred_temp:
+                y_pred.append(item)
+
+            for item in true_temp:
+                y_true.append(item)
+            
             global_step = epoch * len(embedded) + local_step
 
             '''if global_step % print_every == 0:
@@ -139,30 +147,28 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
         '''
         print_loss_avg_train = print_loss_total_train/ len(embedded)
         print_loss_total_train = 0 
-        print('train_loss = %.4f' %(print_loss_avg_train))
-
         print_acc_avg_train = print_acc_total_train/ len(embedded)
         print_acc_total_train = 0
-        print('train_acc = %.4f' %(print_acc_avg_train))
+
+        print('epoch = %d train_loss = %.4f train_acc = %.4f' %(epoch, print_loss_avg_train, print_acc_avg_train))
 
         writer.add_scalar("Loss/train", print_loss_avg_train, epoch)
         writer.add_scalar("Acc/train", print_acc_avg_train, epoch)
 
-        plot_loss_avg_train = plot_loss_total_train / len(embedded)
-        plot_losses_train.append(plot_loss_avg_train)
-        
-        plot_avg_acc_train = plot_acc_total_train / len(embedded)
-        plot_acc_train.append(plot_avg_acc_train)
-        
-
-        plot_loss_total_train = 0
-        plot_acc_total_train = 0
-        
+        f1score = f1_score(y_true, y_pred)
+        print("train_F1 score for epoch = {epoch}".format(epoch = epoch), "is", f1score)
+        # breakpoint()
+        writer.add_scalar("F1/train", f1score, epoch)
         train_epochs.append(epoch)
 
+        pred_temp = 0
+        true_temp = 0
+        y_true = []
+        y_pred = []
 
         if epoch % 5 == 0:
-
+            print()
+            print("Validation phase", "=" * 25, ">")
 
             for (_input1, _input2, _target) in val_embedded:
 
@@ -176,10 +182,16 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
                 accuracy = ((output >  0) == target_tensor).float().mean()
 
                 print_loss_total_val += loss
-                plot_loss_total_val += loss
-                print_acc_total_val += accuracy
-                plot_acc_total_val += accuracy
+                print_acc_total_val += accuracy 
 
+                pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
+                true_temp = target_tensor.cpu().detach().numpy()
+
+                for item in pred_temp:
+                    y_pred.append(item)
+
+                for item in true_temp:
+                    y_true.append(item)
 
             print_loss_avg_val = print_loss_total_val / len(val_embedded)
             print_loss_total_val = 0
@@ -187,25 +199,20 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             print_avg_acc_val = print_acc_total_val/ len(val_embedded)
             print_acc_total_val = 0
            
-            print('val_loss = %.4f acc = %.4f' % (print_loss_avg_val, print_avg_acc_val))
+            print('epoch = %d val_loss = %.4f val_acc = %.4f' %(epoch, print_loss_avg_val, print_avg_acc_val))
 
             writer.add_scalar("Loss/val", print_loss_avg_val, epoch)
             writer.add_scalar("Acc/val", print_avg_acc_val, epoch)
 
-            plot_loss_avg_val = plot_loss_total_val / len(val_embedded)
-            plot_avg_acc_val = plot_acc_total_val / len(val_embedded)
-            
-            
-            plot_losses_val.append(plot_loss_avg_val)
-            plot_acc_val.append(plot_avg_acc_val)
-            
-            plot_loss_total_val = 0
-            plot_acc_total_val = 0
-            
+            f1score = f1_score(y_true, y_pred)
+            print("val_f1 score for epoch = {epoch}".format(epoch = epoch), "is", f1score)
+
+            writer.add_scalar("F1/val", f1score, epoch)
+
             val_epochs.append(epoch)
        
         scheduler.step()
-
+        print()
 writer.close()
 
 def run_model():
