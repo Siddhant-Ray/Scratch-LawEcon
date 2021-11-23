@@ -12,7 +12,8 @@ module load gcc/8.2.0 python_gpu/3.8.5 eth_proxy
 source venv/bin/activate
 
 args=(
-    -n 4
+    -G ls_lawecon
+    -n 1
     -W 4:00
     -R "rusage[mem=4500]"
 )
@@ -45,8 +46,9 @@ do
    echo $count
    if [ "$count" -gt 0 ]
    then
-       bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
-       break
+       
+        bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
+       # break
    fi
    if [ "$count" -eq 20 ]
    then

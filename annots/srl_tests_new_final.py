@@ -23,6 +23,10 @@ file_name = file_path.split("/")[-1]
 print(file_path, file_name)
 # sys.exit(0)
 
+# Testing for one particular file
+# file_name = "2005-01-02.csv"
+# file_path = path_to_data_sets + "/" + file_name
+
 # only .csv files matter
 if file_name.endswith(".csv"):
     print(file_name)
@@ -56,6 +60,7 @@ if file_name.endswith(".csv"):
     new_data_frame = pd.concat(data, axis=1, keys=headers)
     print(new_data_frame.head())
     #print(len(new_data_frame.index))
+    new_data_frame.fillna('', inplace=True)
 
     split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
     '''for i in range(5):
