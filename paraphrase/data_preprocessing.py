@@ -55,10 +55,14 @@ for json_str in json_list:
 subset = random.sample(nli_pairs_list, 10000)
 #print(subset[0:5])
 #print(len(subset))
+list_of_MRPC_pairs = labeled_pairs_list
+print(len(list_of_MRPC_pairs))
+# print(list_of_MRPC_pairs[0:5])
+
 
 final_list_of_pairs = random.sample(labeled_pairs_list + subset, len(labeled_pairs_list + subset))
 print(len(final_list_of_pairs))
-print(final_list_of_pairs[0:5])
+# print(final_list_of_pairs[0:5])
 
 #print(len(nli_pairs_list))
 #print(nli_pairs_list[0:5])
@@ -80,4 +84,23 @@ with open('paraphrase/data/embeddings_2.pkl', "wb") as fOut2:
 
 '''with open('paraphrase/data/labels.pkl', "wb") as fOut3:
     pickle.dump({'labels': train_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
-    
+   
+
+#### Embeddings for only MPRC dataset
+train_labels_MPRC = [int(item[0]) for item in list_of_MRPC_pairs]
+MPRC_list_1 = [item[1][0] for item in list_of_MRPC_pairs]
+MPRC_list_2 = [item[1][1] for item in list_of_MRPC_pairs]
+
+print(len(train_labels_MPRC), len(MPRC_list_1), len(MPRC_list_2))
+
+'''mprc_embeddings_1 = model.encode(MPRC_list_1)
+mprc_embeddings_2 = model.encode(MPRC_list_2)
+
+with open('paraphrase/data/mprc_embeddings_1.pkl', "wb") as fOut_mprc1:
+    pickle.dump({'sentences': MPRC_list_1, 'embeddings': mprc_embeddings_1}, fOut_mprc1, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/mprc_embeddings_2.pkl', "wb") as fOut_mprc2:
+    pickle.dump({'sentences': MPRC_list_2, 'embeddings': mprc_embeddings_2}, fOut_mprc2, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/mprc_labels.pkl', "wb") as fOut_mprc3:
+    pickle.dump({'labels': train_labels_MPRC}, fOut_mprc3, protocol=pickle.HIGHEST_PROTOCOL)'''

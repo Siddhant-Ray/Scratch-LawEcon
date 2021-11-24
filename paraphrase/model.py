@@ -42,3 +42,26 @@ class SimilarityNN(nn.Module):
         c1 = self.transform(input1)
         c2 = self.transform(input2)
         return self.combination(c1 + c2)
+
+class LinearSimilarityNN(nn.Module):
+    """ Simple NN architecture """
+
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__()
+        self.transform = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(hidden_size, hidden_size // 2),
+        )
+        self.combination = nn.Sequential(
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(hidden_size // 2, output_size),
+        )
+
+    def forward(self, input1, input2):
+        c1 = self.transform(input1)
+        c2 = self.transform(input2)
+        return self.combination(c1 + c2)
