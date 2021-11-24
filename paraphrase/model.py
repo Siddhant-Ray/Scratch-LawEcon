@@ -49,15 +49,15 @@ class LinearSimilarityNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__()
         self.transform = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(input_size, hidden_size),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(hidden_size, hidden_size // 2),
         )
         self.combination = nn.Sequential(
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(hidden_size // 2, output_size),
         )
 

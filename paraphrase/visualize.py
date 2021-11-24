@@ -46,11 +46,15 @@ df.to_csv('paraphrase/plots/tSNE_values_vecs2.csv', index=False)'''
 files = ["paraphrase/plots/tSNE_values_mprc_vecs1.csv", "paraphrase/plots/tSNE_values_mprc_vecs2.csv", 
         "paraphrase/plots/tSNE_values_vecs1.csv", "paraphrase/plots/tSNE_values_vecs2.csv",]
 
+map_classes = {"yes": 1, "no": 0}
+
 for _file in files:
     file_name_to_save = _file.split("/")[-1].replace(".csv","") + ".png"
     df = pd.read_csv(_file)
     fig = plt.figure(figsize=(15,15))
     out = plt.scatter(df['X'],df['Y'], 10, c = df['Label'])
+    # cbar = plt.colorbar(out, ticks = np.array([1,0]))
+    plt.legend(*out.legend_elements())
     plt.title("tSNE on pre-classified output vs ground truth labels", size = 30)
     plt.xticks(size = 25)
     plt.yticks(size = 25)
