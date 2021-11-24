@@ -75,7 +75,7 @@ print(device)
 
 ## Hyperparameters
 learning_rate = 1e-3
-hidden_size = 64
+hidden_size = 256
 input_size1 = stored_data_mprc_1['embeddings'].shape[1]
 input_size2 = stored_data_mprc_2['embeddings'].shape[1]
 output_size = 1
