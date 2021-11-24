@@ -146,3 +146,6 @@ runs/
 
 # Plots for paraphrase
 paraphrase/plots/ 
+paraphrase/linearclassifiermetrics/
+paraphrase/snnclassifiermetrics/
+paraphrase/outputfiles
