@@ -10,7 +10,7 @@ from utils import DatasetManager
 from utils import train, evaluate
 from utils import asMinutes, timeSince
 
-from model import SimilarityNN
+from model import LinearSimilarityNN
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -22,7 +22,7 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm.notebook import tqdm
 
 from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter("snnclassifiermetrics")
+writer = SummaryWriter("linearclassifiermetrics")
 
 from sklearn.metrics import f1_score
 
@@ -74,7 +74,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 ## Hyperparameters
-learning_rate = 1e-3
+learning_rate = 1e-4
 hidden_size = 64
 input_size1 = stored_data_mprc_1['embeddings'].shape[1]
 input_size2 = stored_data_mprc_2['embeddings'].shape[1]
@@ -229,8 +229,8 @@ def run_model():
     epochs_model = epochs
     learning_rate_model = learning_rate 
 
-    print("This is the SimilarityNN WITH self normalization")
-    model = SimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+    print("This is the SimilarityNN WITHOUT self normalization")
+    model = LinearSimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
     trainIters(model, epochs_model, train_dataloader, val_dataloader, print_every=1, learning_rate = learning_rate_model)
 
 if __name__ == '__main__':
