@@ -143,3 +143,6 @@ paraphrase/data
 
 # Runs directory for tensorboard
 runs/
+
+# Plots for paraphrase
+paraphrase/plots/ 
