@@ -46,6 +46,24 @@ with open('paraphrase/data/mprc_labels.pkl', "rb") as _lbl:
 #print(len(stored_data_2['embeddings']), type(stored_data_2['embeddings']))
 #print(len(stored_labels['labels']), type(stored_labels['labels']))
 
+with open('paraphrase/config.json', 'r') as f:
+    config = json.load(f)
+
+## Hyperparameters
+learning_rate = config['learning_rate']
+hidden_size = config['hidden_neurons']
+input_size1 = stored_data_mprc_1['embeddings'].shape[1]
+input_size2 = stored_data_mprc_2['embeddings'].shape[1]
+output_size = config['output_neurons']
+epochs = config['num_epochs']
+batch_size = config['batch_size']
+weight_decay = config['weight_decay']
+
+## Model specifieriers
+optimizer = optim.Adam()
+scheduler = StepLR()
+lossfunction = nn.BCEWithLogitsLoss()
+
 dataset = DatasetManager(stored_data_mprc_1['embeddings'], stored_data_mprc_2['embeddings'], stored_labels_mprc['labels'])
 
 _input1, _input2,  _target = dataset.__getitem__(0)
@@ -72,14 +90,6 @@ val_dataloader = torch.utils.data.DataLoader(
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
-
-## Hyperparameters
-learning_rate = 1e-3
-hidden_size = 256
-input_size1 = stored_data_mprc_1['embeddings'].shape[1]
-input_size2 = stored_data_mprc_2['embeddings'].shape[1]
-output_size = 1
-epochs = 30
 
 def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rate=learning_rate):
     start = time.time()
