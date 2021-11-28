@@ -7,7 +7,10 @@ then
     echo "removing older lsf files"
     rm lsf.*
 fi
-rm -r runs/
+
+if [[ -d runs/ ]]; then echo "removing runs"; rm -r runs/; fi
+if [[ -d snnclassifiermetrics/ ]]; then echo "removing snnclassfiermetrics"; rm -r snnclassifiermetrics/; fi
+if [[ -d linearclassifiermetrics/ ]]; then echo "removing linearclassifiermetrics"; rm -r linearclassifiermetrics/; fi
 
 module load gcc/8.2.0 python_gpu/3.8.5 eth_proxy
 source venv_para/bin/activate
@@ -38,4 +41,8 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-bsub "${args[@]}" python paraphrase/main.py
+bsub "${args[@]}" -oo paraphrase/outputfiles/snn.out python paraphrase/main.py selu
+bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main.py lin
+# bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main_linear.py
+# bsub "${args[@]}" python paraphrase/data_preprocessing.py
+# bsub "${args[@]}" python paraphrase/visualize.py
