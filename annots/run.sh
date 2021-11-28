@@ -13,7 +13,7 @@ source venv/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 1
+    -n 2
     -W 4:00
     -R "rusage[mem=4500]"
 )
@@ -36,10 +36,11 @@ done
 declare -a arrFiles
 
 path=/cluster/work/lawecon/Projects/Ash_Galletta_Widmer/data/scrapes_clean
+path2=/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980
 
 count=0
 
-for eachfile in "$path"/*.csv
+for eachfile in "$path2"/*.csv
 do
    echo $eachfile
    ((count++))
@@ -47,10 +48,11 @@ do
    if [ "$count" -gt 0 ]
    then
        
-        bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
-       # break
+        # bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
+        bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
+        break
    fi
-   if [ "$count" -eq 20 ]
+   if [ "$count" -eq 1500 ]
    then
        break
    fi
