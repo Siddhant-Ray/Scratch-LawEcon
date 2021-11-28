@@ -10,7 +10,7 @@ from utils import DatasetManager
 from utils import train, evaluate
 from utils import asMinutes, timeSince
 
-from model import SimilarityNN
+from model import SimilarityNN, LinearSimilarityNN
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -22,8 +22,6 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm.notebook import tqdm
 
 from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter("snnclassifiermetrics")
-
 from sklearn.metrics import f1_score
 
 # Load full dataset with combined NLI pairs
@@ -46,7 +44,7 @@ with open('paraphrase/data/mprc_labels.pkl', "rb") as _lbl:
 #print(len(stored_data_2['embeddings']), type(stored_data_2['embeddings']))
 #print(len(stored_labels['labels']), type(stored_labels['labels']))
 
-with open('paraphrase/config.json', 'r') as f:
+with open('paraphrase/configs/config.json', 'r') as f:
     config = json.load(f)
 
 ## Hyperparameters
@@ -58,11 +56,6 @@ output_size = config['output_neurons']
 epochs = config['num_epochs']
 batch_size = config['batch_size']
 weight_decay = config['weight_decay']
-
-## Model specifieriers
-optimizer = optim.Adam()
-scheduler = StepLR()
-lossfunction = nn.BCEWithLogitsLoss()
 
 dataset = DatasetManager(stored_data_mprc_1['embeddings'], stored_data_mprc_2['embeddings'], stored_labels_mprc['labels'])
 
@@ -79,19 +72,20 @@ train_set, val_set = torch.utils.data.random_split(dataset, [
 
 train_dataloader = torch.utils.data.DataLoader(
             train_set,
-            batch_size=64,
+            batch_size=batch_size,
             shuffle=True,
 )
 val_dataloader = torch.utils.data.DataLoader(
             val_set,
-            batch_size=64,
+            batch_size=batch_size,
             shuffle=False,
 )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rate=learning_rate):
+def trainIters(model, n_iters, embedded, val_embedded,learning_rate, writer,
+                print_every = 1):
     start = time.time()
     print_loss_total_train = 0  # Reset every print_every
     print_loss_total_val = 0  # Reset every print_every
@@ -106,9 +100,11 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
     model_optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 1e-5)
     
     #TODO: Learning rate scheduler
-    scheduler = StepLR(model_optimizer, step_size=15, gamma=0.1)
+    scheduler = StepLR(model_optimizer, step_size = n_iters//2, gamma=0.1)
 
-    criterion = nn.BCEWithLogitsLoss()
+    #criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.BCELoss()
+
     
     total_steps = n_iters*len(embedded)
     
@@ -134,13 +130,13 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
             output, loss = train(input_tensor1, input_tensor2, target_tensor, model,
              model_optimizer, criterion)
             
-            accuracy = ((output >  0) == target_tensor).float().mean()
+            accuracy = ((output >  0.5) == target_tensor).float().mean()
 
             print_loss_total_train += loss
             print_acc_total_train += accuracy
 
             #predictions for f1 score
-            pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
+            pred_temp = (output.clone() > 0.5).float().cpu().detach().numpy()
             true_temp = target_tensor.cpu().detach().numpy()
             # print("target batch",true_temp)
             # print("predicted batch",pred_temp)
@@ -195,12 +191,12 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
                 output, loss = evaluate(input_tensor1, input_tensor2, target_tensor, model,
                              model_optimizer, criterion)
 
-                accuracy = ((output >  0) == target_tensor).float().mean()
+                accuracy = ((output >  0.5) == target_tensor).float().mean()
 
                 print_loss_total_val += loss
                 print_acc_total_val += accuracy 
 
-                pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
+                pred_temp = (output.clone() > 0.5).float().cpu().detach().numpy()
                 true_temp = target_tensor.cpu().detach().numpy()
 
                 for item in pred_temp:
@@ -229,7 +225,7 @@ def trainIters(model, n_iters, embedded, val_embedded, print_every, learning_rat
        
         scheduler.step()
         print()
-writer.close()
+    writer.close()
 
 def run_model():
 
@@ -239,9 +235,20 @@ def run_model():
     epochs_model = epochs
     learning_rate_model = learning_rate 
 
-    print("This is the SimilarityNN WITH self normalization")
-    model = SimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
-    trainIters(model, epochs_model, train_dataloader, val_dataloader, print_every=1, learning_rate = learning_rate_model)
+    choose_model = sys.argv
+
+    if choose_model[1] == "selu":
+        print("This is the SimilarityNN WITH self normalization")
+        writer = SummaryWriter("snnclassifiermetrics")
+        model = SimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+        trainIters(model, epochs_model, train_dataloader, val_dataloader, learning_rate_model,
+                    writer,print_every= 1)
+    elif choose_model[1] == "lin":
+        print("This is the SimilarityNN WITHOUT self normalization")
+        writer = SummaryWriter("linearclassifiermetrics")
+        model = LinearSimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+        trainIters(model, epochs_model, train_dataloader, val_dataloader, learning_rate_model,
+                    writer,print_every= 1)
 
 if __name__ == '__main__':
     run_model()
