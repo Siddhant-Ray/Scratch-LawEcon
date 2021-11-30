@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 1 
+    -n 4 
     -W 4:00
     -R "rusage[mem=4500]"
 )
@@ -41,8 +41,11 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/snn.out python paraphrase/main.py selu
-bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main.py lin
+# bsub "${args[@]}" -oo paraphrase/outputfiles/snn.out python paraphrase/main.py selu
+# bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main.py lin
 # bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main_linear.py
 # bsub "${args[@]}" python paraphrase/data_preprocessing.py
 # bsub "${args[@]}" python paraphrase/visualize.py
+
+
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic.out python paraphrase/logistic.py
