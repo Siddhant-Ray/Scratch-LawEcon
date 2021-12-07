@@ -48,14 +48,29 @@ print(type(input_vectors1), input_vectors1.shape)
 input_vectors2 = stored_data_mprc_2['embeddings']
 print(type(input_vectors2), input_vectors2.shape)
 
-input_combined_vectors = np.concatenate((input_vectors1, 
-                        input_vectors2), axis = 1)
-print(type(input_combined_vectors), input_combined_vectors.shape)
+abs_diff_vectors = np.abs(input_vectors1 - input_vectors2)
+print(type(abs_diff_vectors), abs_diff_vectors.shape)
+
+# product_of_vectors = np.einsum('ij,ij->i', input_vectors1, input_vectors2)[..., None]
+product_of_vectors = input_vectors1 * input_vectors2
+print(type(product_of_vectors), product_of_vectors.shape)
+
+input_combined_vectors1 = np.concatenate((input_vectors1, 
+                        input_vectors2, abs_diff_vectors,product_of_vectors), axis = 1)
+
+input_combined_vectors2 = np.concatenate((input_vectors2, 
+                        input_vectors1, abs_diff_vectors,product_of_vectors), axis = 1)
+
+input_combined_vectors_all = np.concatenate((input_combined_vectors1, input_combined_vectors2), axis = 0)                        
+
+
+print(type(input_combined_vectors_all), input_combined_vectors_all.shape)
 labels = np.array(stored_labels_mprc['labels'])
-print(type(labels), labels.shape)
+labels_all = np.concatenate([labels] * 2, axis=0)
+print(type(labels_all), labels_all.shape)
 
 
-X_train, X_test, y_train, y_test = train_test_split(input_combined_vectors, labels, 
+X_train, X_test, y_train, y_test = train_test_split(input_combined_vectors_all, labels_all, 
                                     test_size=0.2, shuffle = True, random_state = 0)
 
 print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
