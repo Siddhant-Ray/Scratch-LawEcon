@@ -2,6 +2,7 @@ import json, pickle
 import os, sys, time, math, random
 
 import numpy as np
+import pandas as pd
 
 from utils import DatasetManager
 from utils import train, evaluate
@@ -15,6 +16,9 @@ from sklearn.metrics import f1_score
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+
+import seaborn as sns
 
 '''a = np.array([[1, 2], [3, 4]])
 b = np.array([[5, 6], [7, 8]])
@@ -81,7 +85,7 @@ print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
 def run_model():
 
-    clf = LogisticRegression(penalty='l2',random_state=0,
+    clf = LogisticRegression(penalty='l2',random_state=0, max_iter=1000,
                         n_jobs = -1).fit(X_train, y_train)
 
     preds = clf.predict(X_test)
@@ -91,8 +95,16 @@ def run_model():
     print("Prediction probs for 100 are", pred_probs[0:100])
 
     print("Accuracy is:", clf.score(X_test, y_test))
-    print("F1score is: ", f1_score(y_test, preds))
+    print("F1score is: ", f1_score(y_test, preds,  average=None))
 
+    c_matrix = confusion_matrix(y_test, preds, labels=[0, 1], normalize = "true")
+    print(c_matrix)
+
+    df_cm = pd.DataFrame(c_matrix, index = [0, 1] ,columns = [0, 1])
+    matrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
+
+    figure = matrix.get_figure()    
+    figure.savefig("paraphrase/figs/cm_mprc.png")
 
 if __name__ == '__main__':
     run_model()
