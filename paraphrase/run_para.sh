@@ -44,8 +44,9 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/snn.out python paraphrase/main.py selu
 # bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main.py lin
 # bsub "${args[@]}" -oo paraphrase/outputfiles/linear.out python paraphrase/main_linear.py
-bsub "${args[@]}" python paraphrase/data_preprocessing.py
+# bsub "${args[@]}" python paraphrase/data_preprocessing.py
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic.py
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_full.py
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_mprc.py
