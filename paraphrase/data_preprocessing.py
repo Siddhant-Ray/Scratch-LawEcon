@@ -52,7 +52,7 @@ for json_str in json_list:
         nli_pairs_list.append([label, sent_pairs])
 
 
-subset = random.sample(nli_pairs_list, 10000)
+subset = random.sample(nli_pairs_list, 5000)
 #print(subset[0:5])
 #print(len(subset))
 list_of_MRPC_pairs = labeled_pairs_list
@@ -72,17 +72,17 @@ train_labels = [int(item[0]) for item in final_list_of_pairs]
 sentence_1_list = [item[1][0] for item in final_list_of_pairs]
 sentence_2_list = [item[1][1] for item in final_list_of_pairs]
 
-#print(len(train_labels),len(sentence_1_list),len(sentence_2_list))
+print(len(train_labels),len(sentence_1_list),len(sentence_2_list))
 '''embeddings_1 = model.encode(sentence_1_list)
-embeddings_2 = model.encode(sentence_2_list)
+embeddings_2 = model.encode(sentence_2_list)'''
 
-with open('paraphrase/data/embeddings_1.pkl', "wb") as fOut1:
+'''with open('paraphrase/data/embeddings_1.pkl', "wb") as fOut1:
     pickle.dump({'sentences': sentence_1_list, 'embeddings': embeddings_1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
 
 with open('paraphrase/data/embeddings_2.pkl', "wb") as fOut2:
-    pickle.dump({'sentences': sentence_2_list, 'embeddings': embeddings_2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)'''
+    pickle.dump({'sentences': sentence_2_list, 'embeddings': embeddings_2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)
 
-'''with open('paraphrase/data/labels.pkl', "wb") as fOut3:
+with open('paraphrase/data/labels.pkl', "wb") as fOut3:
     pickle.dump({'labels': train_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
    
 
@@ -104,3 +104,58 @@ with open('paraphrase/data/mprc_embeddings_2.pkl', "wb") as fOut_mprc2:
 
 with open('paraphrase/data/mprc_labels.pkl', "wb") as fOut_mprc3:
     pickle.dump({'labels': train_labels_MPRC}, fOut_mprc3, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+
+#### Testing vectors using MPRC test file only: 
+
+file_path_test = "paraphrase/MSRParaphraseCorpus/msr_paraphrase_test.txt"
+
+file_test = open(file_path_test)
+lines_of_sentences = file_test.readlines()
+
+# list to store values
+test_pairs_list = []
+
+for value in lines_of_sentences:
+    # split on "\t"
+    data = value.split("\t")
+    label = data[0]
+
+    #list of pairs of sentences needed
+    sent_pairs = [data[3].strip("\n"), data[4].strip("\n")]
+    #labeled pairs
+    test_pairs_list.append([label, sent_pairs])
+
+# remove item 1 with headings
+test_pairs_list.pop(0)
+count_1 = 0
+count_0 = 0
+
+for item in test_pairs_list:
+    if int(item[0])== 1:
+        count_1 += 1
+    else:
+        count_0 += 1
+
+# print(count_1,count_0)
+
+list_of_test_pairs = test_pairs_list
+
+model = SentenceTransformer('all-MiniLM-L6-v2', device = 'cuda')
+test_labels = [int(item[0]) for item in list_of_test_pairs]
+test_1_list = [item[1][0] for item in list_of_test_pairs]
+test_2_list = [item[1][1] for item in list_of_test_pairs]
+
+print(len(test_labels), len(test_1_list), len(test_2_list))
+
+'''test_embeddings1 = model.encode(test_1_list)
+test_embeddings2 = model.encode(test_2_list)
+
+with open('paraphrase/data/test_embeddings_1.pkl', "wb") as fOut1:
+    pickle.dump({'sentences': test_1_list, 'embeddings': test_embeddings1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/test_embeddings_2.pkl', "wb") as fOut2:
+    pickle.dump({'sentences': test_2_list, 'embeddings': test_embeddings2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/test_labels.pkl', "wb") as fOut3:
+    pickle.dump({'labels': test_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
