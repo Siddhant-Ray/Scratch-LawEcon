@@ -37,6 +37,7 @@ with open('paraphrase/data/embeddings_2.pkl', "rb") as em2:
 with open('paraphrase/data/labels.pkl', "rb") as lbl:
     stored_labels = pickle.load(lbl)
 
+# Combine vectors u, v as concat(u, v, |u - v|, u * v)
 input_vectors1 = stored_data_1['embeddings']
 print(type(input_vectors1), input_vectors1.shape) # Shape (9076, 384)
 input_vectors2 = stored_data_2['embeddings']
@@ -45,7 +46,6 @@ print(type(input_vectors2), input_vectors2.shape) # Shape (9076, 384)
 abs_diff_vectors = np.abs(input_vectors1 - input_vectors2)
 print(type(abs_diff_vectors), abs_diff_vectors.shape) # Shape (9076, 384)
 
-# product_of_vectors = np.einsum('ij,ij->i', input_vectors1, input_vectors2)[..., None]
 product_of_vectors = input_vectors1 * input_vectors2
 print(type(product_of_vectors), product_of_vectors.shape) # Shape (9076, 384)
 
@@ -69,10 +69,6 @@ X_train, X_test, y_train, y_test = train_test_split(input_combined_vectors_all, 
 
 print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
-'''for i in range(10):
-    print("X_train", X_train.item(i))
-    print("y_train", y_train.item(i))'''
-
 
 def run_model():
 
@@ -95,20 +91,19 @@ def run_model():
     df_cm = pd.DataFrame(c_matrix, index = [0, 1] ,columns = [0, 1])
     matrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
-    figure = matrix.get_figure()  
+    figure = matrix.get_figure()    
     figure.savefig("paraphrase/figs/cm_train_full.png")
     plt.close(figure)
 
 
-
-    print("Testing on MPRC dataset, trained on MPRC + NLI contradiction pairs .......")
+    print("Testing on PAWS dataset, trained on MPRC + NLI contradiction pairs .......")
 
     # Load test dataset 
-    with open('paraphrase/data/test_embeddings_1.pkl', "rb") as _em1:
+    with open('paraphrase/data/test_embeddings_paws1.pkl', "rb") as _em1:
         test_data_1 = pickle.load(_em1)
-    with open('paraphrase/data/test_embeddings_2.pkl', "rb") as _em2:
+    with open('paraphrase/data/test_embeddings_paws2.pkl', "rb") as _em2:
         test_data_2 = pickle.load(_em2)
-    with open('paraphrase/data/test_labels.pkl', "rb") as _lbl:
+    with open('paraphrase/data/test_labels_paws.pkl', "rb") as _lbl:
         test_labels = pickle.load(_lbl)
 
     test_vectors1, test_vectors2 = test_data_1['embeddings'], test_data_2['embeddings']
@@ -121,7 +116,7 @@ def run_model():
     t_labels = np.array(test_labels['labels'])
     print(t_labels.shape)    
 
-    print("Metrics for test dataset......")       
+    print("Metrics for only PAWS test dataset......")       
 
     t_preds = clf.predict(combined_test) 
     t_pred_probs = clf.predict_proba(combined_test)
@@ -129,8 +124,8 @@ def run_model():
     print("Predictions for 10 are", t_preds[0:10])
     print("Prediction probs for 10 are", t_pred_probs[0:10])
 
-    print("Accuracy for test set is:", clf.score(combined_test, t_labels)) 
-    print("F1score for test set is: ", f1_score(t_labels, t_preds,  average=None))
+    print("Accuracy for PAWS test set is:", clf.score(combined_test, t_labels)) 
+    print("F1score for PAWS test set is: ", f1_score(t_labels, t_preds,  average=None))
 
     ct_matrix = confusion_matrix(t_labels, t_preds, labels=[0, 1], normalize = "true")
     print(ct_matrix)
@@ -139,11 +134,11 @@ def run_model():
     tmatrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
     figure1 = tmatrix.get_figure()    
-    figure1.savefig("paraphrase/figs/cm_test_full.png")
+    figure1.savefig("paraphrase/figs/cm_test_paws.png")
     plt.close(figure1)
 
 
-    ## Get paraphrase pairs with high probability ( >= 95)
+    '''## Get paraphrase pairs with high probability ( >= 95)
     df1 = pd.DataFrame(columns=['sent1','length1'])
     df2 = pd.DataFrame(columns=['sent2','length2','prob_score'])
     count1 = 0
@@ -214,7 +209,7 @@ def run_model():
     #print(df2.head())
     final_df = pd.concat([df1, df2], axis=1)
     print(final_df.head())
-    final_df.to_csv('paraphrase/figs/paraphr_mprctestset.csv')
+    final_df.to_csv('paraphrase/figs/paraphr.csv')'''
 
       
 if __name__ == '__main__':

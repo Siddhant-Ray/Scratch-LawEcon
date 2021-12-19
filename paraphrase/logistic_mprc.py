@@ -94,9 +94,10 @@ def run_model():
 
     df_cm = pd.DataFrame(c_matrix, index = [0, 1] ,columns = [0, 1])
     matrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
-    plt.figure()
+    #plt.figure()
     figure = matrix.get_figure()    
-    figure.savefig("paraphrase/figs/cm_mprc.png")
+    figure.savefig("paraphrase/figs/cm_train_mprc.png")
+    plt.close(figure)
 
 
     print("Testing on MPRC dataset, trained on MPRC pairs.......")
@@ -135,9 +136,10 @@ def run_model():
 
     df_cm = pd.DataFrame(ct_matrix, index = [0, 1] ,columns = [0, 1])
     tmatrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
-    plt.figure()
-    figure = tmatrix.get_figure()    
-    figure.savefig("paraphrase/figs/cm_test_mprc.png")
+    #plt.figure()
+    figure1 = tmatrix.get_figure()    
+    figure1.savefig("paraphrase/figs/cm_test_mprc.png")
+    plt.close(figure1)
 
 
 if __name__ == '__main__':
