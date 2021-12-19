@@ -1,5 +1,6 @@
 import json, pickle
 import os, sys, time, math, random
+from typing_extensions import final
 
 import numpy as np
 import pandas as pd
@@ -37,24 +38,24 @@ with open('paraphrase/data/labels.pkl', "rb") as lbl:
     stored_labels = pickle.load(lbl)
 
 input_vectors1 = stored_data_1['embeddings']
-print(type(input_vectors1), input_vectors1.shape)
+print(type(input_vectors1), input_vectors1.shape) # Shape (9076, 384)
 input_vectors2 = stored_data_2['embeddings']
-print(type(input_vectors2), input_vectors2.shape)
+print(type(input_vectors2), input_vectors2.shape) # Shape (9076, 384)
 
 abs_diff_vectors = np.abs(input_vectors1 - input_vectors2)
-print(type(abs_diff_vectors), abs_diff_vectors.shape)
+print(type(abs_diff_vectors), abs_diff_vectors.shape) # Shape (9076, 384)
 
 # product_of_vectors = np.einsum('ij,ij->i', input_vectors1, input_vectors2)[..., None]
 product_of_vectors = input_vectors1 * input_vectors2
-print(type(product_of_vectors), product_of_vectors.shape)
+print(type(product_of_vectors), product_of_vectors.shape) # Shape (9076, 384)
 
 input_combined_vectors1 = np.concatenate((input_vectors1, 
-                        input_vectors2, abs_diff_vectors,product_of_vectors), axis = 1)
+                        input_vectors2, abs_diff_vectors,product_of_vectors), axis = 1) # Shape (9076, 1536)
 
 input_combined_vectors2 = np.concatenate((input_vectors2, 
-                        input_vectors1, abs_diff_vectors,product_of_vectors), axis = 1)
+                        input_vectors1, abs_diff_vectors,product_of_vectors), axis = 1) # Shape (9076, 1536)
 
-input_combined_vectors_all = np.concatenate((input_combined_vectors1, input_combined_vectors2), axis = 0)                        
+input_combined_vectors_all = np.concatenate((input_combined_vectors1, input_combined_vectors2), axis = 0) # Shape (18152, 1536)                       
 
 
 print(type(input_combined_vectors_all), input_combined_vectors_all.shape)
@@ -81,8 +82,8 @@ def run_model():
     preds = clf.predict(X_test)
     pred_probs = clf.predict_proba(X_test)
 
-    print("Predictions for 100 are", preds[0:100])
-    print("Prediction probs for 100 are", pred_probs[0:100])
+    #print("Predictions for 100 are", preds[0:100])
+    #print("Prediction probs for 100 are", pred_probs[0:100])
 
     print("Accuracy is:", clf.score(X_test, y_test))
     print("F1score is: ", f1_score(y_test, preds,  average=None))
@@ -121,7 +122,7 @@ def run_model():
     print("Metrics for test dataset......")       
 
     t_preds = clf.predict(combined_test) 
-    t_pred_probs = clf.predict_proba(X_test)
+    t_pred_probs = clf.predict_proba(combined_test)
 
     print("Predictions for 10 are", t_preds[0:10])
     print("Prediction probs for 10 are", t_pred_probs[0:10])
@@ -138,7 +139,79 @@ def run_model():
     figure = tmatrix.get_figure()    
     figure.savefig("paraphrase/figs/cm_test_full.png")
 
+    ## Get paraphrase pairs with high probability ( >= 95)
+    df1 = pd.DataFrame(columns=['sent1','length1'])
+    df2 = pd.DataFrame(columns=['sent2','length2','prob_score'])
+    count1 = 0
+    count2 = 0
 
+    for item in combined_test:
+        #print(item.reshape(1,-1).shape) # Shape (1,1536)
+        pred_item = clf.predict_proba(item.reshape(1,-1))
+        #print(pred_item.shape) # Shape (1,2)
+        
+        # Threshold for paraphrase probability
+        if pred_item.item((0,1)) >= 0.95:
+            # print(item.shape) # Shape (1536,)
+            new_item = item # preserve shape (1536,)
+            # print(new_item.shape) # Shape (1, 1536)
+            new_item = np.hsplit(new_item, 4)
+            # print(new_item[0].shape, new_item[1].shape) # Shape (384, )
+            
+            # Retrieve first sentence
+            for num, vector in enumerate(test_data_1['embeddings']):
+                # print(vector.shape) # Shape (384, )
+                if np.array_equal(vector, new_item[0]):
+                    count1+=1
+                    print("yes with 95% prob \t", end = '')
+                    print(test_data_1['sentences'][num])
+                    # Make a dataset with sentence, length and scores
+                    num_words1 = len(test_data_1['sentences'][num].split(" "))
+                    df1.loc[count1] = [test_data_1['sentences'][num]] + [num_words1]
+                    break
+            
 
+            # Retrieve second sentence
+            for num, vector in enumerate(test_data_2['embeddings']):
+                # print(vector.shape) # Shape (384, )
+                if np.array_equal(vector, new_item[1]):
+                    count2+=1
+                    print("yes with 95% prob \t", end = '')
+                    print(test_data_2['sentences'][num])
+                    # Make a dataset with sentence, length and scores
+                    num_words2 = len(test_data_2['sentences'][num].split(" "))
+                    df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [pred_item.item((0,1))]
+                    break
+
+        elif pred_item.item((0,1)) <= 0.05:
+            # print(item.shape) # Shape (1536,)
+            new_item = item # preserve shape (1536,)
+            # print(new_item.shape) # Shape (1, 1536)
+            new_item = np.hsplit(new_item, 4)
+            # print(new_item[0].shape, new_item[1].shape) # Shape (384, )
+
+            # Retrieve first sentence
+            for num, vector in enumerate(test_data_1['embeddings']):
+                # print(vector.shape) # Shape (384, )
+                if np.array_equal(vector, new_item[0]):
+                    print("yes with 5% prob \t", end = '')
+                    print(test_data_1['sentences'][num])
+                    break
+
+            # Retrieve second sentence
+            for num, vector in enumerate(test_data_2['embeddings']):
+                # print(vector.shape) # Shape (384, )
+                if np.array_equal(vector, new_item[1]):
+                    print("yes with 5% prob \t", end = '')
+                    print(test_data_2['sentences'][num])
+                    break
+
+    #print(df1.head())
+    #print(df2.head())
+    final_df = pd.concat([df1, df2], axis=1)
+    print(final_df.head())
+    final_df.to_csv('paraphrase/figs/paraphr.csv')
+
+      
 if __name__ == '__main__':
     run_model()
