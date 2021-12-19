@@ -159,3 +159,58 @@ with open('paraphrase/data/test_embeddings_2.pkl', "wb") as fOut2:
 
 with open('paraphrase/data/test_labels.pkl', "wb") as fOut3:
     pickle.dump({'labels': test_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+
+file_path_3 = "paraphrase/paws_corpus/test.tsv"
+
+file3 = open(file_path_3)
+lines_of_sentences_paws = file3.readlines()
+
+# list to store values
+labeled_pairs_list_paws = []
+
+for value in lines_of_sentences_paws:
+    # split on "\t"
+    data = value.split("\t")
+    label = data[3].strip("\n")
+
+    #list of pairs of sentences needed
+    sent_pairs = [data[1].strip("\n"), data[2].strip("\n")]
+    #labeled pairs
+    labeled_pairs_list_paws.append([label, sent_pairs])
+
+labeled_pairs_list_paws.pop(0)
+#print(labeled_pairs_list_paws[0])
+#print(labeled_pairs_list_paws[1])
+
+for item in labeled_pairs_list_paws:
+    if int(item[0])== 1:
+        count_1 += 1
+    else:
+        count_0 += 1
+
+#print(count_1, count_0)
+
+model = SentenceTransformer('all-MiniLM-L6-v2', device = 'cuda')
+test_labels = [int(item[0]) for item in labeled_pairs_list_paws]
+test_1_list = [item[1][0] for item in labeled_pairs_list_paws]
+test_2_list = [item[1][1] for item in labeled_pairs_list_paws]
+
+print(len(test_labels), len(test_1_list), len(test_2_list))
+
+test_embeddings_paws1 = model.encode(test_1_list)
+test_embeddings_paws2 = model.encode(test_2_list)
+
+'''with open('paraphrase/data/test_embeddings_paws1.pkl', "wb") as fOut1:
+    pickle.dump({'sentences': test_1_list, 'embeddings': test_embeddings_paws1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/test_embeddings_paws2.pkl', "wb") as fOut2:
+    pickle.dump({'sentences': test_2_list, 'embeddings': test_embeddings_paws2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/test_labels_paws.pkl', "wb") as fOut3:
+    pickle.dump({'labels': test_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+
+
+
+
