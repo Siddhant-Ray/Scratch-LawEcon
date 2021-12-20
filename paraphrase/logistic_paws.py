@@ -30,11 +30,11 @@ print(np.concatenate((a, b), axis = 1).shape)
 exit()'''
 
 # Load full dataset with combined NLI pairs
-with open('paraphrase/data/embeddings_1.pkl', "rb") as em1:
+with open('paraphrase/data/train_embeddings_paws1.pkl', "rb") as em1:
     stored_data_1 = pickle.load(em1)
-with open('paraphrase/data/embeddings_2.pkl', "rb") as em2:
+with open('paraphrase/data/train_embeddings_paws2.pkl', "rb") as em2:
     stored_data_2 = pickle.load(em2)
-with open('paraphrase/data/labels.pkl', "rb") as lbl:
+with open('paraphrase/data/train_labels_paws.pkl', "rb") as lbl:
     stored_labels = pickle.load(lbl)
 
 # Combine vectors u, v as concat(u, v, |u - v|, u * v)
@@ -92,11 +92,11 @@ def run_model():
     matrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
     figure = matrix.get_figure()    
-    figure.savefig("paraphrase/figs/cm_train_full.png")
+    figure.savefig("paraphrase/figs/cm_train_paws.png")
     plt.close(figure)
 
 
-    print("Testing on PAWS dataset, trained on MPRC + NLI contradiction pairs .......")
+    print("Testing on PAWS dataset, trained on PAWS train dataset .......")
 
     # Load test dataset 
     with open('paraphrase/data/test_embeddings_paws1.pkl', "rb") as _em1:
@@ -134,7 +134,7 @@ def run_model():
     tmatrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
     figure1 = tmatrix.get_figure()    
-    figure1.savefig("paraphrase/figs/cm_test_paws.png")
+    figure1.savefig("paraphrase/figs/cm_test_paws_train_paws.png")
     plt.close(figure1)
 
 
