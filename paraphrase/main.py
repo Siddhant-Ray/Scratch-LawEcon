@@ -24,21 +24,14 @@ from tqdm.notebook import tqdm
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
 
-# Load full dataset with combined NLI pairs
-with open('paraphrase/data/embeddings_1.pkl', "rb") as em1:
+# Load PAWS train dataset
+with open('paraphrase/data/train_embeddings_paws1.pkl', "rb") as em1:
     stored_data_1 = pickle.load(em1)
-with open('paraphrase/data/embeddings_2.pkl', "rb") as em2:
+with open('paraphrase/data/train_embeddings_paws2.pkl', "rb") as em2:
     stored_data_2 = pickle.load(em2)
-with open('paraphrase/data/labels.pkl', "rb") as lbl:
+with open('paraphrase/data/train_labels_paws.pkl', "rb") as lbl:
     stored_labels = pickle.load(lbl)
 
-# Load only mprc dataset 
-with open('paraphrase/data/mprc_embeddings_1.pkl', "rb") as _em1:
-    stored_data_mprc_1 = pickle.load(_em1)
-with open('paraphrase/data/mprc_embeddings_2.pkl', "rb") as _em2:
-    stored_data_mprc_2 = pickle.load(_em2)
-with open('paraphrase/data/mprc_labels.pkl', "rb") as _lbl:
-    stored_labels_mprc = pickle.load(_lbl)
 
 #print(len(stored_data_1['embeddings']), type(stored_data_1['embeddings']))
 #print(len(stored_data_2['embeddings']), type(stored_data_2['embeddings']))
@@ -50,14 +43,14 @@ with open('paraphrase/configs/config.json', 'r') as f:
 ## Hyperparameters
 learning_rate = config['learning_rate']
 hidden_size = config['hidden_neurons']
-input_size1 = stored_data_mprc_1['embeddings'].shape[1]
-input_size2 = stored_data_mprc_2['embeddings'].shape[1]
+input_size1 = stored_data_1['embeddings'].shape[1]
+input_size2 = stored_data_2['embeddings'].shape[1]
 output_size = config['output_neurons']
 epochs = config['num_epochs']
 batch_size = config['batch_size']
 weight_decay = config['weight_decay']
 
-dataset = DatasetManager(stored_data_mprc_1['embeddings'], stored_data_mprc_2['embeddings'], stored_labels_mprc['labels'])
+dataset = DatasetManager(stored_data_1['embeddings'], stored_data_2['embeddings'], stored_labels['labels'])
 
 _input1, _input2,  _target = dataset.__getitem__(0)
 print(_input1.shape, _input2.shape, _target.shape)
@@ -84,8 +77,13 @@ val_dataloader = torch.utils.data.DataLoader(
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
+print("train set size is {}, val set size is {}".format(len(train_set), len(val_set)))
+print("batch size is {}".format(batch_size))
+print("train dataloader size is {}, val dataloader size is {}".format(len(train_dataloader), len(val_dataloader)))
+
+
 def trainIters(model, n_iters, embedded, val_embedded,learning_rate, writer,
-                print_every = 1):
+                weight_decay, print_every = 1):
     start = time.time()
     print_loss_total_train = 0  # Reset every print_every
     print_loss_total_val = 0  # Reset every print_every
@@ -97,13 +95,13 @@ def trainIters(model, n_iters, embedded, val_embedded,learning_rate, writer,
     val_epochs = []
 
     #TODO: Try ADAM
-    model_optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 1e-5)
+    model_optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = weight_decay)
     
     #TODO: Learning rate scheduler
     scheduler = StepLR(model_optimizer, step_size = n_iters//2, gamma=0.1)
 
-    #criterion = nn.BCEWithLogitsLoss()
-    criterion = nn.BCELoss()
+    criterion = nn.BCEWithLogitsLoss()
+    #criterion = nn.BCELoss()
 
     
     total_steps = n_iters*len(embedded)
@@ -130,13 +128,13 @@ def trainIters(model, n_iters, embedded, val_embedded,learning_rate, writer,
             output, loss = train(input_tensor1, input_tensor2, target_tensor, model,
              model_optimizer, criterion)
             
-            accuracy = ((output >  0.5) == target_tensor).float().mean()
+            accuracy = ((output >  0) == target_tensor).float().mean()
 
             print_loss_total_train += loss
             print_acc_total_train += accuracy
 
             #predictions for f1 score
-            pred_temp = (output.clone() > 0.5).float().cpu().detach().numpy()
+            pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
             true_temp = target_tensor.cpu().detach().numpy()
             # print("target batch",true_temp)
             # print("predicted batch",pred_temp)
@@ -191,12 +189,12 @@ def trainIters(model, n_iters, embedded, val_embedded,learning_rate, writer,
                 output, loss = evaluate(input_tensor1, input_tensor2, target_tensor, model,
                              model_optimizer, criterion)
 
-                accuracy = ((output >  0.5) == target_tensor).float().mean()
+                accuracy = ((output >  0) == target_tensor).float().mean()
 
                 print_loss_total_val += loss
                 print_acc_total_val += accuracy 
 
-                pred_temp = (output.clone() > 0.5).float().cpu().detach().numpy()
+                pred_temp = (output.clone() > 0).float().cpu().detach().numpy()
                 true_temp = target_tensor.cpu().detach().numpy()
 
                 for item in pred_temp:
@@ -231,9 +229,10 @@ def run_model():
 
     hidden_size_model = hidden_size
     input_size_model = input_size1
-    output_size_model = output_size 
+    output_size_model = output_size
     epochs_model = epochs
     learning_rate_model = learning_rate 
+    weight_decay_model = weight_decay
 
     choose_model = sys.argv
 
@@ -241,14 +240,16 @@ def run_model():
         print("This is the SimilarityNN WITH self normalization")
         writer = SummaryWriter("snnclassifiermetrics")
         model = SimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+        print(model)
         trainIters(model, epochs_model, train_dataloader, val_dataloader, learning_rate_model,
-                    writer,print_every= 1)
+                    writer, weight_decay_model, print_every= 1)
     elif choose_model[1] == "lin":
         print("This is the SimilarityNN WITHOUT self normalization")
         writer = SummaryWriter("linearclassifiermetrics")
         model = LinearSimilarityNN(input_size_model, hidden_size_model, output_size_model).to(device)
+        print(model)
         trainIters(model, epochs_model, train_dataloader, val_dataloader, learning_rate_model,
-                    writer,print_every= 1)
+                    writer, weight_decay_model, print_every= 1)
 
 if __name__ == '__main__':
     run_model()

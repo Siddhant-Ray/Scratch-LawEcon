@@ -13,8 +13,8 @@ class DatasetManager(torch.utils.data.Dataset):
 
         input_tensor1 = torch.from_numpy(self.list_of_sent1[idx]).float()
         input_tensor2 = torch.from_numpy(self.list_of_sent2[idx]).float()
-        #target_tensor = torch.tensor(self.class_labels[idx]).unsqueeze(0).float()
-        target_tensor = torch.tensor(self.class_labels[idx]).float()
+        target_tensor = torch.tensor(self.class_labels[idx]).unsqueeze(0).float()
+        # target_tensor = torch.tensor(self.class_labels[idx]).float()
 
 
         return input_tensor1, input_tensor2, target_tensor
