@@ -183,6 +183,9 @@ labeled_pairs_list_paws.pop(0)
 #print(labeled_pairs_list_paws[0])
 #print(labeled_pairs_list_paws[1])
 
+count_1 = 0
+count_0 = 0
+
 for item in labeled_pairs_list_paws:
     if int(item[0])== 1:
         count_1 += 1
@@ -198,8 +201,8 @@ test_2_list = [item[1][1] for item in labeled_pairs_list_paws]
 
 print(len(test_labels), len(test_1_list), len(test_2_list))
 
-test_embeddings_paws1 = model.encode(test_1_list)
-test_embeddings_paws2 = model.encode(test_2_list)
+'''test_embeddings_paws1 = model.encode(test_1_list)
+test_embeddings_paws2 = model.encode(test_2_list)'''
 
 '''with open('paraphrase/data/test_embeddings_paws1.pkl', "wb") as fOut1:
     pickle.dump({'sentences': test_1_list, 'embeddings': test_embeddings_paws1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
@@ -209,6 +212,63 @@ with open('paraphrase/data/test_embeddings_paws2.pkl', "wb") as fOut2:
 
 with open('paraphrase/data/test_labels_paws.pkl', "wb") as fOut3:
     pickle.dump({'labels': test_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+
+### Also try to train on PAWS dataset, generate PAWS train embeddings
+
+file_path_4 = "paraphrase/paws_corpus/train.tsv"
+
+file4 = open(file_path_4)
+lines_of_sentences_paws_train = file4.readlines()
+
+# list to store values
+labeled_pairs_list_paws_train = []
+
+for value in lines_of_sentences_paws_train:
+    # split on "\t"
+    data = value.split("\t")
+    label = data[3].strip("\n")
+
+    #list of pairs of sentences needed
+    sent_pairs = [data[1].strip("\n"), data[2].strip("\n")]
+    #labeled pairs
+    labeled_pairs_list_paws_train.append([label, sent_pairs])
+
+labeled_pairs_list_paws_train.pop(0)
+#print(labeled_pairs_list_paws_train[0])
+#print(labeled_pairs_list_paws_train[1])
+
+count_1 = 0
+count_0 = 0
+
+for item in labeled_pairs_list_paws_train:
+    if int(item[0])== 1:
+        count_1 += 1
+    else:
+        count_0 += 1
+
+# print(count_1, count_0)
+
+model = SentenceTransformer('all-MiniLM-L6-v2', device = 'cuda')
+train_labels_paws = [int(item[0]) for item in labeled_pairs_list_paws_train]
+train_1_list = [item[1][0] for item in labeled_pairs_list_paws_train]
+train_2_list = [item[1][1] for item in labeled_pairs_list_paws_train]
+
+print(len(train_labels_paws), len(train_1_list), len(train_2_list))
+
+'''train_embeddings_paws1 = model.encode(train_1_list)
+train_embeddings_paws2 = model.encode(train_2_list)
+
+with open('paraphrase/data/train_embeddings_paws1.pkl', "wb") as fOut1:
+    pickle.dump({'sentences': train_1_list, 'embeddings': train_embeddings_paws1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/train_embeddings_paws2.pkl', "wb") as fOut2:
+    pickle.dump({'sentences': train_2_list, 'embeddings': train_embeddings_paws2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('paraphrase/data/train_labels_paws.pkl', "wb") as fOut3:
+    pickle.dump({'labels': train_labels_paws}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+
 
 
 
