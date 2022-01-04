@@ -92,7 +92,7 @@ def run_model():
     matrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
     figure = matrix.get_figure()    
-    figure.savefig("paraphrase/figs/cm_train_paws.png")
+    #figure.savefig("paraphrase/figs/cm_train_paws.png")
     plt.close(figure)
 
 
@@ -134,11 +134,11 @@ def run_model():
     tmatrix = sns.heatmap(df_cm, annot=True, cmap='Blues')
     #plt.figure()
     figure1 = tmatrix.get_figure()    
-    figure1.savefig("paraphrase/figs/cm_test_paws_train_paws.png")
+    #figure1.savefig("paraphrase/figs/cm_test_paws_train_paws.png")
     plt.close(figure1)
 
 
-    '''## Get paraphrase pairs with high probability ( >= 95)
+    ## Get paraphrase pairs with high probability ( >= 80)
     df1 = pd.DataFrame(columns=['sent1','length1'])
     df2 = pd.DataFrame(columns=['sent2','length2','prob_score'])
     count1 = 0
@@ -150,7 +150,7 @@ def run_model():
         #print(pred_item.shape) # Shape (1,2)
         
         # Threshold for paraphrase probability
-        if pred_item.item((0,1)) >= 0.95:
+        if pred_item.item((0,1)) >= 0.70:
             # print(item.shape) # Shape (1536,)
             new_item = item # preserve shape (1536,)
             # print(new_item.shape) # Shape (1, 1536)
@@ -162,7 +162,7 @@ def run_model():
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[0]):
                     count1+=1
-                    print("yes with 95% prob \t", end = '')
+                    print("yes with 70% prob \t", end = '')
                     print(test_data_1['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     num_words1 = len(test_data_1['sentences'][num].split(" "))
@@ -175,14 +175,14 @@ def run_model():
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[1]):
                     count2+=1
-                    print("yes with 95% prob \t", end = '')
+                    print("yes with 70% prob \t", end = '')
                     print(test_data_2['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     num_words2 = len(test_data_2['sentences'][num].split(" "))
                     df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [pred_item.item((0,1))]
                     break
 
-        elif pred_item.item((0,1)) <= 0.05:
+        elif pred_item.item((0,1)) <= 0.10:
             # print(item.shape) # Shape (1536,)
             new_item = item # preserve shape (1536,)
             # print(new_item.shape) # Shape (1, 1536)
@@ -193,7 +193,7 @@ def run_model():
             for num, vector in enumerate(test_data_1['embeddings']):
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[0]):
-                    print("yes with 5% prob \t", end = '')
+                    print("yes with 10% prob \t", end = '')
                     print(test_data_1['sentences'][num])
                     break
 
@@ -201,7 +201,7 @@ def run_model():
             for num, vector in enumerate(test_data_2['embeddings']):
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[1]):
-                    print("yes with 5% prob \t", end = '')
+                    print("yes with 10% prob \t", end = '')
                     print(test_data_2['sentences'][num])
                     break
 
@@ -209,7 +209,7 @@ def run_model():
     #print(df2.head())
     final_df = pd.concat([df1, df2], axis=1)
     print(final_df.head())
-    final_df.to_csv('paraphrase/figs/paraphr.csv')'''
+    final_df.to_csv('paraphrase/figs/paraphr_pawstestset.csv')
 
       
 if __name__ == '__main__':
