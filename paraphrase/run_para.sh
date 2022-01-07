@@ -52,3 +52,5 @@ bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_mprc.py
 
 bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_paws.py
+
+# bsub "${args[@]}" python paraphrase/testverbmarking.py

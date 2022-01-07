@@ -22,6 +22,11 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import spacy   
+from spacy.matcher import Matcher
+from spacy.util import filter_spans
+nlp = spacy.load('en_core_web_sm')
+
 '''a = np.array([[1, 2], [3, 4]])
 b = np.array([[5, 6], [7, 8]])
 
@@ -68,6 +73,26 @@ X_train, X_test, y_train, y_test = train_test_split(input_combined_vectors_all, 
                                     test_size=0.2, shuffle = True, random_state = 0)
 
 print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+
+# Get all verbs using a Spacy based function
+def get_verbs(input_sentence):
+
+    sentence = input_sentence
+    pattern = [{'POS': 'VERB', 'OP': '?'},
+            {'POS': 'ADV', 'OP': '*'},
+            {'POS': 'AUX', 'OP': '*'},
+            {'POS': 'VERB', 'OP': '+'}]
+
+    # instantiate a Matcher instance
+    matcher = Matcher(nlp.vocab)
+    matcher.add("Verb phrase", [pattern])
+
+    doc = nlp(sentence) 
+    # call the matcher to find matches 
+    matches = matcher(doc)
+    spans = [doc[start:end] for _, start, end in matches]
+
+    return (filter_spans(spans))
 
 
 def run_model():
@@ -138,9 +163,10 @@ def run_model():
     plt.close(figure1)
 
 
-    ## Get paraphrase pairs with high probability ( >= 80)
-    df1 = pd.DataFrame(columns=['sent1','length1', 'indirect words sent1'])
-    df2 = pd.DataFrame(columns=['sent2','length2', 'indirect words sent2', 'prob_score'])
+    ## Get paraphrase pairs with high probability ( >= 95)
+    df1 = pd.DataFrame(columns=['sent1','length1', 'indirect words sent1', 'count of verbs sent1', 'verbs in sent1'])
+    df2 = pd.DataFrame(columns=['sent2','length2', 'indirect words sent2', 'count of verbs sent2', 'verbs in sent2',
+    'prob_score'])
     count1 = 0
     count2 = 0
 
@@ -169,10 +195,13 @@ def run_model():
                     print(test_data_1['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     list_of_words1 = test_data_1['sentences'][num].split(" ")
+                    # Get list of verbs 
+                    verbs = get_verbs(test_data_1['sentences'][num])
+
                     num_words1 = len(list_of_words1)
                     temp_indirect_list = []
                     quote_count = 0
-                    
+
                     # Faster method to do the same thing
                     overap_words = set(indirect_quotes) & set([word.lower().rstrip(".") for word in list_of_words1])
                     if bool(overap_words) == True:
@@ -180,7 +209,7 @@ def run_model():
                     else:
                         temp_indirect_list.append("no")
 
-                    df1.loc[count1] = [test_data_1['sentences'][num]] + [num_words1] + [temp_indirect_list]
+                    df1.loc[count1] = [test_data_1['sentences'][num]] + [num_words1] + [temp_indirect_list] + [len(verbs)] + [verbs]
                     break
             
 
@@ -193,6 +222,9 @@ def run_model():
                     print(test_data_2['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     list_of_words2 = test_data_2['sentences'][num].split(" ")
+                    # Get list of verbs 
+                    verbs = get_verbs(test_data_2['sentences'][num])
+
                     num_words2 = len(list_of_words2)
                     temp_indirect_list = []
                     quote_count = 0
@@ -203,7 +235,7 @@ def run_model():
                     else:
                         temp_indirect_list.append("no")
                         
-                    df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [temp_indirect_list] + [pred_item.item((0,1))]
+                    df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [temp_indirect_list] + [len(verbs)] + [verbs] + [pred_item.item((0,1))]
                     break
 
         elif pred_item.item((0,1)) <= 0.10:
