@@ -171,9 +171,10 @@ def run_model():
                     list_of_words1 = test_data_1['sentences'][num].split(" ")
                     num_words1 = len(list_of_words1)
                     temp_indirect_list = []
-
+                    quote_count = 0
+                    
                     # Faster method to do the same thing
-                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words1])
+                    overap_words = set(indirect_quotes) & set([word.lower().rstrip(".") for word in list_of_words1])
                     if bool(overap_words) == True:
                         temp_indirect_list = list(overap_words)
                     else:
@@ -194,8 +195,9 @@ def run_model():
                     list_of_words2 = test_data_2['sentences'][num].split(" ")
                     num_words2 = len(list_of_words2)
                     temp_indirect_list = []
-
-                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words2])
+                    quote_count = 0
+                    
+                    overap_words = set(indirect_quotes) & set([word.lower().rstrip(".") for word in list_of_words2])
                     if bool(overap_words) == True:
                         temp_indirect_list = list(overap_words)
                     else:

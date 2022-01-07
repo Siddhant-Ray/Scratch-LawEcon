@@ -187,7 +187,7 @@ def run_model():
                         temp_indirect_list.append("No")'''
 
                     # Faster method to do the same thing
-                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words1])
+                    overap_words = set(indirect_quotes) & set([word.lower().rstrip(".") for word in list_of_words1])
                     if bool(overap_words) == True:
                         temp_indirect_list = list(overap_words)
                     else:
@@ -218,12 +218,12 @@ def run_model():
                     if quote_count==0:
                         temp_indirect_list.append("No")'''
 
-                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words2])
+                    overap_words = set(indirect_quotes) & set([word.lower().rstrip(".") for word in list_of_words2])
                     if bool(overap_words) == True:
                         temp_indirect_list = list(overap_words)
                     else:
                         temp_indirect_list.append("no")
-                        
+
                     df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [temp_indirect_list] + [pred_item.item((0,1))]
                     break
 
