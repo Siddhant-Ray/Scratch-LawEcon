@@ -144,10 +144,13 @@ def run_model():
 
 
     ## Get paraphrase pairs with high probability ( >= 95)
-    df1 = pd.DataFrame(columns=['sent1','length1'])
-    df2 = pd.DataFrame(columns=['sent2','length2','prob_score'])
+    df1 = pd.DataFrame(columns=['sent1','length1', 'indirect words sent1'])
+    df2 = pd.DataFrame(columns=['sent2','length2', 'indirect words sent2', 'prob_score'])
     count1 = 0
     count2 = 0
+
+    # Check for these words in the sentence pair
+    indirect_quotes=["said", "added", "according"]
 
     for item in combined_test:
         #print(item.reshape(1,-1).shape) # Shape (1,1536)
@@ -170,8 +173,27 @@ def run_model():
                     print("yes with 95% prob \t", end = '')
                     print(test_data_1['sentences'][num])
                     # Make a dataset with sentence, length and scores
-                    num_words1 = len(test_data_1['sentences'][num].split(" "))
-                    df1.loc[count1] = [test_data_1['sentences'][num]] + [num_words1]
+                    list_of_words1 = test_data_1['sentences'][num].split(" ")
+                    num_words1 = len(list_of_words1)
+                    temp_indirect_list = []
+                    quote_count = 0
+                    # Check for indirect quotes (if more words, make a list of the words )
+                    '''for word in list_of_words1:
+                        if word.lower() == "said" or word.lower() == "according" or word.lower() == "added":
+                            temp_indirect_list.append(word)
+                            quote_count+=1
+                    
+                    if quote_count==0:
+                        temp_indirect_list.append("No")'''
+
+                    # Faster method to do the same thing
+                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words1])
+                    if bool(overap_words) == True:
+                        temp_indirect_list = list(overap_words)
+                    else:
+                        temp_indirect_list.append("no")
+
+                    df1.loc[count1] = [test_data_1['sentences'][num]] + [num_words1] + [temp_indirect_list]
                     break
             
 
@@ -183,8 +205,26 @@ def run_model():
                     print("yes with 95% prob \t", end = '')
                     print(test_data_2['sentences'][num])
                     # Make a dataset with sentence, length and scores
-                    num_words2 = len(test_data_2['sentences'][num].split(" "))
-                    df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [pred_item.item((0,1))]
+                    list_of_words2 = test_data_2['sentences'][num].split(" ")
+                    num_words2 = len(list_of_words2)
+                    temp_indirect_list = []
+                    quote_count = 0
+                    # Check for indirect quotes (if more words, make a list of the words )
+                    '''for word in list_of_words2:
+                        if word.lower() == "said" or word.lower() == "according" or word.lower() == "added":
+                            temp_indirect_list.append(word)
+                            quote_count+=1
+                    
+                    if quote_count==0:
+                        temp_indirect_list.append("No")'''
+
+                    overap_words = set(indirect_quotes) & set([word.lower() for word in list_of_words2])
+                    if bool(overap_words) == True:
+                        temp_indirect_list = list(overap_words)
+                    else:
+                        temp_indirect_list.append("no")
+                        
+                    df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [temp_indirect_list] + [pred_item.item((0,1))]
                     break
 
         elif pred_item.item((0,1)) <= 0.05:

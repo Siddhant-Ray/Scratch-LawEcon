@@ -48,7 +48,7 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_full.py
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_full.py
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_mprc.py
 
 bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_paws.py
