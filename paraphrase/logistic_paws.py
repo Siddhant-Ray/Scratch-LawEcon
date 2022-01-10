@@ -179,7 +179,7 @@ def run_model():
         #print(pred_item.shape) # Shape (1,2)
         
         # Threshold for paraphrase probability
-        if pred_item.item((0,1)) >= 0.70:
+        if pred_item.item((0,1)) >= 0.00:
             # print(item.shape) # Shape (1536,)
             new_item = item # preserve shape (1536,)
             # print(new_item.shape) # Shape (1, 1536)
@@ -191,7 +191,7 @@ def run_model():
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[0]):
                     count1+=1
-                    print("yes with 70% prob \t", end = '')
+                    print("yes with {:.2f} prob \t".format(pred_item.item((0,1))), end = '')
                     print(test_data_1['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     list_of_words1 = test_data_1['sentences'][num].split(" ")
@@ -218,7 +218,7 @@ def run_model():
                 # print(vector.shape) # Shape (384, )
                 if np.array_equal(vector, new_item[1]):
                     count2+=1
-                    print("yes with 70% prob \t", end = '')
+                    print("yes with {:.2f} prob \t".format(pred_item.item((0,1))), end = '')
                     print(test_data_2['sentences'][num])
                     # Make a dataset with sentence, length and scores
                     list_of_words2 = test_data_2['sentences'][num].split(" ")
