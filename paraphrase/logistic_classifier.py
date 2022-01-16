@@ -1,4 +1,5 @@
 import json, pickle
+from operator import le
 import os, sys, time, math, random
 import argparse
 from typing_extensions import final
@@ -314,12 +315,59 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_
     SAVE_PATH = "paraphrase/figs/paraphr_trainset_" + out_file_train + "_testset_" + out_file_test + ".csv" 
     final_df.to_csv(SAVE_PATH)
 
+# Generate pairwise similarities on a corpus
+def pairwise_similarities_on_corpus(clf, fname, out_file_train, out_file_test):
+
+    PATH = 'paraphrase/data/'
+    full_file_path = PATH + fname + ".pkl"
+
+    # Storing list 
+    pairwise_data = []
+
+    # Load test dataset 
+    with open(full_file_path, "rb") as em:
+        test_data = pickle.load(em)
+
+    test_vectors = test_data['embeddings']
+    test_sentences = test_data['sentences'] 
+
+    for postion1 in range(0, len(test_vectors)-1):
+        for position2 in range(postion1 + 1, len(test_vectors)):
+            
+            vector1 = test_vectors[postion1].reshape(1,-1)
+            vector2 = test_vectors[position2].reshape(1,-1)
+
+            abs_diff = np.abs(vector1 - vector2).reshape(1,-1)
+            elem_prod = (vector1 * vector2).reshape(1,-1)
+
+            combined_vec = np.concatenate((vector1, 
+                        vector2, abs_diff,elem_prod), axis = 1)
+            
+            #print(combined_vec.shape)
+
+            t_preds = clf.predict(combined_vec) 
+            t_pred_probs = clf.predict_proba(combined_vec)
+            
+            pairwise_data.append([test_sentences[postion1], test_sentences[position2], t_pred_probs[0][1]])
+            # print(pairwise_data)
+            
+    data_frame = pd.DataFrame(pairwise_data,
+                   columns=['sentence1', 'sentence2', 'probability'])
+
+    print(data_frame.head())
+
+    SAVE_PATH = "paraphrase/figs/pairwise_trainset_" + out_file_train + "_testset_" + out_file_test + ".csv" 
+    data_frame.to_csv(SAVE_PATH)
+
+    return None 
+
 
 def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-tr", "--train", help="train dataset specifier")
     parser.add_argument("-ev", "--eval", help="eval dataset specifier")
+    parser.add_argument("-ts", "--test", help="test corpus dataset specifier")
 
     args = parser.parse_args()
 
@@ -361,12 +409,19 @@ def main():
         print("Invalid test dataset")
         exit()
 
+    if args.test == "corp1":
+        test_fname = "test_corpus1"
+
     # Evaluate the model on the test dataset
-    test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
-                                                                eval_fname2, eval_flabel, args.train, args.eval)
+    '''test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
+                                                                eval_fname2, eval_flabel, args.train, args.eval)'''
 
     # Generate the .csv file with the scored sentence pairs 
-    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.train, args.eval)
+    '''generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.train, args.eval)'''
+
+    # Generate pairwise similarities on the test corpus
+    pairwise_similarities_on_corpus(classifier, test_fname, args.train, args.test)
+
       
 if __name__ == '__main__':
     main()
