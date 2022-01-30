@@ -1,6 +1,7 @@
 import json, pickle, argparse
 import random
 import math
+
 import torch 
 
 from sentence_transformers import SentenceTransformer
@@ -8,6 +9,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics import pairwise_distances
 from scipy.spatial.distance import cosine
 import numpy as np
+from numpy import linalg as LA
 
 from itertools import combinations
 
@@ -41,9 +43,10 @@ def get_pairs_of_sentences(sentences):
 # FAST cosine pairwise function
 def pairwise_cosine_sim_matrix(input_matrix):
     m = input_matrix
-    norm = (m * m).sum(0, keepdims=True) ** .5
+    # norm = (m * m).sum(0, keepdims=True) ** .5
+    norm = LA.norm(m)
     m_norm = m/norm; 
-    similarity_matrix = m_norm.T @ m_norm
+    similarity_matrix = m_norm @ m_norm.T 
 
     return similarity_matrix
 
@@ -88,6 +91,19 @@ def main():
         stored_data = load_embeddings(stored_file)
         list_of_embeddings = stored_data['embeddings']
         print(list_of_embeddings.shape)
+
+        pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
+        print(pair_cosine_matrix.shape)
+
+        print(pair_cosine_matrix[0])
+
+        # SET threshold for pairwise similarity
+        masked_matrix = np.where(pair_cosine_matrix > 0.8, 1, 0)
+        indices_for_similar = np.where(masked_matrix==1)
+
+        print(indices_for_similar.shape)
+        print(indices_for_similar)
+
 
 if __name__ == '__main__':
     main()

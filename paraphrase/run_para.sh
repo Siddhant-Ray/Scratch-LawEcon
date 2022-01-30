@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 2 
+    -n 8 
     -W 4:00
     -R "rusage[mem=4500]"
 )
