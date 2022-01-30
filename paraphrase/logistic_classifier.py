@@ -29,6 +29,8 @@ from spacy.matcher import Matcher
 from spacy.util import filter_spans
 nlp = spacy.load('en_core_web_sm')
 
+from itertools import combinations
+
 # Load the embeddings of the specified dataset
 def load_embeddings(fname1, fname2, flabel):
 
@@ -127,6 +129,12 @@ def run_model(X_train, X_test, y_train, y_test, out_file_train):
     SAVE_PATH =  "paraphrase/figs/cm_train_" + out_file_train +".png"
     figure.savefig(SAVE_PATH)
     plt.close(figure)
+
+    # SAVE MODEL FOR FUTURE USE (with training dataset name)
+    MODEL_PATH = "paraphrase/saved_models"
+
+    filename = MODEL_PATH + out_file_train + ".sav"
+    pickle.dump(clf, open(filename, 'wb'))
 
     return clf
 
@@ -331,6 +339,18 @@ def pairwise_similarities_on_corpus(clf, fname, out_file_train, out_file_test):
     test_vectors = test_data['embeddings']
     test_sentences = test_data['sentences'] 
 
+    # Alternative method (if this doesn't scale )
+
+    '''test_vector_pairs = list(combinations(test_vectors,2))
+    test_sentences_pairs = list(combinations(test_sentences,2))
+
+    list_of_vec1 = list(zip(*test_vector_pairs))[0]
+    list_of_vec2 = list(zip(*test_vector_pairs))[1]
+    list_of_sent1 = list(zip(*test_sentences_pairs))[0]
+    list_of_sent2 = list(zip(*test_sentences_pairs))[1]
+
+    print(len(list_of_vec1), len(list_of_vec2), len(list_of_sent1), len(list_of_sent2))'''
+    
     for postion1 in range(0, len(test_vectors)-1):
         for position2 in range(postion1 + 1, len(test_vectors)):
             
@@ -413,14 +433,14 @@ def main():
         test_fname = "test_corpus1"
 
     # Evaluate the model on the test dataset
-    '''test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
-                                                                eval_fname2, eval_flabel, args.train, args.eval)'''
+    test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
+                                                                eval_fname2, eval_flabel, args.train, args.eval)
 
     # Generate the .csv file with the scored sentence pairs 
-    '''generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.train, args.eval)'''
+    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.train, args.eval)
 
     # Generate pairwise similarities on the test corpus
-    pairwise_similarities_on_corpus(classifier, test_fname, args.train, args.test)
+    # pairwise_similarities_on_corpus(classifier, test_fname, args.train, args.test)
 
       
 if __name__ == '__main__':

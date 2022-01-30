@@ -1,6 +1,7 @@
 #rm -r paraphrase/linearclassifiermetrics
 #rm -r paraphrase/snnclassifiermetrics
 rm -rv paraphrase/outputfiles
+rm -rv paraphrase/models
 
 #rsync -r sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/linearclassifiermetrics paraphrase/
 #rsync -r sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/snnclassifiermetrics paraphrase/
