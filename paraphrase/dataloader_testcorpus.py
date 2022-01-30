@@ -44,7 +44,7 @@ def get_pairs_of_sentences(sentences):
 def pairwise_cosine_sim_matrix(input_matrix):
     m = input_matrix
     # norm = (m * m).sum(0, keepdims=True) ** .5
-    norm = LA.norm(m)
+    norm = LA.norm(m, axis = 1, keepdims = True)
     m_norm = m/norm; 
     similarity_matrix = m_norm @ m_norm.T 
 
@@ -68,7 +68,6 @@ def load_embeddings(fname):
         stored_data = pickle.load(em)
     
     return stored_data
-
 
 def main():
 
