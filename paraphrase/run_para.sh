@@ -47,9 +47,10 @@ done
 # bsub "${args[@]}" python paraphrase/data_preprocessing.py
 # bsub "${args[@]}" python paraphrase/visualize.py
 
-# bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc
+bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu
+
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc
 
