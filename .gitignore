@@ -149,3 +149,5 @@ paraphrase/plots/
 paraphrase/linearclassifiermetrics/
 paraphrase/snnclassifiermetrics/
 paraphrase/outputfiles
+paraphrase/saved_models
+paraphrase/test_corpora

@@ -131,7 +131,7 @@ def run_model(X_train, X_test, y_train, y_test, out_file_train):
     plt.close(figure)
 
     # SAVE MODEL FOR FUTURE USE (with training dataset name)
-    MODEL_PATH = "paraphrase/saved_models"
+    MODEL_PATH = "paraphrase/saved_models/"
 
     filename = MODEL_PATH + out_file_train + ".sav"
     pickle.dump(clf, open(filename, 'wb'))
