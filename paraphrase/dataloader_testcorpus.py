@@ -94,14 +94,18 @@ def main():
         pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
         print(pair_cosine_matrix.shape)
 
-        print(pair_cosine_matrix[0])
+        print(pair_cosine_matrix[0][0:15])
+
+        # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
+        np.save("paraphrase/figs/cosine_sim.npy", pair_cosine_matrix)
 
         # SET threshold for pairwise similarity
-        masked_matrix = np.where(pair_cosine_matrix > 0.8, 1, 0)
+        masked_matrix = np.where(pair_cosine_matrix > 0.2 , 1, 0)
+        print(masked_matrix[0][0:15])
         indices_for_similar = np.where(masked_matrix==1)
 
-        print(indices_for_similar.shape)
-        print(indices_for_similar)
+        print(indices_for_similar[0][0:10])
+        print(indices_for_similar[1][0:10])
 
 
 if __name__ == '__main__':

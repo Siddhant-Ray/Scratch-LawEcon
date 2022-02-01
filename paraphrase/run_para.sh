@@ -19,7 +19,7 @@ args=(
     -G ls_lawecon
     -n 8 
     -W 4:00
-    -R "rusage[mem=4500]"
+    -R "rusage[mem=64000]"
 )
 
 echo "getting into paraphrase directory"
