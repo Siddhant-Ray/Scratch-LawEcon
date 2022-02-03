@@ -20,6 +20,8 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics.pairwise import cosine_similarity
+from numpy.linalg import norm
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -197,7 +199,8 @@ def evaluate_model(clf, fname1, fname2, flabel, out_file_train, out_file_test):
 
 
 # Identify the verbs in the sentences, get probability scores for pairs, identify indirect speech 
-def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_train, out_file_test):
+def generate_scored_file(clf, combined_test, test_data_1, test_data_2, threshold_max, threshold_min,
+ out_file_train, out_file_test):
 
     ## Get paraphrase pairs with high probability ( >= 95)
     df1 = pd.DataFrame(columns=['sent1','length1', 'indirect words sent1', 'count of verbs sent1', 'verbs in sent1'])
@@ -205,6 +208,10 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_
     'prob_score'])
     count1 = 0
     count2 = 0
+
+    # set threshold to floats
+    threshold_max = float(threshold_max)
+    threshold_min = float(threshold_min)
 
     # Check for these words in the sentence pair
     indirect_quotes=["said", "added", "according"]
@@ -215,7 +222,7 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_
         #print(pred_item.shape) # Shape (1,2)
         
         # Threshold for paraphrase probability
-        if pred_item.item((0,1)) >= 0.00:
+        if pred_item.item((0,1)) >= threshold_max:
             # print(item.shape) # Shape (1536,)
             new_item = item # preserve shape (1536,)
             # print(new_item.shape) # Shape (1, 1536)
@@ -292,7 +299,7 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_
                     df2.loc[count2] = [test_data_2['sentences'][num]] + [num_words2] + [temp_indirect_list] + [len(verbs)] + [verbs] + [pred_item.item((0,1))]
                     break
 
-        elif pred_item.item((0,1)) <= 0.05:
+        elif pred_item.item((0,1)) <= threshold_min:
             # print(item.shape) # Shape (1536,)
             new_item = item # preserve shape (1536,)
             # print(new_item.shape) # Shape (1, 1536)
@@ -315,9 +322,25 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, out_file_
                     print(test_data_2['sentences'][num])
                     break
 
+    # Compute Cosine Similarities betweeen corresponding vectors (FAST)
+    v1 = test_data_1['embeddings']
+    v2 = test_data_2['embeddings']
+    product_of_vectors = np.einsum('ij,ij->i', v1, v2)[..., None]
+    normedv1 = (v1*v1).sum(axis=1)**0.5
+    normedv2 = (v2*v2).sum(axis=1)**0.5
+
+    inverse_prod_norms = np.reciprocal(normedv1 * normedv2).reshape(-1,1)
+    cosine_similarites = product_of_vectors * inverse_prod_norms
+
+    # print(cosine_similarites.shape)
+
+    df3 = pd.DataFrame(cosine_similarites, columns=['cosine_sim'])
+    df3.index = np.arange(1, len(df3)+1)
+    print(df3.head())
+
     #print(df1.head())
     #print(df2.head())
-    final_df = pd.concat([df1, df2], axis=1)
+    final_df = pd.concat([df1, df2, df3], axis=1)
     print(final_df.head())
 
     SAVE_PATH = "paraphrase/figs/paraphr_trainset_" + out_file_train + "_testset_" + out_file_test + ".csv" 
@@ -388,6 +411,8 @@ def main():
     parser.add_argument("-tr", "--train", help="train dataset specifier")
     parser.add_argument("-ev", "--eval", help="eval dataset specifier")
     parser.add_argument("-ts", "--test", help="test corpus dataset specifier")
+    parser.add_argument("-th_min", "--threshold_minimum", help="threshold for paraphrase similarity")
+    parser.add_argument("-th_max", "--threshold_maximum", help="threshold for paraphrase similarity")
 
     args = parser.parse_args()
 
@@ -435,9 +460,10 @@ def main():
     # Evaluate the model on the test dataset
     test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
                                                                 eval_fname2, eval_flabel, args.train, args.eval)
-
+    
     # Generate the .csv file with the scored sentence pairs 
-    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.train, args.eval)
+    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.threshold_maximum, 
+    args.threshold_minimum, args.train, args.eval)
 
     # Generate pairwise similarities on the test corpus
     # pairwise_similarities_on_corpus(classifier, test_fname, args.train, args.test)

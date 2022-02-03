@@ -17,9 +17,9 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 8 
+    -n 4 
     -W 4:00
-    -R "rusage[mem=64000]"
+    -R "rusage[mem=6400]"
 )
 
 echo "getting into paraphrase directory"
@@ -48,9 +48,9 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu
+# bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1 -th_min 0.05 -th_max 0.00
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc -th_min 0.05 -th_max 0.00
 
