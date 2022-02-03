@@ -13,5 +13,6 @@ rsync -rv sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-La
 #tensorboard --logdir=paraphrase/snnclassifiermetrics &
 #tensorboard --logdir=paraphrase/linearclassifiermetrics &
 
-rsync -rv sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/figs paraphrase/
+rsync -rv sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/figs/cm* paraphrase/figs/
+rsync -rv sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/figs/paraphr* paraphrase/figs/
 rsync -rv sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/test_corpora paraphrase/

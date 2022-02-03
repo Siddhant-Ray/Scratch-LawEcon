@@ -13,8 +13,17 @@ def read_csv(path):
     return df
 
 def filter_dataframe(df, threshold):
-    df.loc[df['column_name'] >= threshold]
+    threshold = float(threshold)
+    df = df.loc[df['prob_score'] >= threshold]
+    df = df.drop(columns=['indirect words sent1','count of verbs sent1','verbs in sent1'])
+    df = df.drop(columns=['indirect words sent2','count of verbs sent2','verbs in sent2'])
+    df = df.rename(columns={'prob_score': 'paraphrase_probability'})
     return df 
+
+def save_filtered_csv(df, save_path, train_set, threshold):
+    save_path = PATH + train_set + "_trainset_" + "_filtered_paraprob_greater_than" + str(threshold) + ".csv"
+    df.to_csv(save_path, index = False)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -37,5 +46,16 @@ def main():
 
     full_path = PATH + "paraphr_trainset_" + name1 + "_testset_" + name2 +  ".csv"
 
-    print(full_path)
+    data_frame = read_csv(full_path)
+    print(data_frame.head())
+
+    filtered_df = filter_dataframe(data_frame, args.threshold)
+    print(filtered_df.head())
+
+    # Save the file 
+    save_filtered_csv(filtered_df, full_path, args.file, args.threshold)
+
+
+if __name__== '__main__':
+    main()
 
