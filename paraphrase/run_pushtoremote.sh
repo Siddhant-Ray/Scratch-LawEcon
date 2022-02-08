@@ -11,3 +11,4 @@ rsync -v paraphrase/dataloader_testcorpus.py sidray@euler.ethz.ch:/cluster/home/
 rsync -v paraphrase/run_para.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 
 rsync -v paraphrase/logistic_classifier.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+rsync -v paraphrase/logistic_test.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/

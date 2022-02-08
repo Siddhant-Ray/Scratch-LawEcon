@@ -21,8 +21,55 @@ def filter_dataframe(df, threshold):
     return df 
 
 def save_filtered_csv(df, save_path, train_set, threshold):
-    save_path = PATH + train_set + "_trainset_" + "_filtered_paraprob_greater_than" + str(threshold) + ".csv"
+    save_path = PATH + "trained_on_" + train_set + "_trainset_" + "mprc_fulltestset" + "_filtered_paraprob_greater_than" + str(threshold) + ".csv"
     df.to_csv(save_path, index = False)
+
+def cosine_similarities_on_train_set(data_path, save_path, trainset):
+
+    PATH = data_path
+    
+    full_file_path1 = PATH + "embeddings_1" + ".pkl"
+    full_file_path2 = PATH + "embeddings_2" + ".pkl"
+    full_path_label = PATH + "labels" + ".pkl"
+
+    with open(full_file_path1, "rb") as em1:
+        stored_data_1 = pickle.load(em1)
+    with open(full_file_path2, "rb") as em2:
+        stored_data_2 = pickle.load(em2)
+    with open(full_path_label, "rb") as lbl:
+        stored_labels = pickle.load(lbl)
+
+    v1 = stored_data_1['embeddings']
+    v2 = stored_data_2['embeddings']
+    labels = np.array(stored_labels['labels'])
+
+    product_of_vectors = np.einsum('ij,ij->i', v1, v2)[..., None]
+    normedv1 = (v1*v1).sum(axis=1)**0.5
+    normedv2 = (v2*v2).sum(axis=1)**0.5
+
+    inverse_prod_norms = np.reciprocal(normedv1 * normedv2).reshape(-1,1)
+    cosine_similarites = product_of_vectors * inverse_prod_norms
+
+    df1 = pd.DataFrame(stored_data_1['sentences'], columns=['sent1'])
+    df1.index = np.arange(1, len(df1)+1)
+    #print(df1.head())
+    df2 = pd.DataFrame(stored_data_2['sentences'], columns=['sent2'])
+    df2.index = np.arange(1, len(df2)+1)
+    #print(df2.head())
+    df3 = pd.DataFrame(cosine_similarites, columns=['cosine_sim'])
+    df3.index = np.arange(1, len(df3)+1)
+    #print(df3.head())
+    df4= pd.DataFrame(labels, columns=['true_labels'])
+    df4.index = np.arange(1, len(df4)+1)
+    #print(df4.head())
+
+    final_df = pd.concat([df1, df2, df3, df4], axis=1)
+    print(final_df.head())
+
+    SAVE_PATH = save_path + "cosine_similarities_on" + trainset + "_trainset" + ".csv" 
+    final_df.to_csv(SAVE_PATH)
+
+    return None 
 
 
 def main():
@@ -55,6 +102,10 @@ def main():
     # Save the file 
     save_filtered_csv(filtered_df, full_path, args.file, args.threshold)
 
+    DATA_PATH = 'paraphrase/data/'
+    SAVE_PATH = 'paraphrase/figs/'
+
+    cosine_similarities_on_train_set(DATA_PATH, SAVE_PATH, args.file)
 
 if __name__== '__main__':
     main()

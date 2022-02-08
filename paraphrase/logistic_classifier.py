@@ -195,11 +195,11 @@ def evaluate_model(clf, fname1, fname2, flabel, out_file_train, out_file_test):
     figure1.savefig(SAVE_PATH)
     plt.close(figure1)
 
-    return clf, combined_test, test_data_1, test_data_2
+    return clf, combined_test, test_data_1, test_data_2, test_labels
 
 
 # Identify the verbs in the sentences, get probability scores for pairs, identify indirect speech 
-def generate_scored_file(clf, combined_test, test_data_1, test_data_2, threshold_max, threshold_min,
+def generate_scored_file(clf, combined_test, test_data_1, test_data_2, test_labels, threshold_max, threshold_min,
  out_file_train, out_file_test):
 
     ## Get paraphrase pairs with high probability ( >= 95)
@@ -334,75 +334,24 @@ def generate_scored_file(clf, combined_test, test_data_1, test_data_2, threshold
 
     # print(cosine_similarites.shape)
 
+    labels = np.array(test_labels['labels'])
+    print(labels)
+
     df3 = pd.DataFrame(cosine_similarites, columns=['cosine_sim'])
     df3.index = np.arange(1, len(df3)+1)
     print(df3.head())
 
+    df4= pd.DataFrame(labels, columns=['true_labels'])
+    df4.index = np.arange(1, len(df4)+1)
+    print(df4.head())
+
     #print(df1.head())
     #print(df2.head())
-    final_df = pd.concat([df1, df2, df3], axis=1)
+    final_df = pd.concat([df1, df2, df3, df4], axis=1)
     print(final_df.head())
 
     SAVE_PATH = "paraphrase/figs/paraphr_trainset_" + out_file_train + "_testset_" + out_file_test + ".csv" 
     final_df.to_csv(SAVE_PATH)
-
-# Generate pairwise similarities on a corpus
-def pairwise_similarities_on_corpus(clf, fname, out_file_train, out_file_test):
-
-    PATH = 'paraphrase/data/'
-    full_file_path = PATH + fname + ".pkl"
-
-    # Storing list 
-    pairwise_data = []
-
-    # Load test dataset 
-    with open(full_file_path, "rb") as em:
-        test_data = pickle.load(em)
-
-    test_vectors = test_data['embeddings']
-    test_sentences = test_data['sentences'] 
-
-    # Alternative method (if this doesn't scale )
-
-    '''test_vector_pairs = list(combinations(test_vectors,2))
-    test_sentences_pairs = list(combinations(test_sentences,2))
-
-    list_of_vec1 = list(zip(*test_vector_pairs))[0]
-    list_of_vec2 = list(zip(*test_vector_pairs))[1]
-    list_of_sent1 = list(zip(*test_sentences_pairs))[0]
-    list_of_sent2 = list(zip(*test_sentences_pairs))[1]
-
-    print(len(list_of_vec1), len(list_of_vec2), len(list_of_sent1), len(list_of_sent2))'''
-    
-    for postion1 in range(0, len(test_vectors)-1):
-        for position2 in range(postion1 + 1, len(test_vectors)):
-            
-            vector1 = test_vectors[postion1].reshape(1,-1)
-            vector2 = test_vectors[position2].reshape(1,-1)
-
-            abs_diff = np.abs(vector1 - vector2).reshape(1,-1)
-            elem_prod = (vector1 * vector2).reshape(1,-1)
-
-            combined_vec = np.concatenate((vector1, 
-                        vector2, abs_diff,elem_prod), axis = 1)
-            
-            #print(combined_vec.shape)
-
-            t_preds = clf.predict(combined_vec) 
-            t_pred_probs = clf.predict_proba(combined_vec)
-            
-            pairwise_data.append([test_sentences[postion1], test_sentences[position2], t_pred_probs[0][1]])
-            # print(pairwise_data)
-            
-    data_frame = pd.DataFrame(pairwise_data,
-                   columns=['sentence1', 'sentence2', 'probability'])
-
-    print(data_frame.head())
-
-    SAVE_PATH = "paraphrase/figs/pairwise_trainset_" + out_file_train + "_testset_" + out_file_test + ".csv" 
-    data_frame.to_csv(SAVE_PATH)
-
-    return None 
 
 
 def main():
@@ -458,11 +407,11 @@ def main():
         test_fname = "test_corpus1"
 
     # Evaluate the model on the test dataset
-    test_classifier, combined_vec, s_vec1, s_vec2 = evaluate_model(classifier, eval_fname1, 
+    test_classifier, combined_vec, s_vec1, s_vec2, slabels = evaluate_model(classifier, eval_fname1, 
                                                                 eval_fname2, eval_flabel, args.train, args.eval)
     
     # Generate the .csv file with the scored sentence pairs 
-    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, args.threshold_maximum, 
+    generate_scored_file(test_classifier, combined_vec, s_vec1, s_vec2, slabels, args.threshold_maximum, 
     args.threshold_minimum, args.train, args.eval)
 
     # Generate pairwise similarities on the test corpus
