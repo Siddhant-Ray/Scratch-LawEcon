@@ -16,6 +16,9 @@ from itertools import combinations
 
 import pandas as pd
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 file = "paraphrase/test_corpora/source_corpus2.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
 
@@ -71,19 +74,32 @@ def load_embeddings(fname):
     return stored_data
 
 # FILTER for different thresholds, find mean, save mean cosine values
-def filter_matrixes_by_threshold(cos_matrix, threshold):
+def filter_matrixes_by_threshold_get_mean(cos_matrix, threshold):
 
     thr= float(threshold)
 
-    # SET threshold for pairwise similarity
-    masked_matrix = np.where(cos_matrix > thr , 1, 0)
-    print(masked_matrix[0][0:15])
-    indices_for_similar = np.where(masked_matrix==1)
+    mean_values = []
+    thresholds = []
+    num_elem = []
 
-    print(indices_for_similar[0][0:10])
-    print(indices_for_similar[1][0:10])
+    for value in np.arange(thr, 0.15, -0.05):
 
-    return None 
+        thresholds.append(value)
+        # SET threshold for pairwise similarity
+        masked_matrix = np.where(cos_matrix > value , 1, 0)
+        # print(masked_matrix[0][0:15])
+        indices_for_similar = np.where(masked_matrix==1)
+
+        # Print first indices for entries above threshold
+        # print(indices_for_similar[0][0:10])
+        # print(indices_for_similar[1][0:10])
+
+        values_above_threshold = cos_matrix[indices_for_similar[0], indices_for_similar[1]]
+        print(values_above_threshold[0:10])
+        mean_values.append(np.mean(values_above_threshold))
+        num_elem.append(values_above_threshold.size)
+
+    return thresholds, mean_values, num_elem
 
 def main():
 
@@ -125,8 +141,20 @@ def main():
         print(loaded_pair_cosine_matrix.shape)
         print(loaded_pair_cosine_matrix[0][0:15])
 
-        filter_matrixes_by_threshold(loaded_pair_cosine_matrix, args.threshold)
+        thresholds, mean_values, num_elem = filter_matrixes_by_threshold_get_mean(loaded_pair_cosine_matrix, args.threshold)
+        plt.figure(1)
+        plt.plot(thresholds, mean_values)
+        plt.title("Threshold vs mean cosine similarity on satisfying indices")
+        plt.xlabel("Threshold")
+        plt.ylabel("Mean cosine similarity")
+        plt.savefig("paraphrase/figs/threshold_cosine.png",format="png")
 
+        plt.figure(2)
+        plt.plot(thresholds, num_elem)
+        plt.title("Threshold vs number of sentences above threshold")
+        plt.xlabel("Threshold")
+        plt.ylabel("Number of sentences above threshold")
+        plt.savefig("paraphrase/figs/threshold_num.png",format="png")
 
 
 
