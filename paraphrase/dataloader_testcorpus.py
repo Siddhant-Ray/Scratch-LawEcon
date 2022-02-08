@@ -78,11 +78,12 @@ def filter_matrixes_by_threshold_get_mean(cos_matrix, threshold):
 
     thr= float(threshold)
 
-    mean_values = []
     thresholds = []
+    mean_values = []
+    median_values = []
     num_elem = []
 
-    for value in np.arange(thr, 0.15, -0.05):
+    for value in np.arange(thr, 0.15, -0.025):
 
         thresholds.append(value)
         # SET threshold for pairwise similarity
@@ -97,9 +98,10 @@ def filter_matrixes_by_threshold_get_mean(cos_matrix, threshold):
         values_above_threshold = cos_matrix[indices_for_similar[0], indices_for_similar[1]]
         print(values_above_threshold[0:10])
         mean_values.append(np.mean(values_above_threshold))
-        num_elem.append(values_above_threshold.size)
+        median_values.append(np.median(values_above_threshold))
+        num_elem.append(values_above_threshold.size / 2)
 
-    return thresholds, mean_values, num_elem
+    return thresholds, mean_values, median_values, num_elem
 
 def main():
 
@@ -141,19 +143,28 @@ def main():
         print(loaded_pair_cosine_matrix.shape)
         print(loaded_pair_cosine_matrix[0][0:15])
 
-        thresholds, mean_values, num_elem = filter_matrixes_by_threshold_get_mean(loaded_pair_cosine_matrix, args.threshold)
+        thresholds, mean_values, median_values, num_elem = filter_matrixes_by_threshold_get_mean(loaded_pair_cosine_matrix, 
+                                                                                                args.threshold)
         plt.figure(1)
         plt.plot(thresholds, mean_values)
         plt.title("Threshold vs mean cosine similarity on satisfying indices")
         plt.xlabel("Threshold")
         plt.ylabel("Mean cosine similarity")
-        plt.savefig("paraphrase/figs/threshold_cosine.png",format="png")
+        plt.savefig("paraphrase/figs/threshold_cosine_mean.png",format="png")
 
         plt.figure(2)
-        plt.plot(thresholds, num_elem)
-        plt.title("Threshold vs number of sentences above threshold")
+        plt.plot(thresholds, median_values)
+        plt.title("Threshold vs median cosine similarity on satisfying indices")
         plt.xlabel("Threshold")
-        plt.ylabel("Number of sentences above threshold")
+        plt.ylabel("Median cosine similarity")
+        plt.savefig("paraphrase/figs/threshold_cosine_median.png",format="png")
+
+
+        plt.figure(3)
+        plt.plot(thresholds, num_elem)
+        plt.title("Threshold vs number of sentence pairs above threshold")
+        plt.xlabel("Threshold")
+        plt.ylabel("Number of sentence pairs above threshold")
         plt.savefig("paraphrase/figs/threshold_num.png",format="png")
 
 
