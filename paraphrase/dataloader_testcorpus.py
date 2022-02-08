@@ -1,6 +1,7 @@
 import json, pickle, argparse
 import random
 import math
+from re import L
 
 import torch 
 
@@ -69,43 +70,64 @@ def load_embeddings(fname):
     
     return stored_data
 
+# FILTER for different thresholds, find mean, save mean cosine values
+def filter_matrixes_by_threshold(cos_matrix, threshold):
+
+    thr= float(threshold)
+
+    # SET threshold for pairwise similarity
+    masked_matrix = np.where(cos_matrix > thr , 1, 0)
+    print(masked_matrix[0][0:15])
+    indices_for_similar = np.where(masked_matrix==1)
+
+    print(indices_for_similar[0][0:10])
+    print(indices_for_similar[1][0:10])
+
+    return None 
+
 def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-dev", "--device", help="device specifier")
+    parser.add_argument("-sv", "--save", help = "choose saved numpy cosine matrix")
+    parser.add_argument("-thr", "--threshold", help = "theshold for filtering cosine sim")
 
     args = parser.parse_args()
 
     print(args)
 
-    if args.device == "gpu":
-        print("generating new embeddings........")
-        sentences = get_corpus(file)
-        print(sentences[0:5])
-        list_of_embeddings, list_of_sentences = generate_and_save_embeddings(sentences)
-        print(list_of_embeddings.shape)
+    if args.save:
+        
+        if args.device == "gpu":
+            print("generating new embeddings........")
+            sentences = get_corpus(file)
+            print(sentences[0:5])
+            list_of_embeddings, list_of_sentences = generate_and_save_embeddings(sentences)
+            print(list_of_embeddings.shape)
 
-    elif args.device == "cpu":
-        print("loading stored embeddings........")
-        stored_data = load_embeddings(stored_file)
-        list_of_embeddings = stored_data['embeddings']
-        print(list_of_embeddings.shape)
+        elif args.device == "cpu":
+            print("loading stored embeddings........")
+            stored_data = load_embeddings(stored_file)
+            list_of_embeddings = stored_data['embeddings']
+            # print(list_of_embeddings.shape)
 
-        pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
-        print(pair_cosine_matrix.shape)
+            pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
+            # print(pair_cosine_matrix.shape)
+            # print(pair_cosine_matrix[0][0:15])
 
-        print(pair_cosine_matrix[0][0:15])
+            # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
+            np.save("paraphrase/data/cosine_sim.npy", pair_cosine_matrix)
+            np.save("paraphrase/data/cosine_sim_16.npy", pair_cosine_matrix.astype(np.float16))
+   
+    else:
+        print("Loading from saved.....")
+        loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16.npy")
+        print(loaded_pair_cosine_matrix.shape)
+        print(loaded_pair_cosine_matrix[0][0:15])
 
-        # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
-        np.save("paraphrase/figs/cosine_sim.npy", pair_cosine_matrix)
+        filter_matrixes_by_threshold(loaded_pair_cosine_matrix, args.threshold)
 
-        # SET threshold for pairwise similarity
-        masked_matrix = np.where(pair_cosine_matrix > 0.2 , 1, 0)
-        print(masked_matrix[0][0:15])
-        indices_for_similar = np.where(masked_matrix==1)
 
-        print(indices_for_similar[0][0:10])
-        print(indices_for_similar[1][0:10])
 
 
 if __name__ == '__main__':

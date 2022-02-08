@@ -12,6 +12,7 @@ def read_csv(path):
     df = pd.read_csv(path)
     return df
 
+# Filter dataframe by a threshold paraphrase probability
 def filter_dataframe(df, threshold):
     threshold = float(threshold)
     df = df.loc[df['prob_score'] >= threshold]
@@ -20,10 +21,12 @@ def filter_dataframe(df, threshold):
     df = df.rename(columns={'prob_score': 'paraphrase_probability'})
     return df 
 
+# Save the filtered cv file
 def save_filtered_csv(df, save_path, train_set, threshold):
     save_path = PATH + "trained_on_" + train_set + "_trainset_" + "mprc_fulltestset" + "_filtered_paraprob_greater_than" + str(threshold) + ".csv"
     df.to_csv(save_path, index = False)
 
+# Compute pairwise cosine similarities on the two sentence sets
 def cosine_similarities_on_train_set(data_path, save_path, trainset):
 
     PATH = data_path
