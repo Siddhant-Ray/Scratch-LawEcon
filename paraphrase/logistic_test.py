@@ -8,6 +8,9 @@ import pandas as pd
 
 PATH = "paraphrase/figs/"
 
+# Test corpus
+stored_file = "paraphrase/data/test_corpus1.pkl"
+
 def read_csv(path):
     df = pd.read_csv(path)
     return df
@@ -74,6 +77,18 @@ def cosine_similarities_on_train_set(data_path, save_path, trainset):
 
     return None 
 
+# LOAD the weights of the trained logistic model
+def load_saved_model(model_path):
+    loaded_model = pickle.load(open(model_path, 'rb'))
+    return loaded_model
+
+# LOAD embeddings from stored state
+def load_embeddings(fname):
+    with open(fname, "rb") as em:
+        stored_data = pickle.load(em)
+    
+    return stored_data
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -109,6 +124,20 @@ def main():
     SAVE_PATH = 'paraphrase/figs/'
 
     cosine_similarities_on_train_set(DATA_PATH, SAVE_PATH, args.file)
+
+    model_path = "paraphrase/saved_models/full.sav"
+
+    saved_model = load_saved_model(model_path)
+    model_coeffs = saved_model.coef_
+    model_biases = saved_model.intercept_
+    print(model_coeffs.shape)
+    print(model_biases.shape)
+
+    stored_data = load_embeddings(stored_file)
+    list_of_embeddings = stored_data['embeddings']
+    print(list_of_embeddings.shape)
+    
+
 
 if __name__== '__main__':
     main()
