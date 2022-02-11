@@ -48,7 +48,7 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu --threshold 0.50
+bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu --threshold 0.37
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1 -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
