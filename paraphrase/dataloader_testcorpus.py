@@ -213,11 +213,13 @@ def main():
             print(sent_vectors1.shape)
             print(sent_vectors2.shape)
 
-            sentences1 = stored_embeddings['sentences'][first_sentence_indices.tolist()]
-            sentences2 = stored_embeddings['sentences'][second_sentence_indices.tolist()]
+            sentences1 = np.asarray(stored_embeddings['sentences'])[first_sentence_indices.tolist()]
+            sentences2 = np.asarray(stored_embeddings['sentences'])[second_sentence_indices.tolist()]
 
-            print(len(sentences1))
-            print(len(sentences2))
+            print(sentences1.shape)
+            print(sentences2.shape)
+
+            ## TODO : Dump these vectors as a pickle file, they have O(n^2) pairs now.
 
 
             #SAVE_PATH = "paraphrase/data/pairwise_corpus_on_thr_above" + args.threshold + ".csv" 
