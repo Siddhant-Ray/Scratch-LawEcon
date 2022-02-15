@@ -23,6 +23,12 @@ file = "paraphrase/test_corpora/source_corpus2.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
 model_path = "paraphrase/saved_models/_ridge_full.sav"
 
+#FILTER corpus based on indices
+def filter_corpus_as_dataframe(full_file_path, list_of_indices):
+    data_file = pd.read_csv(full_file_path)['text']
+    df_new = data_file.iloc[list_of_indices]
+    return df_new
+
 # LOAD embeddings from stored state
 def load_embeddings(fname):
 
@@ -61,9 +67,7 @@ def filter_for_single_threshold(cos_matrix, threshold):
 
     masked_matrix = np.where(cos_matrix > thr , 1, 0)
     indices_for_similar = np.where(masked_matrix==1)
-    print(indices_for_similar[0].shape)
-    print(indices_for_similar[1].shape)
-
+    
     return indices_for_similar[0], indices_for_similar[1]
 
 def main():
@@ -71,6 +75,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-load", "--load_model", help = "Specify if a model is to be loaded")
     parser.add_argument("-eload", "--load_embeddings", help = "Specify embeddings file to be loaded")
+    parser.add_argument("-th", "--threshold", help = "Specify threshold for filtering")
     args = parser.parse_args()
 
     if args.load_model:
@@ -88,6 +93,19 @@ def main():
 
     weighted_cosine_similarity = weighted_pairwise_cosine_sim_matrix(weighted_vectors, sent_vectors)
     print(weighted_cosine_similarity.shape)
+    print(weighted_cosine_similarity[0:10])
+
+    indices_for_sent1, indices_for_sent2 =  filter_for_single_threshold(weighted_cosine_similarity, args.threshold)
+    print("No of sentence pairs above threshold")
+    print(indices_for_sent1.shape)
+    print(indices_for_sent2.shape)
+
+    df_new1 = filter_corpus_as_dataframe(file, indices_for_sent1.tolist())
+    df_new2 = filter_corpus_as_dataframe(file, indices_for_sent2.tolist())
+
+    print(df_new1.shape, df_new2.shape)
+    print(df_new1.head())
+    print(df_new2.head())
 
 
 
