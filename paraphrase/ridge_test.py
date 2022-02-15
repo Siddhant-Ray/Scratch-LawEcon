@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 file = "paraphrase/test_corpora/source_corpus2.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
-model_path = "paraphrase/saved_models/ridge_full.sav"
+model_path = "paraphrase/saved_models/_ridge_full.sav"
 
 # LOAD embeddings from stored state
 def load_embeddings(fname):
@@ -32,32 +32,62 @@ def load_embeddings(fname):
     return stored_data
 
 # FAST cosine pairwise function
-def pairwise_cosine_sim_matrix(input_matrix):
-    m = input_matrix
+def weighted_pairwise_cosine_sim_matrix(input_matrix1, input_matrix2):
+    m1 = input_matrix1
+    m2 = input_matrix2
     # norm = (m * m).sum(0, keepdims=True) ** .5
-    norm = LA.norm(m, axis = 1, keepdims = True)
-    m_norm = m/norm; 
-    similarity_matrix = m_norm @ m_norm.T 
+    norm1 = LA.norm(m1, axis = 1, keepdims = True)
+    norm2 = LA.norm(m2, axis = 1, keepdims = True)
+    m1_norm = m1/norm1
+    m2_norm = m2/norm2
+    similarity_matrix = m1_norm @ m2_norm.T 
 
     return similarity_matrix
 
-# LOAD the weights of the trained logistic model
+# LOAD the weights of the trained ridge model
 def load_saved_model_coeff(model_path):
     loaded_model = pickle.load(open(model_path, 'rb'))
     return loaded_model, loaded_model.coef_
 
+# Pre multiply each vector once all by of the model coeffs, so that in the dot product
+# y_hat = dot(u,v,w), it appears once
 def pre_multiply_vectors_by_model_weights(input_vectors, model_coeff):
-    return None
+    scaled_output_vectors = input_vectors * model_coeff
+    return scaled_output_vectors
+
+# For one threshold, get all incides for satisfying pairs
+def filter_for_single_threshold(cos_matrix, threshold):
+    thr= float(threshold)
+
+    masked_matrix = np.where(cos_matrix > thr , 1, 0)
+    indices_for_similar = np.where(masked_matrix==1)
+    print(indices_for_similar[0].shape)
+    print(indices_for_similar[1].shape)
+
+    return indices_for_similar[0], indices_for_similar[1]
 
 def main():
-     parser = argparse.ArgumentParser()
-     parser.add_argument("-load", "--load_model", help = "Specify if a model is to be loaded")
-     args = parser.parse_args()
 
-     if args.load:
-         model, model_coeff = load_saved_model_coeff(model_path)
-         print(model_coeff.shape)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-load", "--load_model", help = "Specify if a model is to be loaded")
+    parser.add_argument("-eload", "--load_embeddings", help = "Specify embeddings file to be loaded")
+    args = parser.parse_args()
 
+    if args.load_model:
+        model, model_coeff = load_saved_model_coeff(model_path)
+        print("Model coeff shape", model_coeff.shape)
+
+    if args.load_embeddings:
+        stored_data = load_embeddings(stored_file)
+        sent_vectors = stored_data['embeddings']
+        print("Input sent vectors shape", sent_vectors.shape)
+
+    weighted_vectors = pre_multiply_vectors_by_model_weights(sent_vectors, model_coeff)
+    print("Weighted_vectors_shape", weighted_vectors.shape)
+    #print(weighted_vectors[0:10])
+
+    weighted_cosine_similarity = weighted_pairwise_cosine_sim_matrix(weighted_vectors, sent_vectors)
+    print(weighted_cosine_similarity.shape)
 
 
 
