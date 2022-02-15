@@ -226,6 +226,38 @@ def main():
     print(s_preds.shape)
 
     print(mean_squared_error(s_preds, s_labels))
-      
+
+    indices_0 = np.where(s_labels==0)
+    indices_1 = np.where(s_labels==1)
+
+    y_hat_true_label_0 = s_preds[indices_0]
+    y_hat_true_label_1 = s_preds[indices_1]
+    # print(y_hat_true_label_0.shape)
+    # print(y_hat_true_label_1.shape)
+
+
+    plt.figure(1)
+    plt.hist(s_labels, bins='auto')  
+    plt.title("Histogram of true_labels")
+    plt.savefig("paraphrase/figs/hist_true_labels_mrpc.png",format="png")
+
+    plt.figure(2)
+    plt.hist(s_preds, bins='auto')  
+    plt.title("Histogram of y_hat")
+    plt.savefig("paraphrase/figs/hist_y_hat_mrpc.png",format="png")
+
+    plt.figure(3)
+    plt.hist(y_hat_true_label_1, bins='auto')  
+    plt.title("Histogram of y_hat giveen true label is 1")
+    plt.savefig("paraphrase/figs/hist_y_hat_tl_1mrpc.png",format="png")
+
+    plt.figure(4)
+    plt.hist(y_hat_true_label_0, bins='auto')  
+    plt.title("Histogram of y_hat giveen true label is 0")
+    plt.savefig("paraphrase/figs/hist_y_hat_tl_0mrpc.png",format="png")
+
+
+
+
 if __name__ == '__main__':
     main()
