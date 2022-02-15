@@ -213,13 +213,23 @@ def main():
             print(sent_vectors1.shape)
             print(sent_vectors2.shape)
 
-            sentences1 = np.asarray(stored_embeddings['sentences'])[first_sentence_indices.tolist()]
+            '''sentences1 = np.asarray(stored_embeddings['sentences'])[first_sentence_indices.tolist()]
             sentences2 = np.asarray(stored_embeddings['sentences'])[second_sentence_indices.tolist()]
 
             print(sentences1.shape)
-            print(sentences2.shape)
+            print(sentences2.shape)'''
 
             ## TODO : Dump these vectors as a pickle file, they have O(n^2) pairs now.
+            ## Not enough space to save these, save the list of indices instead
+
+            '''with open('paraphrase/data/testcorpus_embeddings_sent1.pkl', "wb") as fOut1:
+                pickle.dump({'embeddings': sent_vectors1}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+
+            with open('paraphrase/data/testcorpus_embeddings_sent2.pkl', "wb") as fOut2:
+                pickle.dump({'embeddings': sent_vectors2}, fOut2, protocol=pickle.HIGHEST_PROTOCOL)'''
+
+            np.save("paraphrase/data/sent1_indices.npy", first_sentence_indices)
+            np.save("paraphrase/data/sent2_indices.npy", second_sentence_indices)
 
 
             #SAVE_PATH = "paraphrase/data/pairwise_corpus_on_thr_above" + args.threshold + ".csv" 
