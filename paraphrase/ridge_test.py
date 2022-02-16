@@ -31,10 +31,8 @@ def filter_corpus_as_dataframe(full_file_path, list_of_indices):
 
 # LOAD embeddings from stored state
 def load_embeddings(fname):
-
     with open(fname, "rb") as em:
         stored_data = pickle.load(em)
-    
     return stored_data
 
 # FAST cosine pairwise function

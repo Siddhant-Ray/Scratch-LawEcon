@@ -95,7 +95,7 @@ def get_verbs(input_sentence):
 # Train the model and take 20% of the training set as the dev/val set 
 def run_model(X_train, X_test, y_train, y_test, out_file_train):
 
-    clf = Ridge(alpha=1.0).fit(X_train, y_train)
+    clf = Ridge(alpha=1.0, fit_intercept=False).fit(X_train, y_train)
     weights = clf.coef_
 
     preds = clf.predict(X_test)
@@ -165,6 +165,7 @@ def evaluate_model(clf, weights, fname1, fname2, flabel, out_file_train, out_fil
     print(weights.shape)
 
     y_hat = np.einsum("ij,ij,j->i", test_vectors1, test_vectors2, weights)
+    print(y_hat.shape)
 
     return clf, combined_test, test_data_1, test_data_2, t_labels, y_hat
 
