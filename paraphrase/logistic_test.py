@@ -6,10 +6,14 @@ import argparse
 import numpy as np
 import pandas as pd
 
+import matplotlib.pyplot as plt
+
 PATH = "paraphrase/figs/"
 
 # Test corpus
 stored_file = "paraphrase/data/test_corpus1.pkl"
+stored_indices_path = "paraphrase/data/"
+data_file = "paraphrase/test_corpora/source_corpus2.csv"
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -89,11 +93,53 @@ def load_embeddings(fname):
     
     return stored_data
 
+# LOAD numpy indices for pairs above a threshold
+def load_indices(path):
+    sent1_path= path + "sent1_indices.npy"
+    sent2_path= path + "sent2_indices.npy"
+
+    sent1_indices = np.load(sent1_path)
+    sent2_indices = np.load(sent2_path)
+
+    return sent1_indices, sent2_indices
+
+
+# EVALUATE corpus sentence pairs (subset above threshold)
+def evaluate_model(clf, vectors1, vectors2):
+
+    print("Testing pairs on corpus above threshold")
+
+    test_vectors1, test_vectors2 = vectors1, vectors2
+    abs_diff = np.abs(test_vectors1 - test_vectors2)
+    elem_prod = test_vectors1 * test_vectors2
+
+    combined_test = np.concatenate((test_vectors1, 
+                        test_vectors2, abs_diff,elem_prod), axis = 1)
+    print(combined_test.shape)  
+   
+    print("Metrics for test dataset......")       
+
+    t_preds = clf.predict(combined_test) 
+    t_pred_probs = clf.predict_proba(combined_test)
+
+    print("Predictions for 10 are", t_preds[0:10])
+    print("Prediction probs for 10 are", t_pred_probs[0:10])
+
+    return clf, t_preds, t_pred_probs
+
+#FILTER corpus based on indices
+def filter_corpus_as_dataframe(full_file_path, list_of_indices):
+    data_file = pd.read_csv(full_file_path)['text']
+    df_new = data_file.iloc[list_of_indices]
+    return df_new
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-file", "--file", help="choose csv file for loading")
     parser.add_argument("-th", "--threshold", help="threshold to filter cosine similarities")
+    parser.add_argument("-sv", "--save", help="used saved indices or not")
+
     args = parser.parse_args()
 
     if args.file == "full":
@@ -130,13 +176,88 @@ def main():
     saved_model = load_saved_model(model_path)
     model_coeffs = saved_model.coef_
     model_biases = saved_model.intercept_
-    print(model_coeffs.shape)
-    print(model_biases.shape)
+    # print(model_coeffs.shape)
+    # print(model_biases.shape)
 
     stored_data = load_embeddings(stored_file)
     list_of_embeddings = stored_data['embeddings']
     print(list_of_embeddings.shape)
+
+    sent1_indices, sent2_indices = load_indices(stored_indices_path)
+    print(sent1_indices.shape, sent2_indices.shape)
+
+    ### Run the model on the sentence pairs on the big corpus 
+    sent_vectors_1 = list_of_embeddings[sent1_indices]
+    sent_vectors_2 =  list_of_embeddings[sent2_indices]
+
+    if args.save:
+
+        model, preds, probs = evaluate_model(saved_model, sent_vectors_1, sent_vectors_2)
+        print(probs[0:10])
+        print(probs[:,1].shape)
+
+        para_probs = probs[:,1]
+
+        plt.figure(1)
+        plt.hist(para_probs, bins='auto')  
+        plt.title("Histogram of para_probs")
+        plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_big_corpus.png",format="png")
+
+        np.save("paraphrase/data/para_probs.npy", para_probs)
+
+    else:
+        para_probs = np.load("paraphrase/data/para_probs.npy")
+
+    bottom_100_indices = np.argsort(para_probs)[:100]
+    top_100_indices = np.argsort(-para_probs)[:100]
+
+    # print(bottom_100_indices)
+
+    df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
+    df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
+
+
+    top100_sent1 = df_sent1.iloc[top_100_indices.tolist()]
+    top100_sent2 = df_sent2.iloc[top_100_indices.tolist()]
+    top100_sent1.columns = ["sent1"]
+    top100_sent2.columns = ["sent2"]
+
+
+    bottom100_sent1 = df_sent1.iloc[bottom_100_indices.tolist()]
+    bottom100_sent2 = df_sent2.iloc[bottom_100_indices.tolist()]
+    bottom100_sent1.columns = ["sent1"]
+    bottom100_sent2.columns = ["sent2"]
+
+    top100_sent1.reset_index(drop=True, inplace=True)
+    top100_sent2.reset_index(drop=True, inplace=True)
+    bottom100_sent1.reset_index(drop=True, inplace=True)
+    bottom100_sent2.reset_index(drop=True, inplace=True)
+
+    # Top 100
+    # print(top100_sent1.head(), top100_sent2.head())
+    # print(top100_sent1.shape, top100_sent2.shape)
+
+    # Bottom 100
+    # print(bottom100_sent1.head(), bottom100_sent2.head())
+    # print(bottom100_sent1.shape, bottom100_sent2.shape)
+
+
+    df_probs_top = pd.DataFrame(para_probs[top_100_indices])[0]
+    # print(df_probs_top.head())
+    # print(df_probs_top.shape)
+    df_probs_top.columns = ["para_prob"]
+    new_df = pd.concat([top100_sent1, top100_sent2, df_probs_top], axis=1)
+    new_df.to_csv(SAVE_PATH + "top_100.csv")
+
+    df_probs_bottom = pd.DataFrame(para_probs[bottom_100_indices])[0]
+    # print(df_probs_bottom.head())
+    # print(df_probs_bottom.shape)
+    df_probs_bottom.columns = ["para_prob"]
+    new_df = pd.concat([bottom100_sent1, bottom100_sent2, df_probs_bottom], axis=1)
+    new_df.to_csv(SAVE_PATH + "bottom_100.csv")
+
     
+
 
 
 if __name__== '__main__':

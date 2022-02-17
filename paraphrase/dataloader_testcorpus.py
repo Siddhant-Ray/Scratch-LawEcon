@@ -197,7 +197,7 @@ def main():
             '''df_new1 = filter_corpus_as_dataframe(file, first_sentence_indices.tolist())
             df_new2 = filter_corpus_as_dataframe(file, second_sentence_indices.tolist())
             df_new1.columns = ["sent1"]
-            df_new1.columns = ["sent2"]
+            df_new2.columns = ["sent2"]
             print(df_new1.shape)
             print(df_new2.shape)'''
 
