@@ -19,7 +19,7 @@ args=(
     -G ls_lawecon
     -n 4 
     -W 4:00
-    -R "rusage[mem=64000]"
+    -R "rusage[mem=6400]"
 )
 
 echo "getting into paraphrase directory"
@@ -42,6 +42,6 @@ while [ ! -z "$1" ]; do
 done
 
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/ridge_full.out python paraphrase/ridge_classifier.py --train full --eval mprc 
+bsub "${args[@]}" -oo paraphrase/outputfiles/ridge_full.out python paraphrase/ridge_classifier.py --train full --eval mprc 
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/ridge_test.out python paraphrase/ridge_test.py --load_model model --load_embeddings emb
+# bsub "${args[@]}" -oo paraphrase/outputfiles/ridge_test.out python paraphrase/ridge_test.py --load_model model --load_embeddings emb --threshold 0.4
