@@ -103,6 +103,16 @@ def load_indices(path):
 
     return sent1_indices, sent2_indices
 
+# LOAD numpy indices for pairs above a threshold
+def load_unique_indices(path):
+    sent1_path= path + "sent1_indices_noequal.npy"
+    sent2_path= path + "sent2_indices_noequal.npy"
+
+    sent1_indices = np.load(sent1_path)
+    sent2_indices = np.load(sent2_path)
+
+    return sent1_indices, sent2_indices
+
 
 # EVALUATE corpus sentence pairs (subset above threshold)
 def evaluate_model(clf, vectors1, vectors2):
@@ -136,9 +146,11 @@ def filter_corpus_as_dataframe(full_file_path, list_of_indices):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-file", "--file", help="choose csv file for loading")
-    parser.add_argument("-th", "--threshold", help="threshold to filter cosine similarities")
-    parser.add_argument("-sv", "--save", help="used saved indices or not")
+    parser.add_argument("-file", "--file", help = "choose csv file for loading")
+    parser.add_argument("-th", "--threshold", help = "threshold to filter cosine similarities")
+    parser.add_argument("-sv", "--save", help = "used saved indices or not")
+    parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
+    parser.add_argument("-k", "--knumelem", help= "how many top/ bottom k to select")
 
     args = parser.parse_args()
 
@@ -183,8 +195,16 @@ def main():
     list_of_embeddings = stored_data['embeddings']
     print(list_of_embeddings.shape)
 
-    sent1_indices, sent2_indices = load_indices(stored_indices_path)
-    print(sent1_indices.shape, sent2_indices.shape)
+    if args.noequal:
+        sent1_indices, sent2_indices = load_unique_indices(stored_indices_path)
+        print("Loading pairs without equality........")
+        print(sent1_indices.shape, sent2_indices.shape)
+
+    else:
+        sent1_indices, sent2_indices = load_indices(stored_indices_path)
+        print("Loading pairs with equality........")
+        print(sent1_indices.shape, sent2_indices.shape)
+
 
     ### Run the model on the sentence pairs on the big corpus 
     sent_vectors_1 = list_of_embeddings[sent1_indices]
@@ -201,64 +221,79 @@ def main():
         plt.figure(1)
         plt.hist(para_probs, bins='auto')  
         plt.title("Histogram of para_probs")
-        plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_big_corpus.png",format="png")
 
-        np.save("paraphrase/data/para_probs.npy", para_probs)
+        if args.noequal:
+            plt.savefig("paraphrase/figs/hist_para_probs_0.5_noequal_thresh_big_corpus.png",format="png")
+            np.save("paraphrase/data/para_probs_noequal.npy", para_probs)
+        else:
+            plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_big_corpus.png",format="png")
+            np.save("paraphrase/data/para_probs.npy", para_probs)
+
 
     else:
-        para_probs = np.load("paraphrase/data/para_probs.npy")
+        if args.noequal:
+            print("Loading para probs without equal pairs.......")
+            para_probs = np.load("paraphrase/data/para_probs_noequal.npy")
+        else:
+            print("Loading para probs with equal pairs.......")
+            para_probs = np.load("paraphrase/data/para_probs.npy")
 
-    bottom_100_indices = np.argsort(para_probs)[:100]
-    top_100_indices = np.argsort(-para_probs)[:100]
+    # Set the value of k for top k/bottom k pairs
+    k_value = int(args.knumelem)
+    bottom_k_indices = np.argsort(para_probs)[:k_value]
+    top_k_indices = np.argsort(-para_probs)[:k_value]
 
-    # print(bottom_100_indices)
+    # print(bottom_k_indices)
 
     df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
     df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
 
+    print(df_sent1.head())
+    print(df_sent2.head())
 
-    top100_sent1 = df_sent1.iloc[top_100_indices.tolist()]
-    top100_sent2 = df_sent2.iloc[top_100_indices.tolist()]
-    top100_sent1.columns = ["sent1"]
-    top100_sent2.columns = ["sent2"]
+    topk_sent1 = df_sent1.iloc[top_k_indices.tolist()]
+    topk_sent2 = df_sent2.iloc[top_k_indices.tolist()]
+    topk_sent1.columns = ["sent1"]
+    topk_sent2.columns = ["sent2"]
+
+    bottomk_sent1 = df_sent1.iloc[bottom_k_indices.tolist()]
+    bottomk_sent2 = df_sent2.iloc[bottom_k_indices.tolist()]
+    bottomk_sent1.columns = ["sent1"]
+    bottomk_sent2.columns = ["sent2"]
+
+    topk_sent1.reset_index(drop=True, inplace=True)
+    topk_sent2.reset_index(drop=True, inplace=True)
+    bottomk_sent1.reset_index(drop=True, inplace=True)
+    bottomk_sent2.reset_index(drop=True, inplace=True)
+
+    # Top k
+    # print(topk_sent1.head(), topk_sent2.head())
+    # print(topk_sent1.shape, topk_sent2.shape)
+
+    # Bottom k
+    # print(bottomk_sent1.head(), bottomk_sent2.head())
+    # print(bottomk_sent1.shape, bottomk_sent2.shape)
 
 
-    bottom100_sent1 = df_sent1.iloc[bottom_100_indices.tolist()]
-    bottom100_sent2 = df_sent2.iloc[bottom_100_indices.tolist()]
-    bottom100_sent1.columns = ["sent1"]
-    bottom100_sent2.columns = ["sent2"]
-
-    top100_sent1.reset_index(drop=True, inplace=True)
-    top100_sent2.reset_index(drop=True, inplace=True)
-    bottom100_sent1.reset_index(drop=True, inplace=True)
-    bottom100_sent2.reset_index(drop=True, inplace=True)
-
-    # Top 100
-    # print(top100_sent1.head(), top100_sent2.head())
-    # print(top100_sent1.shape, top100_sent2.shape)
-
-    # Bottom 100
-    # print(bottom100_sent1.head(), bottom100_sent2.head())
-    # print(bottom100_sent1.shape, bottom100_sent2.shape)
-
-
-    df_probs_top = pd.DataFrame(para_probs[top_100_indices])[0]
+    df_probs_top = pd.DataFrame(para_probs[top_k_indices])[0]
     # print(df_probs_top.head())
     # print(df_probs_top.shape)
     df_probs_top.columns = ["para_prob"]
-    new_df = pd.concat([top100_sent1, top100_sent2, df_probs_top], axis=1)
-    new_df.to_csv(SAVE_PATH + "top_100.csv")
+    new_df = pd.concat([topk_sent1, topk_sent2, df_probs_top], axis=1)
+    if args.noequal:
+        new_df.to_csv(SAVE_PATH + "top_{}_noequal.csv".format(k_value))
+    else:
+        new_df.to_csv(SAVE_PATH + "top_{}.csv".format(k_value))
 
-    df_probs_bottom = pd.DataFrame(para_probs[bottom_100_indices])[0]
+    df_probs_bottom = pd.DataFrame(para_probs[bottom_k_indices])[0]
     # print(df_probs_bottom.head())
     # print(df_probs_bottom.shape)
     df_probs_bottom.columns = ["para_prob"]
-    new_df = pd.concat([bottom100_sent1, bottom100_sent2, df_probs_bottom], axis=1)
-    new_df.to_csv(SAVE_PATH + "bottom_100.csv")
-
-    
-
-
+    new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
+    if args.noequal:
+        new_df.to_csv(SAVE_PATH + "bottom_{}_noequal.csv".format(k_value))
+    else:
+         new_df.to_csv(SAVE_PATH + "bottom_{}.csv".format(k_value))
 
 if __name__== '__main__':
     main()
