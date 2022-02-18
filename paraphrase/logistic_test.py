@@ -253,33 +253,29 @@ def main():
 
     topk_sent1 = df_sent1.iloc[top_k_indices.tolist()]
     topk_sent2 = df_sent2.iloc[top_k_indices.tolist()]
-    topk_sent1.columns = ["sent1"]
-    topk_sent2.columns = ["sent2"]
+
+    # Top k
+    # print(topk_sent1.head(), topk_sent2.head())
+    # print(topk_sent1.shape, topk_sent2.shape)
 
     bottomk_sent1 = df_sent1.iloc[bottom_k_indices.tolist()]
     bottomk_sent2 = df_sent2.iloc[bottom_k_indices.tolist()]
-    bottomk_sent1.columns = ["sent1"]
-    bottomk_sent2.columns = ["sent2"]
+
+    # Bottom k
+    # print(bottomk_sent1.head(), bottomk_sent2.head())
+    # print(bottomk_sent1.shape, bottomk_sent2.shape)
 
     topk_sent1.reset_index(drop=True, inplace=True)
     topk_sent2.reset_index(drop=True, inplace=True)
     bottomk_sent1.reset_index(drop=True, inplace=True)
     bottomk_sent2.reset_index(drop=True, inplace=True)
 
-    # Top k
-    # print(topk_sent1.head(), topk_sent2.head())
-    # print(topk_sent1.shape, topk_sent2.shape)
-
-    # Bottom k
-    # print(bottomk_sent1.head(), bottomk_sent2.head())
-    # print(bottomk_sent1.shape, bottomk_sent2.shape)
-
-
     df_probs_top = pd.DataFrame(para_probs[top_k_indices])[0]
     # print(df_probs_top.head())
     # print(df_probs_top.shape)
     df_probs_top.columns = ["para_prob"]
     new_df = pd.concat([topk_sent1, topk_sent2, df_probs_top], axis=1)
+    new_df.columns = ['sent1', 'sent2', 'para_probs']
     if args.noequal:
         new_df.to_csv(SAVE_PATH + "top_{}_noequal.csv".format(k_value))
     else:
@@ -290,6 +286,7 @@ def main():
     # print(df_probs_bottom.shape)
     df_probs_bottom.columns = ["para_prob"]
     new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
+    new_df.columns = ['sent1', 'sent2', 'para_probs'] 
     if args.noequal:
         new_df.to_csv(SAVE_PATH + "bottom_{}_noequal.csv".format(k_value))
     else:
