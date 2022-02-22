@@ -20,7 +20,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 file = "paraphrase/test_corpora/source_corpus2.csv"
+file_bbc = "paraphrase/test_corpora/bbc_data.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
+stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = SentenceTransformer('all-MiniLM-L6-v2', device = device)
@@ -28,11 +30,20 @@ print(device, model)
 
 # GET corpus as list of sentences
 def get_corpus(full_file_path):
-
     data_file = pd.read_csv(full_file_path)
     list_of_sentences = data_file['text'].to_list()
-
     return list_of_sentences
+
+# GET the BBC corpus and also split into sentences, return 
+# the list of split sentences
+
+def get_bbc_corpus(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    list_of_paras = data_file['transcript']
+    list_of_sentences = list_of_paras.str.split(".")
+    df_sentences = pd.DataFrame({'sents':list_of_sentences})
+    new_df = df_sentences.explode('sents', ignore_index=True)
+    return list_of_paras, list_of_sentences, new_df['sents']
 
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
@@ -68,8 +79,18 @@ def generate_and_save_embeddings(sentences):
     
     with open('paraphrase/data/test_corpus1.pkl', "wb") as fOut1:
         pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
-
     return list_of_embeddings, list_of_sentences
+
+# SAVE embeddings for the BBC dataset
+def generate_and_save_embeddings_bbc(sentences):
+
+    list_of_sentences = sentences
+    list_of_embeddings = model.encode(sentences)
+
+    with open('paraphrase/data/test_corpus_bbc.pkl', "wb") as fOut1:
+        pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+    return list_of_embeddings, list_of_sentences
+
 
 # LOAD embeddings from stored state
 def load_embeddings(fname):
@@ -127,6 +148,7 @@ def main():
     parser.add_argument("-sv", "--save", help = "choose saved numpy cosine matrix")
     parser.add_argument("-thr", "--threshold", help = "theshold for filtering cosine sim")
     parser.add_argument("-plt", "--plot", help = "if set, plot for decreasing threshold values")
+    parser.add_argument("-bbc", "--bbc_data", help = "choose to take the bbc corpus")
 
     args = parser.parse_args()
 
@@ -135,25 +157,44 @@ def main():
     if args.save:
         
         if args.device == "gpu":
-            print("generating new embeddings........")
-            sentences = get_corpus(file)
-            print(sentences[0:5])
-            list_of_embeddings, list_of_sentences = generate_and_save_embeddings(sentences)
-            print(list_of_embeddings.shape)
+            if args.bbc_data:
+                print("generating new embeddings from {} ........".format(args.bbc_data))
+                paras,sent_lists, sentences = get_bbc_corpus(file_bbc)
+                #print(paras.head(), paras.shape)
+                #print(sent_lists.head(), sent_lists.shape)
+                print(sentences.head(), sentences.shape)
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences)
+                print(list_of_embeddings.shape)
+
+            else:
+                print("generating new embeddings for big corpus........")
+                sentences = get_corpus(file)
+                print(sentences[0:5])
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings(sentences)
+                print(list_of_embeddings.shape)
 
         elif args.device == "cpu":
-            print("loading stored embeddings........")
-            stored_data = load_embeddings(stored_file)
+            if args.bbc_data:
+                print("loading stored embeddings from {} ........".format(args.bbc_data))
+                stored_data = load_embeddings(stored_file_bbc)
+            else:
+                print("loading stored embeddings from big corpus ........")
+                stored_data = load_embeddings(stored_file)
+            
             list_of_embeddings = stored_data['embeddings']
-            # print(list_of_embeddings.shape)
+            print(list_of_embeddings.shape)
 
             pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
             # print(pair_cosine_matrix.shape)
             # print(pair_cosine_matrix[0][0:15])
 
             # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
-            np.save("paraphrase/data/cosine_sim.npy", pair_cosine_matrix)
-            np.save("paraphrase/data/cosine_sim_16.npy", pair_cosine_matrix.astype(np.float16))
+            if args.bbc_data:
+                # np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16_bbc.npy", pair_cosine_matrix.astype(np.float16))
+            else:
+                np.save("paraphrase/data/cosine_sim.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16.npy", pair_cosine_matrix.astype(np.float16))
    
     else:
         print("Loading from saved.....")
