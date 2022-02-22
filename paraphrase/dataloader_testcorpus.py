@@ -148,7 +148,7 @@ def main():
     parser.add_argument("-sv", "--save", help = "choose saved numpy cosine matrix")
     parser.add_argument("-thr", "--threshold", help = "theshold for filtering cosine sim")
     parser.add_argument("-plt", "--plot", help = "if set, plot for decreasing threshold values")
-    parser.add_argument("-bbc", "--bbc_data", help = "choose to take the bbc corpus")
+    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
 
     args = parser.parse_args()
 
@@ -157,8 +157,8 @@ def main():
     if args.save:
         
         if args.device == "gpu":
-            if args.bbc_data:
-                print("generating new embeddings from {} ........".format(args.bbc_data))
+            if args.data == "bbc":
+                print("generating new embeddings from {} ........".format(args.data))
                 paras,sent_lists, sentences = get_bbc_corpus(file_bbc)
                 #print(paras.head(), paras.shape)
                 #print(sent_lists.head(), sent_lists.shape)
@@ -174,8 +174,8 @@ def main():
                 print(list_of_embeddings.shape)
 
         elif args.device == "cpu":
-            if args.bbc_data:
-                print("loading stored embeddings from {} ........".format(args.bbc_data))
+            if args.data == "bbc":
+                print("loading stored embeddings from {} ........".format(args.data))
                 stored_data = load_embeddings(stored_file_bbc)
             else:
                 print("loading stored embeddings from big corpus ........")
@@ -185,12 +185,12 @@ def main():
             print(list_of_embeddings.shape)
 
             pair_cosine_matrix = pairwise_cosine_sim_matrix(list_of_embeddings)
-            # print(pair_cosine_matrix.shape)
-            # print(pair_cosine_matrix[0][0:15])
+            print(pair_cosine_matrix.shape)
+            print(pair_cosine_matrix[0][0:15])
 
             # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
-            if args.bbc_data:
-                # np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
+            if args.data == "bbc":
+                np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_bbc.npy", pair_cosine_matrix.astype(np.float16))
             else:
                 np.save("paraphrase/data/cosine_sim.npy", pair_cosine_matrix)

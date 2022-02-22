@@ -17,9 +17,9 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 2 
+    -n 4 
     -W 4:00
-    -R "rusage[mem=6400]"
+    -R "rusage[mem=64000]"
 )
 
 echo "getting into paraphrase directory"
@@ -48,7 +48,7 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device gpu --save yes --threshold 0.50 --bbc_data yes
+bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu --save yes --threshold 0.50 --data bbc
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1 -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
