@@ -12,8 +12,11 @@ PATH = "paraphrase/figs/"
 
 # Test corpus
 stored_file = "paraphrase/data/test_corpus1.pkl"
+stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 stored_indices_path = "paraphrase/data/"
 data_file = "paraphrase/test_corpora/source_corpus2.csv"
+data_file_bbc = "paraphrase/test_corpora/bbc_data.csv"
+
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -113,6 +116,26 @@ def load_unique_indices(path):
 
     return sent1_indices, sent2_indices
 
+# LOAD numpy indices for pairs above a threshold for bbc
+def load_indices_bbc(path):
+    sent1_path= path + "sent1_indices_bbc.npy"
+    sent2_path= path + "sent2_indices_bbc.npy"
+
+    sent1_indices = np.load(sent1_path)
+    sent2_indices = np.load(sent2_path)
+
+    return sent1_indices, sent2_indices
+
+# LOAD numpy indices for pairs above a threshold for bbc
+def load_unique_indices_bbc(path):
+    sent1_path= path + "sent1_indices_noequal_bbc.npy"
+    sent2_path= path + "sent2_indices_noequal_bbc.npy"
+
+    sent1_indices = np.load(sent1_path)
+    sent2_indices = np.load(sent2_path)
+
+    return sent1_indices, sent2_indices
+
 
 # EVALUATE corpus sentence pairs (subset above threshold)
 def evaluate_model(clf, vectors1, vectors2):
@@ -143,12 +166,26 @@ def filter_corpus_as_dataframe(full_file_path, list_of_indices):
     df_new = data_file.iloc[list_of_indices]
     return df_new
 
+# GET BBC corpus
+def get_bbc_corpus(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    list_of_paras = data_file['transcript']
+    list_of_sentences = list_of_paras.str.split(".")
+    df_sentences = pd.DataFrame({'sents':list_of_sentences})
+    new_df = df_sentences.explode('sents', ignore_index=True)
+    return list_of_paras, list_of_sentences, new_df['sents']
+
+def filter_bbc_corpus(dataframe, list_of_indices):
+    new_df = dataframe.iloc[list_of_indices]
+    return new_df
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-file", "--file", help = "choose csv file for loading")
     parser.add_argument("-th", "--threshold", help = "threshold to filter cosine similarities")
     parser.add_argument("-sv", "--save", help = "used saved indices or not")
+    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
     parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
     parser.add_argument("-k", "--knumelem", help= "how many top/ bottom k to select")
 
@@ -191,21 +228,40 @@ def main():
     # print(model_coeffs.shape)
     # print(model_biases.shape)
 
-    stored_data = load_embeddings(stored_file)
+    if args.data == "bbc":
+        save_name = args.data
+        print("From {}".format(save_name))
+        stored_data = load_embeddings(stored_file_bbc)
+        
+    else:
+        save_name = "bigcorpus"
+        print("From {}".format(save_name))
+        stored_data = load_embeddings(stored_file)
+
     list_of_embeddings = stored_data['embeddings']
     print(list_of_embeddings.shape)
 
-    if args.noequal:
+    if args.noequal and args.data == "bbc":
+        sent1_indices, sent2_indices = load_unique_indices_bbc(stored_indices_path)
+        print("Loading pairs {} without equality........".format(save_name))
+        print(sent1_indices.shape, sent2_indices.shape)
+
+    elif args.data == "bbc":
+        sent1_indices, sent2_indices = load_indices_bbc(stored_indices_path)
+        print("Loading pairs {} with equality........".format(save_name))
+        print(sent1_indices.shape, sent2_indices.shape)
+    
+    elif args.noequal and args.data != "bbc":
         sent1_indices, sent2_indices = load_unique_indices(stored_indices_path)
-        print("Loading pairs without equality........")
+        print("Loading pairs {} without equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
     else:
         sent1_indices, sent2_indices = load_indices(stored_indices_path)
-        print("Loading pairs with equality........")
+        print("Loading pairs {} with equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
-
+    
     ### Run the model on the sentence pairs on the big corpus 
     sent_vectors_1 = list_of_embeddings[sent1_indices]
     sent_vectors_2 =  list_of_embeddings[sent2_indices]
@@ -220,24 +276,25 @@ def main():
 
         plt.figure(1)
         plt.hist(para_probs, bins='auto')  
-        plt.title("Histogram of para_probs")
-
+        plt.title("Histogram of para_probs for {}".format(save_name))
+        
         if args.noequal:
-            plt.savefig("paraphrase/figs/hist_para_probs_0.5_noequal_thresh_big_corpus.png",format="png")
-            np.save("paraphrase/data/para_probs_noequal.npy", para_probs)
+            plt.savefig("paraphrase/figs/hist_para_probs_0.5_noequal_thresh_{}.png".format(save_name),format="png")
+            np.save("paraphrase/data/para_probs_noequal_{}.npy".format(save_name), para_probs)
         else:
-            plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_big_corpus.png",format="png")
-            np.save("paraphrase/data/para_probs.npy", para_probs)
+            plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_{}.png".format(save_name),format="png")
+            np.save("paraphrase/data/para_probs_{}.npy".format(save_name), para_probs)
 
 
     else:
         if args.noequal:
-            print("Loading para probs without equal pairs.......")
-            para_probs = np.load("paraphrase/data/para_probs_noequal.npy")
+            print("Loading para probs from {} without equal pairs.......".format(save_name))
+            para_probs = np.load("paraphrase/data/para_probs_noequal_{}.npy".format(save_name))
         else:
-            print("Loading para probs with equal pairs.......")
-            para_probs = np.load("paraphrase/data/para_probs.npy")
+            print("Loading para probs from {} with equal pairs.......".format(save_name))
+            para_probs = np.load("paraphrase/data/para_probs_{}.npy".format(save_name))
 
+    
     # Set the value of k for top k/bottom k pairs
     k_value = int(args.knumelem)
     bottom_k_indices = np.argsort(para_probs)[:k_value]
@@ -245,9 +302,17 @@ def main():
 
     # print(bottom_k_indices)
 
-    df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
-    df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
+    if args.data == "bbc":
+        list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
+        df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
+        df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
 
+    elif args.data != "bbc":
+        df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
+        df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
+
+    print("Para probs size sanity check from {}".format(save_name))
+    print(para_probs.shape)
     print(df_sent1.head())
     print(df_sent2.head())
 
@@ -277,9 +342,9 @@ def main():
     new_df = pd.concat([topk_sent1, topk_sent2, df_probs_top], axis=1)
     new_df.columns = ['sent1', 'sent2', 'para_probs']
     if args.noequal:
-        new_df.to_csv(SAVE_PATH + "top_{}_noequal.csv".format(k_value))
+        new_df.to_csv(SAVE_PATH + "top_{}_noequal_{}.csv".format(k_value, save_name))
     else:
-        new_df.to_csv(SAVE_PATH + "top_{}.csv".format(k_value))
+        new_df.to_csv(SAVE_PATH + "top_{}_{}.csv".format(k_value, save_name))
 
     df_probs_bottom = pd.DataFrame(para_probs[bottom_k_indices])[0]
     # print(df_probs_bottom.head())
@@ -288,9 +353,9 @@ def main():
     new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
     new_df.columns = ['sent1', 'sent2', 'para_probs'] 
     if args.noequal:
-        new_df.to_csv(SAVE_PATH + "bottom_{}_noequal.csv".format(k_value))
+        new_df.to_csv(SAVE_PATH + "bottom_{}_noequal_{}.csv".format(k_value, save_name))
     else:
-         new_df.to_csv(SAVE_PATH + "bottom_{}.csv".format(k_value))
+         new_df.to_csv(SAVE_PATH + "bottom_{}_{}.csv".format(k_value, save_name))
 
 if __name__== '__main__':
     main()

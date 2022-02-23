@@ -193,45 +193,61 @@ def main():
                 np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_bbc.npy", pair_cosine_matrix.astype(np.float16))
             else:
-                np.save("paraphrase/data/cosine_sim.npy", pair_cosine_matrix)
-                np.save("paraphrase/data/cosine_sim_16.npy", pair_cosine_matrix.astype(np.float16))
+                np.save("paraphrase/data/cosine_sim_bigcorpus.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16_bigcorpus.npy", pair_cosine_matrix.astype(np.float16))
    
     else:
-        print("Loading from saved.....")
-        loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16.npy")
+        if args.data == "bbc":
+            print("Loading from saved from {} .....".format(args.data))
+            loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16_bbc.npy")
+        else:
+            print("Loading from saved from big corpus .....")
+            loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16_bigcorpus.npy")
         print(loaded_pair_cosine_matrix.shape)
         print(loaded_pair_cosine_matrix[0][0:15])
 
         # For varying thresholds, get the mean, median and number of sentence pairs
         if args.plot:
 
+            if args.data == "bbc":
+                save_name = args.data
+            else:
+                save_name = "bigcorpus"
+
             thresholds, mean_values, median_values, num_elem = filter_matrixes_by_threshold_get_mean(loaded_pair_cosine_matrix, 
                                                                                                     args.threshold)
             plt.figure(1)
             plt.plot(thresholds, mean_values)
-            plt.title("Threshold vs mean cosine similarity on satisfying indices")
+            plt.title("Threshold vs mean cosine similarity on satisfying indices on {} data".format(save_name), fontsize = 10, y = 1.1)
             plt.xlabel("Threshold")
             plt.ylabel("Mean cosine similarity")
-            plt.savefig("paraphrase/figs/threshold_cosine_mean.png",format="png")
+            plt.savefig("paraphrase/figs/threshold_cosine_mean_{}.png".format(save_name),format="png")
 
             plt.figure(2)
             plt.plot(thresholds, median_values)
-            plt.title("Threshold vs median cosine similarity on satisfying indices")
+            plt.title("Threshold vs median cosine similarity on satisfying indices on {} data".format(save_name), fontsize = 10, y = 1.1)
             plt.xlabel("Threshold")
             plt.ylabel("Median cosine similarity")
-            plt.savefig("paraphrase/figs/threshold_cosine_median.png",format="png")
+            plt.savefig("paraphrase/figs/threshold_cosine_median_{}.png".format(save_name),format="png")
 
 
             plt.figure(3)
             plt.plot(thresholds, num_elem)
-            plt.title("Threshold vs number of sentence pairs above threshold")
+            plt.title("Threshold vs number of sentence pairs above threshold on {} data".format(save_name), fontsize = 10, y = 1.1)
             plt.xlabel("Threshold")
             plt.ylabel("Number of sentence pairs above threshold")
-            plt.savefig("paraphrase/figs/threshold_num.png",format="png")
+            plt.savefig("paraphrase/figs/threshold_num_{}.png".format(save_name),format="png")
         
         else:
+
+            if args.data == "bbc":
+                save_name = args.data
+            else:
+                save_name = "bigcorpus"
+            
             first_sentence_indices, second_sentence_indices = filter_for_single_threshold(loaded_pair_cosine_matrix,
                                                                                         args.threshold)
+            print(first_sentence_indices.shape, second_sentence_indices.shape)                                                                            
             print(first_sentence_indices[0:10])
             print(second_sentence_indices[0:10])
 
@@ -255,22 +271,25 @@ def main():
             #print(new_df.head())
 
             print("This is from numpy")
-            stored_embeddings = load_embeddings(stored_file)
+
+            if args.data == "bbc":
+                stored_embeddings = load_embeddings(stored_file_bbc)
+            else:
+                stored_embeddings = load_embeddings(stored_file)
 
             sent_vectors1 = stored_embeddings['embeddings'][first_sentence_indices.tolist()]
             sent_vectors2 = stored_embeddings['embeddings'][second_sentence_indices.tolist()]
 
             print(sent_vectors1.shape)
             print(sent_vectors2.shape)
-
             
             ## TODO : Dump these vectors as a pickle file, they have O(n^2) pairs now.
             ## Not enough space to save these, save the list of indices instead
 
-            np.save("paraphrase/data/sent1_indices.npy", first_sentence_indices)
-            np.save("paraphrase/data/sent2_indices.npy", second_sentence_indices)
-            np.save("paraphrase/data/sent1_indices_noequal.npy", first_sentence_indices[first_sentence_indices_no_equal[0]])
-            np.save("paraphrase/data/sent2_indices_noequal.npy", second_sentence_indices[second_sentence_indices_no_equal[0]])
+            np.save("paraphrase/data/sent1_indices_{}.npy".format(save_name), first_sentence_indices)
+            np.save("paraphrase/data/sent2_indices_{}.npy".format(save_name), second_sentence_indices)
+            np.save("paraphrase/data/sent1_indices_noequal_{}.npy".format(save_name), first_sentence_indices[first_sentence_indices_no_equal[0]])
+            np.save("paraphrase/data/sent2_indices_noequal_{}.npy".format(save_name), second_sentence_indices[second_sentence_indices_no_equal[0]])
 
             #SAVE_PATH = "paraphrase/data/pairwise_corpus_on_thr_above" + args.threshold + ".csv" 
             #new_df.to_csv(SAVE_PATH)
