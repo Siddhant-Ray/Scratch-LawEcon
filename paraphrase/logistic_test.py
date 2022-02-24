@@ -8,6 +8,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
+import nltk
+from nltk.tokenize import sent_tokenize
+
+import spacy   
+from spacy.matcher import Matcher
+from spacy.util import filter_spans
+nlp = spacy.load('en_core_web_sm')
+
 PATH = "paraphrase/figs/"
 
 # Test corpus
@@ -175,9 +183,39 @@ def get_bbc_corpus(full_file_path):
     new_df = df_sentences.explode('sents', ignore_index=True)
     return list_of_paras, list_of_sentences, new_df['sents']
 
+# GET BBC corpus sentence wise via Spacy
+def get_bbc_corpus_spacy(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    new_df = pd.DataFrame({"transcript":data_file.transcript})
+    new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['transcript']), axis=1)
+    new_df = new_df.drop(columns=['transcript'])
+    new_df = new_df.explode('tokenized_sents', ignore_index=True)
+    return new_df
+
+# FILTER sentences on list of indices with cosine sim threshold 
 def filter_bbc_corpus(dataframe, list_of_indices):
     new_df = dataframe.iloc[list_of_indices]
     return new_df
+
+# Get all verbs using a Spacy based function
+def get_verbs(input_sentence):
+
+    sentence = input_sentence
+    pattern = [{'POS': 'VERB', 'OP': '?'},
+            {'POS': 'ADV', 'OP': '*'},
+            {'POS': 'AUX', 'OP': '*'},
+            {'POS': 'VERB', 'OP': '+'}]
+
+    # instantiate a Matcher instance
+    matcher = Matcher(nlp.vocab)
+    matcher.add("Verb phrase", [pattern])
+
+    doc = nlp(sentence) 
+    # call the matcher to find matches 
+    matches = matcher(doc)
+    spans = [doc[start:end] for _, start, end in matches]
+
+    return (filter_spans(spans))
 
 
 def main():
@@ -295,67 +333,69 @@ def main():
             para_probs = np.load("paraphrase/data/para_probs_{}.npy".format(save_name))
 
     
-    # Set the value of k for top k/bottom k pairs
-    k_value = int(args.knumelem)
-    bottom_k_indices = np.argsort(para_probs)[:k_value]
-    top_k_indices = np.argsort(-para_probs)[:k_value]
+        # Set the value of k for top k/bottom k pairs
+        k_value = int(args.knumelem)
+        bottom_k_indices = np.argsort(para_probs)[:k_value]
+        top_k_indices = np.argsort(-para_probs)[:k_value]
 
-    # print(bottom_k_indices)
+        # print(bottom_k_indices)
 
-    if args.data == "bbc":
-        list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
-        df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
-        df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
+        if args.data == "bbc":
+            # list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
+            # USE SPACYYYY.....
+            sent_dataframe = get_bbc_corpus_spacy(data_file_bbc)
+            df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
+            df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
 
-    elif args.data != "bbc":
-        df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
-        df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
+        elif args.data != "bbc":
+            df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
+            df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
 
-    print("Para probs size sanity check from {}".format(save_name))
-    print(para_probs.shape)
-    print(df_sent1.head())
-    print(df_sent2.head())
+        print("Para probs size sanity check from {}".format(save_name))
+        print(para_probs.shape)
+        print(df_sent1.head())
+        print(df_sent2.head())
 
-    topk_sent1 = df_sent1.iloc[top_k_indices.tolist()]
-    topk_sent2 = df_sent2.iloc[top_k_indices.tolist()]
+        topk_sent1 = df_sent1.iloc[top_k_indices.tolist()]
+        topk_sent2 = df_sent2.iloc[top_k_indices.tolist()]
 
-    # Top k
-    # print(topk_sent1.head(), topk_sent2.head())
-    # print(topk_sent1.shape, topk_sent2.shape)
+        # Top k
+        # print(topk_sent1.head(), topk_sent2.head())
+        # print(topk_sent1.shape, topk_sent2.shape)
 
-    bottomk_sent1 = df_sent1.iloc[bottom_k_indices.tolist()]
-    bottomk_sent2 = df_sent2.iloc[bottom_k_indices.tolist()]
+        bottomk_sent1 = df_sent1.iloc[bottom_k_indices.tolist()]
+        bottomk_sent2 = df_sent2.iloc[bottom_k_indices.tolist()]
 
-    # Bottom k
-    # print(bottomk_sent1.head(), bottomk_sent2.head())
-    # print(bottomk_sent1.shape, bottomk_sent2.shape)
+        # Bottom k
+        # print(bottomk_sent1.head(), bottomk_sent2.head())
+        # print(bottomk_sent1.shape, bottomk_sent2.shape)
 
-    topk_sent1.reset_index(drop=True, inplace=True)
-    topk_sent2.reset_index(drop=True, inplace=True)
-    bottomk_sent1.reset_index(drop=True, inplace=True)
-    bottomk_sent2.reset_index(drop=True, inplace=True)
+        topk_sent1.reset_index(drop=True, inplace=True)
+        topk_sent2.reset_index(drop=True, inplace=True)
+        bottomk_sent1.reset_index(drop=True, inplace=True)
+        bottomk_sent2.reset_index(drop=True, inplace=True)
 
-    df_probs_top = pd.DataFrame(para_probs[top_k_indices])[0]
-    # print(df_probs_top.head())
-    # print(df_probs_top.shape)
-    df_probs_top.columns = ["para_prob"]
-    new_df = pd.concat([topk_sent1, topk_sent2, df_probs_top], axis=1)
-    new_df.columns = ['sent1', 'sent2', 'para_probs']
-    if args.noequal:
-        new_df.to_csv(SAVE_PATH + "top_{}_noequal_{}.csv".format(k_value, save_name))
-    else:
-        new_df.to_csv(SAVE_PATH + "top_{}_{}.csv".format(k_value, save_name))
+        df_probs_top = pd.DataFrame(para_probs[top_k_indices])[0]
+        # print(df_probs_top.head())
+        # print(df_probs_top.shape)
+        df_probs_top.columns = ["para_prob"]
+        new_df = pd.concat([topk_sent1, topk_sent2, df_probs_top], axis=1)
+        new_df.columns = ['sent1', 'sent2', 'para_probs']
+        if args.noequal:
+            new_df.to_csv(SAVE_PATH + "top_{}_noequal_{}.csv".format(k_value, save_name))
+        else:
+            new_df.to_csv(SAVE_PATH + "top_{}_{}.csv".format(k_value, save_name))
 
-    df_probs_bottom = pd.DataFrame(para_probs[bottom_k_indices])[0]
-    # print(df_probs_bottom.head())
-    # print(df_probs_bottom.shape)
-    df_probs_bottom.columns = ["para_prob"]
-    new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
-    new_df.columns = ['sent1', 'sent2', 'para_probs'] 
-    if args.noequal:
-        new_df.to_csv(SAVE_PATH + "bottom_{}_noequal_{}.csv".format(k_value, save_name))
-    else:
-         new_df.to_csv(SAVE_PATH + "bottom_{}_{}.csv".format(k_value, save_name))
+        df_probs_bottom = pd.DataFrame(para_probs[bottom_k_indices])[0]
+        # print(df_probs_bottom.head())
+        # print(df_probs_bottom.shape)
+        df_probs_bottom.columns = ["para_prob"]
+        new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
+        new_df.columns = ['sent1', 'sent2', 'para_probs'] 
+        if args.noequal:
+            new_df.to_csv(SAVE_PATH + "bottom_{}_noequal_{}.csv".format(k_value, save_name))
+        else:
+            new_df.to_csv(SAVE_PATH + "bottom_{}_{}.csv".format(k_value, save_name))
 
 if __name__== '__main__':
     main()
