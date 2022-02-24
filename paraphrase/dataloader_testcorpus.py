@@ -13,6 +13,8 @@ import numpy as np
 from numpy import linalg as LA
 
 from itertools import combinations
+import nltk
+from nltk.tokenize import sent_tokenize
 
 import pandas as pd
 
@@ -44,6 +46,14 @@ def get_bbc_corpus(full_file_path):
     df_sentences = pd.DataFrame({'sents':list_of_sentences})
     new_df = df_sentences.explode('sents', ignore_index=True)
     return list_of_paras, list_of_sentences, new_df['sents']
+
+def get_bbc_corpus_spacy(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    new_df = pd.DataFrame({"transcript":data_file.transcript})
+    new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['transcript']), axis=1)
+    new_df = new_df.drop(columns=['transcript'])
+    new_df = new_df.explode('tokenized_sents', ignore_index=True)
+    return new_df
 
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
@@ -159,11 +169,11 @@ def main():
         if args.device == "gpu":
             if args.data == "bbc":
                 print("generating new embeddings from {} ........".format(args.data))
-                paras,sent_lists, sentences = get_bbc_corpus(file_bbc)
+                sentences = get_bbc_corpus_spacy(file_bbc)
                 #print(paras.head(), paras.shape)
                 #print(sent_lists.head(), sent_lists.shape)
                 print(sentences.head(), sentences.shape)
-                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences)
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences['tokenized_sents'])
                 print(list_of_embeddings.shape)
 
             else:
@@ -198,10 +208,10 @@ def main():
    
     else:
         if args.data == "bbc":
-            print("Loading from saved from {} .....".format(args.data))
+            print("Loading cosine matrix from saved from {} .....".format(args.data))
             loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16_bbc.npy")
         else:
-            print("Loading from saved from big corpus .....")
+            print("Loading cosine matrix from saved from big corpus .....")
             loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16_bigcorpus.npy")
         print(loaded_pair_cosine_matrix.shape)
         print(loaded_pair_cosine_matrix[0][0:15])

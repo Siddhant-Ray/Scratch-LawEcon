@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 2 
+    -n 4 
     -W 4:00
     -R "rusage[mem=64000]"
 )
@@ -48,11 +48,11 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-# bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu --plot yes --threshold 0.95 --data big
+bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device cpu  --threshold 0.50 --data bbc
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1 -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc -th_min 0.05 -th_max 0.00
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --noequal yes --data bbc --knumelem 100000
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --noequal yes --data bbc --knumelem 100000
 
