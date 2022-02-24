@@ -19,7 +19,7 @@ args=(
     -G ls_lawecon
     -n 2 
     -W 4:00
-    -R "rusage[mem=64000]"
+    -R "rusage[mem=6400]"
 )
 
 echo "getting into paraphrase directory"
@@ -54,5 +54,7 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc -th_min 0.05 -th_max 0.00
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --noequal yes --data bbc --knumelem 100000
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --noequal yes --data bbc --knumelem 100000
+
+bsub "${args[@]}" python paraphrase/test_script.py
 

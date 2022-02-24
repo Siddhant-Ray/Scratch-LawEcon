@@ -18,3 +18,6 @@ rsync -v paraphrase/logistic_test.py sidray@euler.ethz.ch:/cluster/home/sidray/w
 rsync -v paraphrase/ridge_classifier.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 rsync -v paraphrase/ridge_test.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 
+rsync -v paraphrase/test_script.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+
+
