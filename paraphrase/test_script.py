@@ -44,7 +44,7 @@ def get_sentence_length(input_sentence):
     return len(_list)
 
 # FILTER sentences in the DataFrame
-def filter_sent_in_df(dataframe):
+def filter_sent_in_df(df):
     print(df.shape)
     print(df.head())
     for character in string.punctuation:
@@ -67,7 +67,6 @@ def main():
     dataframe = pd.read_csv("paraphrase/figs/top_100000_noequal_bbc.csv")
 
     df = filter_sent_in_df(dataframe)
-
     df0 = pd.DataFrame({"para_probs": df.para_probs})
 
     df1 = pd.DataFrame({"sent1": df.sent1})
@@ -83,7 +82,13 @@ def main():
     print("DF 2.......", df2.shape) 
     print(df2.head())
 
-    df_final = pd.concat([df0, df1, df2], axis = 1)
+    df3 = (df1['sent1_verbs'].str.len() - df2['sent2_verbs'].str.len()).abs() 
+    df4 = (df1['sent1_length'] - df2['sent2_length']).abs()
+
+    df3 = pd.DataFrame({"num_verbs_diff": df3})
+    df4 = pd.DataFrame({"sent_lent_diff": df4})
+
+    df_final = pd.concat([df0, df1, df2, df3, df4], axis = 1)
     #df_final.to_csv("paraphrase/figs/filtered_bbc.csv",index=False)
     df_final.to_csv("paraphrase/figs/filtered_bbc_further.csv",index=False)
 
