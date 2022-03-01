@@ -50,11 +50,20 @@ def load_embeddings(fname):
     
     return stored_data
 
+# Function for kelbow plots generic
+def kelbow_visualize(input_data, clf, title, out_path):
+    _, ax = plt.subplots() # Create a new figure
+    model = clf
+    visualizer = KElbowVisualizer(model, k=(4,12), title = title, ax = ax) 
+    visualizer.fit(input_data)
+    visualizer.show(outpath = out_path) 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
     parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
-    
+    parser.add_argument("-clf", "--classifier", help= "choose classifier for kelbow", default = KMeans())
+    parser.add_argument("-mtx", "--matrix", help = "specify the matrix of input")
 
     args = parser.parse_args()
 
@@ -90,9 +99,24 @@ def main():
     sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
     print("Sentence vectors loaded from {} .....".format(args.data))
     print("Shape of sentence vectors", sentence_embeddings.shape)
-    
+
+    if args.classifier == "kmeans":
+         model = KMeans(random_state = 42)
+
+    if args.matrix == "sentences":
+        input_data = sentence_embeddings
+        title = "Run on sentence embeddings"
+        out_path = "paraphrase/figs/kelbow_kmeans_allsentences.png"
+    elif args.matrix == "paraprobs":
+        input_data = para_probs.reshape((-1,1))
+        title = "Run on para probs"
+        out_path = "paraphrase/figs/kelbow_kmeans_paraprobs.png"
+
+    kelbow_visualize(input_data, model, title, out_path)
+
+    '''_, ax = plt.subplots() # Create a new figure
     model = KMeans()
-    visualizer = KElbowVisualizer(model, k=(4,12))  
+    visualizer = KElbowVisualizer(model, k=(4,12), title = "Run on sentence embeddings", ax = ax)  
 
     # Fit the sentence data to the visualizer
     visualizer.fit(sentence_embeddings)      
@@ -101,10 +125,10 @@ def main():
     # Fit the paraprobs data to the visualizer
 
     _, ax = plt.subplots() # Create a new figure
-    new_visualizer = KElbowVisualizer(model, k=(4,12), ax = ax)  
+    new_visualizer = KElbowVisualizer(model, k=(4,12), title = "Run on para probs", ax = ax)  
     new_visualizer.fit(para_probs.reshape(-1, 1))      
     # Finalize and render the figure 
-    new_visualizer.show(outpath="paraphrase/figs/kelbow_kmeans_paraprobs.png") 
+    new_visualizer.show(outpath="paraphrase/figs/kelbow_kmeans_paraprobs.png")''' 
 
 
 if __name__== '__main__':
