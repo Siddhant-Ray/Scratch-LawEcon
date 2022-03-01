@@ -41,7 +41,8 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix sentences
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix paraprobs
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix sentences --visualize yes
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes 
 
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc 
 

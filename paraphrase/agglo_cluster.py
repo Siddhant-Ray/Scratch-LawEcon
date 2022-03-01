@@ -2,6 +2,7 @@ import json, pickle
 from operator import le
 import os, sys, time, math, random
 import argparse
+from tkinter import N
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
+from sklearn.cluster import AgglomerativeClustering
 
 
 PATH = "paraphrase/data/"
@@ -58,12 +60,21 @@ def kelbow_visualize(input_data, clf, title, out_path):
     visualizer.fit(input_data)
     visualizer.show(outpath = out_path) 
 
+# COMPUTE agglomerative clustering 
+def custom_agglomerative_clustering(input_data, n_clusters):
+    model = AgglomerativeClustering(affinity = "precomputed")
+    clusters = model.fit(input_data)
+    labels = clusters.labels_
+    return clusters, labels
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
     parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
     parser.add_argument("-clf", "--classifier", help= "choose classifier for kelbow", default = KMeans())
     parser.add_argument("-mtx", "--matrix", help = "specify the matrix of input")
+    parser.add_argument("-vis", "--visualize", help = "decide if kelbow should be plotted")
 
     args = parser.parse_args()
 
@@ -112,7 +123,19 @@ def main():
         title = "Run on para probs"
         out_path = "paraphrase/figs/kelbow_kmeans_paraprobs.png"
 
-    kelbow_visualize(input_data, model, title, out_path)
+    if args.visualize:
+        kelbow_visualize(input_data, model, title, out_path)
+
+    ## From the kelblow plots, we have k = 7 
+    n_clusters = 7 
+    input_distance_matrix = matrix_init
+
+    labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters)
+
+    print("Labels generated......")
+    print(labels.shape)
+    print(labels[0:10])
+
 
 if __name__== '__main__':
     main()
