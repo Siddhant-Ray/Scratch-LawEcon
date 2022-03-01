@@ -114,22 +114,5 @@ def main():
 
     kelbow_visualize(input_data, model, title, out_path)
 
-    '''_, ax = plt.subplots() # Create a new figure
-    model = KMeans()
-    visualizer = KElbowVisualizer(model, k=(4,12), title = "Run on sentence embeddings", ax = ax)  
-
-    # Fit the sentence data to the visualizer
-    visualizer.fit(sentence_embeddings)      
-    # Finalize and render the figure 
-    visualizer.show(outpath="paraphrase/figs/kelbow_kmeans_allsentences.png") 
-    # Fit the paraprobs data to the visualizer
-
-    _, ax = plt.subplots() # Create a new figure
-    new_visualizer = KElbowVisualizer(model, k=(4,12), title = "Run on para probs", ax = ax)  
-    new_visualizer.fit(para_probs.reshape(-1, 1))      
-    # Finalize and render the figure 
-    new_visualizer.show(outpath="paraphrase/figs/kelbow_kmeans_paraprobs.png")''' 
-
-
 if __name__== '__main__':
     main()
