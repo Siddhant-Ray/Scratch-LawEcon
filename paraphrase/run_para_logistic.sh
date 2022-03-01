@@ -56,5 +56,5 @@ done
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --noequal yes --data bbc --knumelem 100000
 
-bsub "${args[@]}" python paraphrase/test_script.py
+bsub "${args[@]}" python paraphrase/filter_predictions.py
 
