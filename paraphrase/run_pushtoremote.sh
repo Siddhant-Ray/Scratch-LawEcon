@@ -10,7 +10,7 @@ rsync -v paraphrase/dataloader_testcorpus.py sidray@euler.ethz.ch:/cluster/home/
 
 rsync -v paraphrase/run_para_ridge.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 rsync -v paraphrase/run_para_logistic.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
-
+rsync -v paraphrase/run_para_agglo.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 
 rsync -v paraphrase/logistic_classifier.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 rsync -v paraphrase/logistic_test.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
@@ -18,6 +18,9 @@ rsync -v paraphrase/logistic_test.py sidray@euler.ethz.ch:/cluster/home/sidray/w
 rsync -v paraphrase/ridge_classifier.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 rsync -v paraphrase/ridge_test.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 
-rsync -v paraphrase/test_script.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+rsync -v paraphrase/filter_predictions.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+rsync -v paraphrase/agglo_cluster.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+
+
 
 
