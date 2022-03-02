@@ -62,7 +62,7 @@ def kelbow_visualize(input_data, clf, title, out_path):
 
 # COMPUTE agglomerative clustering 
 def custom_agglomerative_clustering(input_data, n_clusters):
-    model = AgglomerativeClustering(affinity = "precomputed")
+    model = AgglomerativeClustering(n_clusters, affinity = "precomputed", linkage='average')
     clusters = model.fit(input_data)
     labels = clusters.labels_
     return clusters, labels

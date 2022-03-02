@@ -17,9 +17,9 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 2 
-    -W 4:00
-    -R "rusage[mem=6400]"
+    -n 4 
+    -W 24:00
+    -R "rusage[mem=12800]"
 )
 
 echo "getting into paraphrase directory"
