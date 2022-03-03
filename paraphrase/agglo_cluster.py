@@ -136,6 +136,8 @@ def main():
     print(labels.shape)
     print(labels[0:10])
 
+    np.save("paraphrase/data/agglo_labels_{}.npy".format(args.data), labels)
+
 
 if __name__== '__main__':
     main()
