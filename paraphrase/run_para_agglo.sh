@@ -44,5 +44,8 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix sentences --visualize yes
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes 
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc 
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single.out python paraphrase/agglo_cluster.py --data bbc --linkage single
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/agglo_cluster.py --data bbc --linkage average
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/agglo_cluster.py --data bbc --linkage complete
+
 

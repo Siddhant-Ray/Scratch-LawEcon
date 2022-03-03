@@ -61,8 +61,8 @@ def kelbow_visualize(input_data, clf, title, out_path):
     visualizer.show(outpath = out_path) 
 
 # COMPUTE agglomerative clustering 
-def custom_agglomerative_clustering(input_data, n_clusters):
-    model = AgglomerativeClustering(n_clusters, affinity = "precomputed", linkage='average')
+def custom_agglomerative_clustering(input_data, n_clusters, linkage):
+    model = AgglomerativeClustering(n_clusters, affinity = "precomputed", linkage=linkage)
     clusters = model.fit(input_data)
     labels = clusters.labels_
     return clusters, labels
@@ -75,6 +75,7 @@ def main():
     parser.add_argument("-clf", "--classifier", help= "choose classifier for kelbow", default = KMeans())
     parser.add_argument("-mtx", "--matrix", help = "specify the matrix of input")
     parser.add_argument("-vis", "--visualize", help = "decide if kelbow should be plotted")
+    parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering", required=True)
 
     args = parser.parse_args()
 
@@ -130,7 +131,8 @@ def main():
     n_clusters = 7 
     input_distance_matrix = matrix_init
 
-    labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters)
+    print("Linkage method used is {}".format(args.linkage))
+    labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
 
     print("Labels generated......")
     print(labels.shape)
