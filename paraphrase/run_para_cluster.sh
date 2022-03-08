@@ -19,7 +19,7 @@ args=(
     -G ls_lawecon
     -n 6 
     -W 24:00
-    -R "rusage[mem=128000]"
+    -R "rusage[mem=64000]"
 )
 
 echo "getting into paraphrase directory"
@@ -41,11 +41,17 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix sentences --visualize yes
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/agglo_cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes 
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/cluster.py --data bbc --classifier kmeans --matrix sentences --visualize yes
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes 
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single.out python paraphrase/agglo_cluster.py --data bbc --linkage single
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/agglo_cluster.py --data bbc --linkage average
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/agglo_cluster.py --data bbc --linkage complete
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single.out python paraphrase/cluster.py --data bbc --model agglo --linkage single
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/cluster.py --data bbc --model agglo --linkage average
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/cluster.py --data bbc --model agglo --linkage complete
+
+bsub "${args[@]}" -oo paraphrase/outputfiles/spectral_precomputed.out python paraphrase/cluster.py --data bbc --model spectral --affinity precomputed
+
+
+
+
 
 

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import SpectralClustering
 
 
 PATH = "paraphrase/data/"
@@ -49,7 +50,6 @@ def load_paraphrase_probs(file):
 def load_embeddings(fname):
     with open(fname, "rb") as em:
         stored_data = pickle.load(em)
-    
     return stored_data
 
 # Function for kelbow plots generic
@@ -67,6 +67,14 @@ def custom_agglomerative_clustering(input_data, n_clusters, linkage):
     labels = clusters.labels_
     return clusters, labels
 
+# Compute spectral clustering 
+def custom_spectral_clustering(input_data, n_clusters, affinity):
+    model = SpectralClustering(n_clusters=n_clusters, affinity = affinity,
+                                assign_labels='discretize', random_state=42, n_jobs = -1)
+    clusters = model.fit(input_data)
+    labels = clusters.labels_
+    return clusters, labels
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -75,7 +83,9 @@ def main():
     parser.add_argument("-clf", "--classifier", help= "choose classifier for kelbow", default = KMeans())
     parser.add_argument("-mtx", "--matrix", help = "specify the matrix of input")
     parser.add_argument("-vis", "--visualize", help = "decide if kelbow should be plotted")
-    parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering", required=True)
+    parser.add_argument("-mod","--model", help = "clustering model selection", required = True)
+    parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering")
+    parser.add_argument("-aff", "--affinity", help = "decide affinity for spectral clustering")
 
     args = parser.parse_args()
 
@@ -131,15 +141,25 @@ def main():
     n_clusters = 7 
     input_distance_matrix = matrix_init
 
-    print("Linkage method used is {}".format(args.linkage))
-    labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
+    if args.model == "agglo":
 
-    print("Labels generated......")
-    print(labels.shape)
-    print(labels[0:10])
+        print("Linkage method used is {}".format(args.linkage))
+        labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
+        print("Labels generated for agglomerative ......")
+        print(labels.shape)
+        print(labels[0:10])
 
-    np.save("paraphrase/data/agglo_labels_{}.npy".format(args.data), labels)
+        np.save("paraphrase/data/agglo_labels_{}.npy".format(args.data), labels)
 
+    if args.model == "spectral":
+
+        print("Affinity method used is {}".format(args.affinity))
+        labels, clustered_model = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
+        print("Labels generated for spectral ......")
+        print(labels.shape)
+        print(labels[0:10])
+
+        np.save("paraphrase/data/spectral_labels_{}.npy".format(args.data), labels)
 
 if __name__== '__main__':
     main()
