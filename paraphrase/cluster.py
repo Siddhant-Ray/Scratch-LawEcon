@@ -13,6 +13,7 @@ from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import SpectralClustering
+from sklearn.cluster import DBSCAN
 
 
 PATH = "paraphrase/data/"
@@ -67,10 +68,17 @@ def custom_agglomerative_clustering(input_data, n_clusters, linkage):
     labels = clusters.labels_
     return clusters, labels
 
-# Compute spectral clustering 
+# COMPUTE spectral clustering 
 def custom_spectral_clustering(input_data, n_clusters, affinity):
     model = SpectralClustering(n_clusters=n_clusters, affinity = affinity,
                                 assign_labels='discretize', random_state=42, n_jobs = -1)
+    clusters = model.fit(input_data)
+    labels = clusters.labels_
+    return clusters, labels
+
+#  COMPUTE DBSCAN clustering 
+def custom_dbscan_clustering(input_data, metric):
+    model = DBSCAN(metric = metric, n_jobs = -1)
     clusters = model.fit(input_data)
     labels = clusters.labels_
     return clusters, labels
@@ -86,6 +94,8 @@ def main():
     parser.add_argument("-mod","--model", help = "clustering model selection", required = True)
     parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering")
     parser.add_argument("-aff", "--affinity", help = "decide affinity for spectral clustering")
+    parser.add_argument("-met", "--metric", help = "decide metric for DBSCAN clustering")
+
 
     args = parser.parse_args()
 
@@ -151,7 +161,7 @@ def main():
 
         np.save("paraphrase/data/agglo_labels_{}.npy".format(args.data), labels)
 
-    if args.model == "spectral":
+    elif args.model == "spectral":
 
         print("Affinity method used is {}".format(args.affinity))
         labels, clustered_model = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
@@ -160,6 +170,16 @@ def main():
         print(labels[0:10])
 
         np.save("paraphrase/data/spectral_labels_{}.npy".format(args.data), labels)
+
+    elif args.model == "dbscan":
+
+        print("Metric used is {}".format(args.affinity))
+        labels, clustered_model = custom_dbscan_clustering(input_distance_matrix, n_clusters, args.metric)
+        print("Labels generated for dbscan ......")
+        print(labels.shape)
+        print(labels[0:10])
+
+        np.save("paraphrase/data/dbscan_labels_{}.npy".format(args.data), labels)
 
 if __name__== '__main__':
     main()

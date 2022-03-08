@@ -48,7 +48,9 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/cluster.py --data bbc --model agglo --linkage average
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/cluster.py --data bbc --model agglo --linkage complete
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/spectral_precomputed.out python paraphrase/cluster.py --data bbc --model spectral --affinity precomputed
+# bsub "${args[@]}" -oo paraphrase/outputfiles/spectral_precomputed.out python paraphrase/cluster.py --data bbc --model spectral --affinity precomputed
+bsub "${args[@]}" -oo paraphrase/outputfiles/dbscan_precomputed.out python paraphrase/cluster.py --data bbc --model dbscan --metric precomputed
+
 
 
 
