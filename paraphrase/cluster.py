@@ -174,7 +174,7 @@ def main():
     elif args.model == "dbscan":
 
         print("Metric used is {}".format(args.affinity))
-        labels, clustered_model = custom_dbscan_clustering(input_distance_matrix, n_clusters, args.metric)
+        labels, clustered_model = custom_dbscan_clustering(input_distance_matrix, args.metric)
         print("Labels generated for dbscan ......")
         print(labels.shape)
         print(labels[0:10])
