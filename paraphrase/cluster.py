@@ -103,6 +103,8 @@ def main():
     parser.add_argument("-met", "--metric", help = "decide metric for DBSCAN clustering")
     parser.add_argument("-mtype", "--matrix_type", help="specify distance or similarity matrix")
     parser.add_argument("-nclus", "--nclusters", help="specify the number of clusters for agglomerative")
+    parser.add_argument("-load", "--load", help="create csv from saved cluster labels")
+
 
 
     args = parser.parse_args()
@@ -179,44 +181,66 @@ def main():
         print("input matrix type not selected")
         exit()
 
-    if args.model == "agglo":
+    if not args.load:
+        print("generating clusters....")
 
-        print("Linkage method used is {}".format(args.linkage))
-        clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
-        print("Labels generated for agglomerative ......")
-        print(labels.shape)
-        print(labels[0:10])
-        print("set of labels.....")
-        print(set(labels.tolist()))
+        if args.model == "agglo":
 
-        np.save("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data, args.linkage, args.matrix_type, str(n_clusters)), labels)
+            print("Linkage method used is {}".format(args.linkage))
+            clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
+            print("Labels generated for agglomerative ......")
+            print(labels.shape)
+            print(labels[0:10])
+            print("set of labels.....")
+            print(set(labels.tolist()))
 
-    elif args.model == "spectral":
+            np.save("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data, args.linkage,
+                                                                                    args.matrix_type, str(n_clusters)), labels)
 
-        print("Affinity method used is {}".format(args.affinity))
-        clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
-        print("Labels generated for spectral ......")
-        print(labels.shape)
-        print(labels[0:10])
-        print("set of labels.....")
-        print(set(labels.tolist()))
+        elif args.model == "spectral":
 
-        np.save("paraphrase/data/spectral_labels_{}_mtype_{}.npy".format(args.data, args.matrix_type), labels)
+            print("Affinity method used is {}".format(args.affinity))
+            clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
+            print("Labels generated for spectral ......")
+            print(labels.shape)
+            print(labels[0:10])
+            print("set of labels.....")
+            print(set(labels.tolist()))
 
-    elif args.model == "dbscan":
+            np.save("paraphrase/data/spectral_labels_{}_mtype_{}.npy".format(args.data, args.matrix_type), labels)
 
-        print("Metric used is {}".format(args.affinity))
-        clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
-        print("Labels generated for dbscan ......")
-        print(labels.shape)
-        print(labels[0:10])
-        print("set of labels.....")
-        print(set(labels.tolist()))
+        elif args.model == "dbscan":
 
-        np.save("paraphrase/data/dbscan_labels_{}_mytpe_{}.npy".format(args.data, args.matrix_type), labels)
+            print("Metric used is {}".format(args.affinity))
+            clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
+            print("Labels generated for dbscan ......")
+            print(labels.shape)
+            print(labels[0:10])
+            print("set of labels.....")
+            print(set(labels.tolist()))
 
-    else: 
-        exit()
+            np.save("paraphrase/data/dbscan_labels_{}_mytpe_{}.npy".format(args.data, args.matrix_type), labels)
+
+        else:
+            print("specify model....")
+            exit()
+
+    elif args.load:
+        print("loading clusters....")
+        sentences = load_embeddings(embedding_file_bbc)["sentences"]
+        print(sentences.shape)
+        print(sentences[0:5])
+
+        df = pd.DataFrame(sentences)
+
+        numbers = [16, 32, 64, 128, 256, 512, 1024]
+
+        for num in numbers:
+        
+            df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
+                                                                                            args.linkage, args.matrix_type, str(num)))
+        # print(df.head())
+        df.to_csv("paraphrase/figs/agglo_average_linkage_clustered.csv",index=False)
 
 if __name__== '__main__':
     main()

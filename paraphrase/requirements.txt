@@ -24,13 +24,13 @@ Markdown==3.3.6
 MarkupSafe==2.0.1
 matplotlib==3.5.0
 murmurhash==1.0.6
-nltk==3.6.6
+nltk==3.6.5
 numpy==1.21.4
 oauthlib==3.1.1
 packaging==21.2
 pandas==1.4.1
 pathy==0.6.1
-Pillow==9.0.0
+Pillow==8.4.0
 preshed==3.0.6
 protobuf==3.19.1
 pyasn1==0.4.8
