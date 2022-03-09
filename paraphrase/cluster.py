@@ -117,8 +117,17 @@ def main():
     else:
         pass 
 
+    sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
+    print("Sentence vectors loaded from {} .....".format(args.data))
+    print("Shape of sentence vectors", sentence_embeddings.shape)
+
     tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
-    matrix_init = np.zeros((para_probs.shape[0], para_probs.shape[0]))
+    ### Shape of matrix should be sentence X sentences
+    ### This matrix has the paraphrase probabilities for certain indices
+    ### which indices have a paraphrase probability , with cosine sim 
+    ### > 0.5 between the pair
+
+    matrix_init = np.zeros((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
     print("Empty matrix.......")
     print(matrix_init[0], matrix_init.shape)
 
@@ -127,10 +136,6 @@ def main():
 
     print("Empty matrix filled with paraprobs.......")
     print(matrix_init[0], matrix_init.shape)
-
-    sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
-    print("Sentence vectors loaded from {} .....".format(args.data))
-    print("Shape of sentence vectors", sentence_embeddings.shape)
 
     if args.classifier == "kmeans":
          model = KMeans(random_state = 42)
@@ -159,7 +164,7 @@ def main():
         print(labels.shape)
         print(labels[0:10])
 
-        np.save("paraphrase/data/agglo_labels_{}.npy".format(args.data), labels)
+        np.save("paraphrase/data/agglo_labels_{}_{}.npy".format(args.data, args.linkage), labels)
 
     elif args.model == "spectral":
 
@@ -180,6 +185,9 @@ def main():
         print(labels[0:10])
 
         np.save("paraphrase/data/dbscan_labels_{}.npy".format(args.data), labels)
+
+    else: 
+        exit()
 
 if __name__== '__main__':
     main()
