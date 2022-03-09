@@ -83,6 +83,12 @@ def custom_dbscan_clustering(input_data, metric):
     labels = clusters.labels_
     return clusters, labels
 
+# LOAD embeddings and sentences from stored state
+def load_embeddings(fname):
+    with open(fname, "rb") as em:
+        stored_data = pickle.load(em)
+    return stored_data
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -95,6 +101,8 @@ def main():
     parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering")
     parser.add_argument("-aff", "--affinity", help = "decide affinity for spectral clustering")
     parser.add_argument("-met", "--metric", help = "decide metric for DBSCAN clustering")
+    parser.add_argument("-mtype", "--matrix_type", help="specify distance or similarity matrix")
+    parser.add_argument("-nclus", "--nclusters", help="specify the number of clusters for agglomerative")
 
 
     args = parser.parse_args()
@@ -134,8 +142,16 @@ def main():
     for ix, index in enumerate(tuples_of_indices):
         matrix_init[index] = para_probs[ix]
 
-    print("Empty matrix filled with paraprobs.......")
+    print("Similarity matrix filled with paraprobs.......")
     print(matrix_init[0], matrix_init.shape)
+
+    ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+    print("Empty ones matrix.......")
+    print(ones_matrix[0], ones_matrix.shape)
+
+    dist_matrix = ones_matrix - matrix_init
+    print("Distance matrix.......")
+    print(dist_matrix[0], dist_matrix.shape)
 
     if args.classifier == "kmeans":
          model = KMeans(random_state = 42)
@@ -153,38 +169,51 @@ def main():
         kelbow_visualize(input_data, model, title, out_path)
 
     ## From the kelblow plots, we have k = 7 
-    n_clusters = 7 
-    input_distance_matrix = matrix_init
+    n_clusters = int(args.nclusters) 
+
+    if args.matrix_type == "sim":
+        input_distance_matrix = matrix_init
+    elif args.matrix_type == "dist":
+        input_distance_matrix = dist_matrix
+    else:
+        print("input matrix type not selected")
+        exit()
 
     if args.model == "agglo":
 
         print("Linkage method used is {}".format(args.linkage))
-        labels, clustered_model = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
+        clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
         print("Labels generated for agglomerative ......")
         print(labels.shape)
         print(labels[0:10])
+        print("set of labels.....")
+        print(set(labels.tolist()))
 
-        np.save("paraphrase/data/agglo_labels_{}_{}.npy".format(args.data, args.linkage), labels)
+        np.save("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data, args.linkage, args.matrix_type, str(n_clusters)), labels)
 
     elif args.model == "spectral":
 
         print("Affinity method used is {}".format(args.affinity))
-        labels, clustered_model = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
+        clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
         print("Labels generated for spectral ......")
         print(labels.shape)
         print(labels[0:10])
+        print("set of labels.....")
+        print(set(labels.tolist()))
 
-        np.save("paraphrase/data/spectral_labels_{}.npy".format(args.data), labels)
+        np.save("paraphrase/data/spectral_labels_{}_mtype_{}.npy".format(args.data, args.matrix_type), labels)
 
     elif args.model == "dbscan":
 
         print("Metric used is {}".format(args.affinity))
-        labels, clustered_model = custom_dbscan_clustering(input_distance_matrix, args.metric)
+        clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
         print("Labels generated for dbscan ......")
         print(labels.shape)
         print(labels[0:10])
+        print("set of labels.....")
+        print(set(labels.tolist()))
 
-        np.save("paraphrase/data/dbscan_labels_{}.npy".format(args.data), labels)
+        np.save("paraphrase/data/dbscan_labels_{}_mytpe_{}.npy".format(args.data, args.matrix_type), labels)
 
     else: 
         exit()
