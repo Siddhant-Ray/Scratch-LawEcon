@@ -56,10 +56,10 @@ nclusters=(16 32 64 128 256 512 1024)
 for n in ${nclusters[@]}
 do 
     echo "in cluster number" $n
-    # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --nclusters $n
+    bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist --nclusters $n
 done
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average_load.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --nclusters $n --load yes
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average_load.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --nclusters $n --load yes
 
 
 

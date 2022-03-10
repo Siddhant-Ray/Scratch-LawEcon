@@ -240,7 +240,7 @@ def main():
             df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
                                                                                             args.linkage, args.matrix_type, str(num)))
         # print(df.head())
-        df.to_csv("paraphrase/figs/agglo_average_linkage_clustered.csv",index=False)
+        df.to_csv("paraphrase/figs/agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
 
 if __name__== '__main__':
     main()
