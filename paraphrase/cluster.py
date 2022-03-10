@@ -104,8 +104,7 @@ def main():
     parser.add_argument("-mtype", "--matrix_type", help="specify distance or similarity matrix")
     parser.add_argument("-nclus", "--nclusters", help="specify the number of clusters for agglomerative")
     parser.add_argument("-load", "--load", help="create csv from saved cluster labels")
-
-
+    parser.add_argument("-sent", "--sentences", help ="cluster raw sentence vector")
 
     args = parser.parse_args()
 
@@ -130,6 +129,22 @@ def main():
     sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
     print("Sentence vectors loaded from {} .....".format(args.data))
     print("Shape of sentence vectors", sentence_embeddings.shape)
+
+    if args.sentences and args.model == "agglo":
+        print("clustering sentences vectors....")
+        print(sentence_embeddings.shape)
+        n_clusters = int(args.nclusters) 
+        model = AgglomerativeClustering(n_clusters, affinity = "euclidean", linkage=args.linkage)
+        clusters = model.fit(sentence_embeddings)
+        labels = clusters.labels_
+        print(labels.shape)
+        print(labels[0:10])
+        print("set of labels.....")
+        print(set(labels.tolist()))
+
+        np.save("paraphrase/data/sent_vecs_agglo_labels_{}_{}_nclusters_{}.npy".format(args.data, args.linkage,
+                                                                                     str(n_clusters)), labels)
+        exit()
 
     tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
     ### Shape of matrix should be sentence X sentences
@@ -189,41 +204,31 @@ def main():
             print("Linkage method used is {}".format(args.linkage))
             clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
             print("Labels generated for agglomerative ......")
-            print(labels.shape)
-            print(labels[0:10])
-            print("set of labels.....")
-            print(set(labels.tolist()))
-
-            np.save("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data, args.linkage,
-                                                                                    args.matrix_type, str(n_clusters)), labels)
-
+            
         elif args.model == "spectral":
 
             print("Affinity method used is {}".format(args.affinity))
             clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
             print("Labels generated for spectral ......")
-            print(labels.shape)
-            print(labels[0:10])
-            print("set of labels.....")
-            print(set(labels.tolist()))
-
-            np.save("paraphrase/data/spectral_labels_{}_mtype_{}.npy".format(args.data, args.matrix_type), labels)
 
         elif args.model == "dbscan":
 
             print("Metric used is {}".format(args.affinity))
             clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
             print("Labels generated for dbscan ......")
-            print(labels.shape)
-            print(labels[0:10])
-            print("set of labels.....")
-            print(set(labels.tolist()))
-
-            np.save("paraphrase/data/dbscan_labels_{}_mytpe_{}.npy".format(args.data, args.matrix_type), labels)
-
+            
         else:
             print("specify model....")
             exit()
+
+        print(labels.shape)
+        print(labels[0:10])
+        print("set of labels.....")
+        print(set(labels.tolist()))
+
+        np.save("paraphrase/data/{}_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.model, args.data, args.linkage,
+                                                                                    args.matrix_type, str(n_clusters)), labels)
+
 
     elif args.load:
         print("loading clusters....")
@@ -232,13 +237,18 @@ def main():
         print(sentences[0:5])
 
         df = pd.DataFrame(sentences)
+        df_2 = df
         numbers = [16, 32, 64, 128, 256, 512, 1024]
 
         for num in numbers:
-            df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
-                                                                                                 args.linkage, args.matrix_type, str(num)))
+            #df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
+                                                                                                 #args.linkage, args.matrix_type, str(num)))
+
+            df_2["{} clusters".format(num)] = np.load("paraphrase/data/sent_vecs_agglo_labels_{}_{}_nclusters_{}.npy".format(args.data, args.linkage,
+                                                                                     str(num)))                                                                                      
         # print(df.head())
-        df.to_csv("paraphrase/figs/agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
+        # df.to_csv("paraphrase/figs/agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
+        df_2.to_csv("paraphrase/figs/sent_vecs_agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
 
 if __name__== '__main__':
     main()
