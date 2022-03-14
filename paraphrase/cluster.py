@@ -111,11 +111,16 @@ def plot_dendrogram(model, **kwargs):
 
 def get_clusters_from_linkage_matrix(linkage_matrix):
 	# depth_of_tree basically determines how many merging steps we allow, 
-    # len(linkage_matrix // 4 ) seems to yield decent results, i.e., ca. 500 clusters)
-	depth_of_tree=len(linkage_matrix) // 4
+    # len(linkage_matrix // 4 ) seems to yield decent results, 
+    # i.e., ca. 500 clusters)
+	depth_of_tree=len(linkage_matrix) // 2
+	#depth_of_tree=len(linkage_matrix)
+
+	depth_of_tree= int(len(linkage_matrix) * 0.75)
+
 	clusters = defaultdict(set)
 	c = len(linkage_matrix) + 1
-	n = len(linkage_matrix)
+	n = len(linkage_matrix) 
 	for i in linkage_matrix[:depth_of_tree]:
 		a,b = int(i[0]), int(i[1])
 		if a > n:
@@ -246,18 +251,20 @@ def main():
 
         max_len = max(len(i) for i in clusters.values())
         index = [i for i,j in clusters.items() if len(j) == max_len][0]
+
+        print("num sentences appearing in clusters", sum(len(i) for i in clusters.values()))
+        print("n clusters", len(clusters), "max length", max_len)
+    
         tokenized_sents = pd.DataFrame(sentences)
         print(tokenized_sents.head())
-        list_of_custers = []
-        list_of_sentences = []
-        for i in clusters[index]:
-            list_of_custers.append(i)
-            list_of_sentences.append(tokenized_sents.iloc[i]['tokenized_sents'])
-
-        print(list_of_custers[0:10])
-        print(list_of_sentences[0:10])
-        df_clustered = pd.DataFrame({"cluster id": list_of_custers, "sentence" : list_of_sentences})
-        df_clustered.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False) 
+        
+        out = []
+        for i,j in clusters.items():
+            if len(j) > 5:
+                for index in j:
+                    out.append((tokenized_sents.iloc[index].tokenized_sents, i))
+        df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
+        df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
 
     else:
         ## From the kelblow plots, we have k = 7 
