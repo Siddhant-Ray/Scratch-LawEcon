@@ -184,7 +184,7 @@ def get_bbc_corpus(full_file_path):
     return list_of_paras, list_of_sentences, new_df['sents']
 
 # GET BBC corpus sentence wise via Spacy
-def get_bbc_corpus_spacy(full_file_path):
+def get_bbc_corpus_nltk(full_file_path):
     data_file = pd.read_csv(full_file_path)
     new_df = pd.DataFrame({"transcript":data_file.transcript})
     new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['transcript']), axis=1)
@@ -220,12 +220,18 @@ def get_verbs(input_sentence):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-file", "--file", help = "choose csv file for loading")
-    parser.add_argument("-th", "--threshold", help = "threshold to filter cosine similarities")
-    parser.add_argument("-sv", "--save", help = "used saved indices or not")
-    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
-    parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
-    parser.add_argument("-k", "--knumelem", help= "how many top/ bottom k to select")
+    parser.add_argument("-file", "--file",
+                        help = "choose csv file for loading")
+    parser.add_argument("-th", "--threshold",
+                        help = "threshold to filter cosine similarities")
+    parser.add_argument("-sv", "--save",
+                        help = "used saved indices or not")
+    parser.add_argument("-dt", "--data",
+                        help = "choose to take the bbc corpus")
+    parser.add_argument("-noeq", "--noequal",
+                        help= "choose whether to include same sentences as pairs")
+    parser.add_argument("-k", "--knumelem",
+                        help= "how many top/ bottom k to select")
 
     args = parser.parse_args()
 
@@ -343,7 +349,7 @@ def main():
         if args.data == "bbc":
             # list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
             # USE SPACYYYY.....
-            sent_dataframe = get_bbc_corpus_spacy(data_file_bbc)
+            sent_dataframe = get_bbc_corpus_nltk(data_file_bbc)
             df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
             df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
 
