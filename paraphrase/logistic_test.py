@@ -168,6 +168,37 @@ def evaluate_model(clf, vectors1, vectors2):
 
     return clf, t_preds, t_pred_probs
 
+# EVALUATE corpus sentence pairs, less memory usage but SLOW
+def evaluate_model_slow(clf, vectors1, vectors2):
+
+    para_probs = []
+    para_preds = []
+
+    print("Evaluating para probs on pair wise sentences")
+    assert(vectors1.shape[0] == vectors2.shape[0])
+
+    for index in range(vectors1.shape[0]):
+        vector1 = vectors1[index]
+        vector2 = vectors2[index]
+        abs_diff = np.abs(vector1 - vector2)
+        elem_prod = vector1 * vector2
+        combined_test = np.concatenate((vector1, 
+                        vector2, abs_diff,elem_prod))
+        print(combined_test.shape)  
+        print("Metrics for test dataset......")       
+        t_preds = clf.predict(combined_test) 
+        t_pred_probs = clf.predict_proba(combined_test)
+        para_probs.append(t_pred_probs)
+        para_preds.append(t_preds)
+
+    t_preds = np.array(para_preds)
+    t_pred_probs = np.array(para_probs)
+
+    print("Predictions for 10 are", t_preds[0:10])
+    print("Prediction probs for 10 are", t_pred_probs[0:10])
+
+    return clf, t_preds, t_pred_probs
+    
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
     data_file = pd.read_csv(full_file_path)['text']
@@ -184,7 +215,7 @@ def get_bbc_corpus(full_file_path):
     return list_of_paras, list_of_sentences, new_df['sents']
 
 # GET BBC corpus sentence wise via Spacy
-def get_bbc_corpus_spacy(full_file_path):
+def get_bbc_corpus_nltk(full_file_path):
     data_file = pd.read_csv(full_file_path)
     new_df = pd.DataFrame({"transcript":data_file.transcript})
     new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['transcript']), axis=1)
@@ -220,12 +251,18 @@ def get_verbs(input_sentence):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-file", "--file", help = "choose csv file for loading")
-    parser.add_argument("-th", "--threshold", help = "threshold to filter cosine similarities")
-    parser.add_argument("-sv", "--save", help = "used saved indices or not")
-    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
-    parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
-    parser.add_argument("-k", "--knumelem", help= "how many top/ bottom k to select")
+    parser.add_argument("-file", "--file",
+                        help = "choose csv file for loading")
+    parser.add_argument("-th", "--threshold",
+                        help = "threshold to filter cosine similarities")
+    parser.add_argument("-sv", "--save",
+                        help = "used saved indices or not")
+    parser.add_argument("-dt", "--data",
+                        help = "choose to take the bbc corpus")
+    parser.add_argument("-noeq", "--noequal",
+                        help= "choose whether to include same sentences as pairs")
+    parser.add_argument("-k", "--knumelem",
+                        help= "how many top/ bottom k to select")
 
     args = parser.parse_args()
 
@@ -343,7 +380,7 @@ def main():
         if args.data == "bbc":
             # list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
             # USE SPACYYYY.....
-            sent_dataframe = get_bbc_corpus_spacy(data_file_bbc)
+            sent_dataframe = get_bbc_corpus_nltk(data_file_bbc)
             df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
             df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
 

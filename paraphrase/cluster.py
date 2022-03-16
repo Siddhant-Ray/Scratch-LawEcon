@@ -3,6 +3,7 @@ from operator import le
 import os, sys, time, math, random
 import argparse
 from tkinter import N
+from collections import Counter, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import DBSCAN
-
+from scipy.cluster.hierarchy import dendrogram
 
 PATH = "paraphrase/data/"
 embedding_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
@@ -89,22 +90,87 @@ def load_embeddings(fname):
         stored_data = pickle.load(em)
     return stored_data
 
+# slightly adapted from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
+def plot_dendrogram(model, **kwargs):
+	# Create linkage matrix and then plot the dendrogram
+	# create the counts of samples under each node
+	counts = np.zeros(model.children_.shape[0])
+	n_samples = len(model.labels_)
+	for i, merge in enumerate(model.children_):
+		current_count = 0
+		for child_idx in merge:
+			if child_idx < n_samples:
+				current_count += 1  # leaf node
+			else:
+				current_count += counts[child_idx - n_samples]
+		counts[i] = current_count
+	linkage_matrix = np.column_stack([model.children_, model.distances_, counts]).astype(float)
+	# Plot the corresponding dendrogram
+	dendrogram(linkage_matrix, **kwargs)
+	return linkage_matrix
+
+def get_clusters_from_linkage_matrix(linkage_matrix, depth_factor):
+	# depth_of_tree basically determines how many merging steps we allow, 
+    # len(linkage_matrix // 4 ) seems to yield decent results, 
+    # i.e., ca. 500 clusters)
+	# depth_of_tree=len(linkage_matrix) // 2
+	#depth_of_tree=len(linkage_matrix)
+
+	depth_of_tree= int(len(linkage_matrix) * float(depth_factor))
+
+	clusters = defaultdict(set)
+	c = len(linkage_matrix) + 1
+	n = len(linkage_matrix) 
+	for i in linkage_matrix[:depth_of_tree]:
+		a,b = int(i[0]), int(i[1])
+		if a > n:
+			clusters[c] = clusters[a]
+			del clusters[a]
+		else:
+			clusters[c].add(a)
+		if b > n:
+			clusters[c].update(list(clusters[b]))
+			del clusters[b]
+		else:
+			clusters[c].add(b)
+		if len(clusters[c]) == 1:
+			pass
+		c += 1
+	return clusters
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
-    parser.add_argument("-noeq", "--noequal", help= "choose whether to include same sentences as pairs")
-    parser.add_argument("-clf", "--classifier", help= "choose classifier for kelbow", default = KMeans())
-    parser.add_argument("-mtx", "--matrix", help = "specify the matrix of input")
-    parser.add_argument("-vis", "--visualize", help = "decide if kelbow should be plotted")
-    parser.add_argument("-mod","--model", help = "clustering model selection", required = True)
-    parser.add_argument("-link", "--linkage", help = "decide linkage for agglomerative clustering")
-    parser.add_argument("-aff", "--affinity", help = "decide affinity for spectral clustering")
-    parser.add_argument("-met", "--metric", help = "decide metric for DBSCAN clustering")
-    parser.add_argument("-mtype", "--matrix_type", help="specify distance or similarity matrix")
-    parser.add_argument("-nclus", "--nclusters", help="specify the number of clusters for agglomerative")
-    parser.add_argument("-load", "--load", help="create csv from saved cluster labels")
-    parser.add_argument("-sent", "--sentences", help ="cluster raw sentence vector")
+    parser.add_argument("-dt", "--data",
+                        help = "choose to take the bbc corpus")
+    parser.add_argument("-noeq", "--noequal",
+                        help= "choose whether to include same sentences as pairs")
+    parser.add_argument("-clf", "--classifier", 
+                        help= "choose classifier for kelbow", default = KMeans())
+    parser.add_argument("-mtx", "--matrix", 
+                        help = "specify the matrix of input")
+    parser.add_argument("-vis", "--visualize", 
+                        help = "decide if kelbow should be plotted")
+    parser.add_argument("-mod","--model", 
+                        help = "clustering model selection", required = True)
+    parser.add_argument("-link", "--linkage", 
+                        help = "decide linkage for agglomerative clustering")
+    parser.add_argument("-aff", "--affinity", 
+                        help = "decide affinity for spectral clustering")
+    parser.add_argument("-met", "--metric", 
+                        help = "decide metric for DBSCAN clustering")
+    parser.add_argument("-mtype", "--matrix_type", 
+                        help="specify distance or similarity matrix")
+    parser.add_argument("-nclus", "--nclusters", 
+                        help="specify the number of clusters for agglomerative")
+    parser.add_argument("-load", "--load", 
+                        help="create csv from saved cluster labels")
+    parser.add_argument("-sent", "--sentences", 
+                        help ="cluster raw sentence vector")
+    parser.add_argument("-cust", "--custom", 
+                        help ="use custom clustering based on agglomerative")
+    parser.add_argument("-dpt", "--depth", 
+                        help ="specifiy depth of merge factor")
+
 
     args = parser.parse_args()
 
@@ -127,24 +193,9 @@ def main():
         pass 
 
     sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
+    sentences = load_embeddings(embedding_file_bbc)['sentences']
     print("Sentence vectors loaded from {} .....".format(args.data))
     print("Shape of sentence vectors", sentence_embeddings.shape)
-
-    if args.sentences and args.model == "agglo":
-        print("clustering sentences vectors....")
-        print(sentence_embeddings.shape)
-        n_clusters = int(args.nclusters) 
-        model = AgglomerativeClustering(n_clusters, affinity = "euclidean", linkage=args.linkage)
-        clusters = model.fit(sentence_embeddings)
-        labels = clusters.labels_
-        print(labels.shape)
-        print(labels[0:10])
-        print("set of labels.....")
-        print(set(labels.tolist()))
-
-        np.save("paraphrase/data/sent_vecs_agglo_labels_{}_{}_nclusters_{}.npy".format(args.data, args.linkage,
-                                                                                     str(n_clusters)), labels)
-        exit()
 
     tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
     ### Shape of matrix should be sentence X sentences
@@ -185,9 +236,6 @@ def main():
     if args.visualize:
         kelbow_visualize(input_data, model, title, out_path)
 
-    ## From the kelblow plots, we have k = 7 
-    n_clusters = int(args.nclusters) 
-
     if args.matrix_type == "sim":
         input_distance_matrix = matrix_init
     elif args.matrix_type == "dist":
@@ -196,59 +244,91 @@ def main():
         print("input matrix type not selected")
         exit()
 
-    if not args.load:
-        print("generating clusters....")
+    if args.custom:
+        model = AgglomerativeClustering(distance_threshold=0, affinity="precomputed", n_clusters=None, linkage=args.linkage)
+        model.fit(input_distance_matrix)
+        np.save("paraphrase/data/{}_matrix.npy".format(args.matrix_type), input_distance_matrix)
+        linkage_matrix = plot_dendrogram(model, truncate_mode="level", p=3)
+        clusters = get_clusters_from_linkage_matrix(linkage_matrix, args.depth) 
 
-        if args.model == "agglo":
+        max_len = max(len(i) for i in clusters.values())
+        index = [i for i,j in clusters.items() if len(j) == max_len][0]
 
-            print("Linkage method used is {}".format(args.linkage))
-            clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
-            print("Labels generated for agglomerative ......")
-            
-        elif args.model == "spectral":
+        print("depth factor is ", args.depth)
+        print("num sentences appearing in clusters", sum(len(i) for i in clusters.values()))
+        print("n clusters", len(clusters), "max length", max_len)
+    
+        tokenized_sents = pd.DataFrame(sentences)
+        print(tokenized_sents.head())
+        
+        out = []
+        for i,j in clusters.items():
+            if len(j) > 5:
+                for index in j:
+                    out.append((tokenized_sents.iloc[index].tokenized_sents, i))
+        df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
+        #df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
+        df.sort_values(by=['cluster'],ascending=False)
+        print(df.head())
+        df.to_csv("paraphrase/figs/agglo_{}_custom_sorted_dfactor_{}.csv".format(args.linkage,args.depth), index=False)
 
-            print("Affinity method used is {}".format(args.affinity))
-            clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
-            print("Labels generated for spectral ......")
+    else:
+        ## From the kelblow plots, we have k = 7 
+        n_clusters = int(args.nclusters) 
+        
+        if not args.load:
+            print("generating clusters....")
 
-        elif args.model == "dbscan":
+            if args.model == "agglo":
 
-            print("Metric used is {}".format(args.affinity))
-            clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
-            print("Labels generated for dbscan ......")
-            
-        else:
-            print("specify model....")
-            exit()
+                print("Linkage method used is {}".format(args.linkage))
+                clustered_model, labels = custom_agglomerative_clustering(input_distance_matrix, n_clusters, args.linkage)
+                print("Labels generated for agglomerative ......")
+                
+            elif args.model == "spectral":
 
-        print(labels.shape)
-        print(labels[0:10])
-        print("set of labels.....")
-        print(set(labels.tolist()))
+                print("Affinity method used is {}".format(args.affinity))
+                clustered_model, labels = custom_spectral_clustering(input_distance_matrix, n_clusters, args.affinity)
+                print("Labels generated for spectral ......")
 
-        np.save("paraphrase/data/{}_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.model, args.data, args.linkage,
-                                                                                    args.matrix_type, str(n_clusters)), labels)
+            elif args.model == "dbscan":
+
+                print("Metric used is {}".format(args.affinity))
+                clustered_model, labels = custom_dbscan_clustering(input_distance_matrix, args.metric)
+                print("Labels generated for dbscan ......")
+                
+            else:
+                print("specify model....")
+                exit()
+
+            print(labels.shape)
+            print(labels[0:10])
+            print("set of labels.....")
+            print(set(labels.tolist()))
+
+            np.save("paraphrase/data/{}_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.model, args.data, args.linkage,
+                                                                                        args.matrix_type, str(n_clusters)), labels)
 
 
-    elif args.load:
-        print("loading clusters....")
-        sentences = load_embeddings(embedding_file_bbc)["sentences"]
-        print(sentences.shape)
-        print(sentences[0:5])
+        elif args.load:
+            print("loading clusters....")
+            sentences = load_embeddings(embedding_file_bbc)["sentences"]
+            print(sentences.shape)
+            print(sentences[0:5])
 
-        df = pd.DataFrame(sentences)
-        df_2 = df
-        numbers = [16, 32, 64, 128, 256, 512, 1024]
+            df = pd.DataFrame(sentences)
+            df_2 = df
+            numbers = [16, 32, 64, 128, 256, 512, 1024]
 
-        for num in numbers:
-            #df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
-                                                                                                 #args.linkage, args.matrix_type, str(num)))
+            for num in numbers:
+                #df["{} clusters".format(num)] = np.load("paraphrase/data/agglo_labels_{}_{}_mtype_{}_nclusters_{}.npy".format(args.data,
+                                                                                                    #args.linkage, args.matrix_type, str(num)))
 
-            df_2["{} clusters".format(num)] = np.load("paraphrase/data/sent_vecs_agglo_labels_{}_{}_nclusters_{}.npy".format(args.data, args.linkage,
-                                                                                     str(num)))                                                                                      
-        # print(df.head())
-        # df.to_csv("paraphrase/figs/agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
-        df_2.to_csv("paraphrase/figs/sent_vecs_agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
+                df_2["{} clusters".format(num)] = np.load("paraphrase/data/sent_vecs_agglo_labels_{}_{}_nclusters_{}.npy".format(args.data, args.linkage,
+                                                                                        str(num)))                                                                                      
+            # print(df.head())
+            # df.to_csv("paraphrase/figs/agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
+            df_2.to_csv("paraphrase/figs/sent_vecs_agglo_{}_linkage_clustered.csv".format(args.linkage), index=False)
 
 if __name__== '__main__':
     main()
