@@ -168,6 +168,37 @@ def evaluate_model(clf, vectors1, vectors2):
 
     return clf, t_preds, t_pred_probs
 
+# EVALUATE corpus sentence pairs, less memory usage but SLOW
+def evaluate_model_slow(clf, vectors1, vectors2):
+
+    para_probs = []
+    para_preds = []
+
+    print("Evaluating para probs on pair wise sentences")
+    assert(vectors1.shape[0] == vectors2.shape[0])
+
+    for index in range(vectors1.shape[0]):
+        vector1 = vectors1[index]
+        vector2 = vectors2[index]
+        abs_diff = np.abs(vector1 - vector2)
+        elem_prod = vector1 * vector2
+        combined_test = np.concatenate((vector1, 
+                        vector2, abs_diff,elem_prod))
+        print(combined_test.shape)  
+        print("Metrics for test dataset......")       
+        t_preds = clf.predict(combined_test) 
+        t_pred_probs = clf.predict_proba(combined_test)
+        para_probs.append(t_pred_probs)
+        para_preds.append(t_preds)
+
+    t_preds = np.array(para_preds)
+    t_pred_probs = np.array(para_probs)
+
+    print("Predictions for 10 are", t_preds[0:10])
+    print("Prediction probs for 10 are", t_pred_probs[0:10])
+
+    return clf, t_preds, t_pred_probs
+    
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
     data_file = pd.read_csv(full_file_path)['text']
