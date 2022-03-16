@@ -270,7 +270,7 @@ def main():
         #df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
         df.sort_values(by=['cluster'],ascending=False)
         print(df.head())
-        df.to_csv("agglo_{}_custom_sorted_dfactor{}.csv".format(args.linkage,args.depth), index=False)
+        df.to_csv("paraphrase/figs/agglo_{}_custom_sorted_dfactor_{}.csv".format(args.linkage,args.depth), index=False)
 
     else:
         ## From the kelblow plots, we have k = 7 
