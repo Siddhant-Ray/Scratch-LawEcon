@@ -9,3 +9,4 @@ updates:
     directory: "paraphrase/" # Location of package manifests
     schedule:
       interval: "daily"
+    target-branch: "main"

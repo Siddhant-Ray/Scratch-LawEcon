@@ -109,14 +109,14 @@ def plot_dendrogram(model, **kwargs):
 	dendrogram(linkage_matrix, **kwargs)
 	return linkage_matrix
 
-def get_clusters_from_linkage_matrix(linkage_matrix):
+def get_clusters_from_linkage_matrix(linkage_matrix, depth_factor):
 	# depth_of_tree basically determines how many merging steps we allow, 
     # len(linkage_matrix // 4 ) seems to yield decent results, 
     # i.e., ca. 500 clusters)
-	depth_of_tree=len(linkage_matrix) // 2
+	# depth_of_tree=len(linkage_matrix) // 2
 	#depth_of_tree=len(linkage_matrix)
 
-	depth_of_tree= int(len(linkage_matrix) * 0.75)
+	depth_of_tree= int(len(linkage_matrix) * float(depth_factor))
 
 	clusters = defaultdict(set)
 	c = len(linkage_matrix) + 1
@@ -168,6 +168,8 @@ def main():
                         help ="cluster raw sentence vector")
     parser.add_argument("-cust", "--custom", 
                         help ="use custom clustering based on agglomerative")
+    parser.add_argument("-dpt", "--depth", 
+                        help ="specifiy depth of merge factor")
 
 
     args = parser.parse_args()
@@ -247,11 +249,12 @@ def main():
         model.fit(input_distance_matrix)
         np.save("paraphrase/data/{}_matrix.npy".format(args.matrix_type), input_distance_matrix)
         linkage_matrix = plot_dendrogram(model, truncate_mode="level", p=3)
-        clusters = get_clusters_from_linkage_matrix(linkage_matrix) 
+        clusters = get_clusters_from_linkage_matrix(linkage_matrix, args.depth) 
 
         max_len = max(len(i) for i in clusters.values())
         index = [i for i,j in clusters.items() if len(j) == max_len][0]
 
+        print("depth factor is ", args.depth)
         print("num sentences appearing in clusters", sum(len(i) for i in clusters.values()))
         print("n clusters", len(clusters), "max length", max_len)
     
@@ -264,7 +267,10 @@ def main():
                 for index in j:
                     out.append((tokenized_sents.iloc[index].tokenized_sents, i))
         df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
-        df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
+        #df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
+        df.sort_values(by=['cluster'],ascending=False)
+        print(df.head())
+        df.to_csv("paraphrase/figs/agglo_{}_custom_sorted_dfactor_{}.csv".format(args.linkage,args.depth), index=False)
 
     else:
         ## From the kelblow plots, we have k = 7 

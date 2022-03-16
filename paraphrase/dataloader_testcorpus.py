@@ -1,6 +1,6 @@
 import json, pickle, argparse
 import random
-import math
+import math, string
 from re import L
 
 import torch 
@@ -14,7 +14,13 @@ from numpy import linalg as LA
 
 from itertools import combinations
 import nltk
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize, word_tokenize
+
+import spacy   
+from spacy.matcher import Matcher
+from spacy.util import filter_spans
+from spacy.lang.en import English
+nlp = spacy.load('en_core_web_sm')
 
 import pandas as pd
 
@@ -47,13 +53,56 @@ def get_bbc_corpus(full_file_path):
     new_df = df_sentences.explode('sents', ignore_index=True)
     return list_of_paras, list_of_sentences, new_df['sents']
 
-def get_bbc_corpus_spacy(full_file_path):
+# NLTK based tokenizer, not the best (try Spacy)
+def get_bbc_corpus_nltk(full_file_path):
     data_file = pd.read_csv(full_file_path)
     new_df = pd.DataFrame({"transcript":data_file.transcript})
     new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['transcript']), axis=1)
     new_df = new_df.drop(columns=['transcript'])
     new_df = new_df.explode('tokenized_sents', ignore_index=True)
     return new_df
+
+# Spacy based tokenizer
+def custom_spacy_tokenizer(paragraph):
+    _nlp = English()
+    _nlp.add_pipe("sentencizer")
+    doc = _nlp(paragraph)
+    list_of_sents = [sent.text for sent in doc.sents]
+    return list_of_sents
+
+# NLTK based tokenizer, not the best (try Spacy)
+def get_bbc_corpus_spacy(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    new_df = pd.DataFrame({"transcript":data_file.transcript})
+    new_df['tokenized_sents'] = new_df.apply(lambda row: custom_spacy_tokenizer(row['transcript']), axis=1)
+    new_df = new_df.drop(columns=['transcript'])
+    new_df = new_df.explode('tokenized_sents', ignore_index=True)
+    return new_df
+
+# Get all verbs using a Spacy based function
+def get_verbs(input_sentence):
+    
+    sentence = input_sentence
+    pattern = [{'POS': 'VERB', 'OP': '?'},
+            {'POS': 'ADV', 'OP': '*'},
+            {'POS': 'AUX', 'OP': '*'},
+            {'POS': 'VERB', 'OP': '+'}]
+
+    # instantiate a Matcher instance
+    matcher = Matcher(nlp.vocab)
+    matcher.add("Verb phrase", [pattern])
+
+    doc = nlp(sentence) 
+    # call the matcher to find matches 
+    matches = matcher(doc)
+    spans = [doc[start:end] for _, start, end in matches]
+
+    return (filter_spans(spans))
+
+# Get sentence length
+def get_sentence_length(input_sentence):
+    _list = word_tokenize(input_sentence)
+    return len(_list)
 
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
@@ -144,7 +193,7 @@ def filter_matrixes_by_threshold_get_mean(cos_matrix, threshold):
 def filter_for_single_threshold(cos_matrix, threshold):
     thr= float(threshold)
 
-    masked_matrix = np.where(cos_matrix > thr , 1, 0)
+    masked_matrix = np.where(cos_matrix >= thr , 1, 0)
     indices_for_similar = np.where(masked_matrix==1)
     print(indices_for_similar[0].shape)
     print(indices_for_similar[1].shape)
@@ -154,11 +203,16 @@ def filter_for_single_threshold(cos_matrix, threshold):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-dev", "--device", help="device specifier")
-    parser.add_argument("-sv", "--save", help = "choose saved numpy cosine matrix")
-    parser.add_argument("-thr", "--threshold", help = "theshold for filtering cosine sim")
-    parser.add_argument("-plt", "--plot", help = "if set, plot for decreasing threshold values")
-    parser.add_argument("-dt", "--data", help = "choose to take the bbc corpus")
+    parser.add_argument("-dev", "--device",
+                        help="device specifier")
+    parser.add_argument("-sv", "--save",
+                        help = "choose saved numpy cosine matrix")
+    parser.add_argument("-thr", "--threshold",
+                        help = "theshold for filtering cosine sim")
+    parser.add_argument("-plt", "--plot",
+                        help = "if set, plot for decreasing threshold values")
+    parser.add_argument("-dt", "--data",
+                        help = "choose to take the bbc corpus")
 
     args = parser.parse_args()
 
@@ -169,12 +223,29 @@ def main():
         if args.device == "gpu":
             if args.data == "bbc":
                 print("generating new embeddings from {} ........".format(args.data))
-                sentences = get_bbc_corpus_spacy(file_bbc)
-                #print(paras.head(), paras.shape)
-                #print(sent_lists.head(), sent_lists.shape)
+                sentences = get_bbc_corpus_nltk(file_bbc)
                 print(sentences.head(), sentences.shape)
-                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences['tokenized_sents'])
+                sentences['sent_verbs'] = sentences['tokenized_sents'].apply(lambda row: get_verbs(row))
+                sentences['sent_len'] = sentences['tokenized_sents'].apply(lambda row: get_sentence_length(row))
+                sentences['verb_num']= sentences['sent_verbs'].str.len()
+                sentences = sentences[sentences.sent_len > 5]
+                sentences = sentences[sentences.sent_len <= 20]
+                sentences = sentences[sentences.verb_num <= 2]
+                #sentences = sentences.drop(sentences[sentences.sent_len <= 5].index)
+                #sentences = sentences.drop(sentences[sentences.sent_len > 20].index)
+                #sentences = sentences.drop(sentences[sentences.verb_num <= 2].index)
+                sentences = sentences.reset_index(drop=True)
+
+                # sentences.drop(['sent_verbs', 'sent_len', 'verb_num'], axis=1)
+
+                print(sentences.head(), sentences.shape)
+
+                sentences_frame = pd.DataFrame({"tokenized_sents": sentences['tokenized_sents']})
+                print(sentences_frame.head(), sentences_frame.shape)
+
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences["tokenized_sents"])
                 print(list_of_embeddings.shape)
+                exit()
 
             else:
                 print("generating new embeddings for big corpus........")

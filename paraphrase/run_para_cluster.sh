@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 4 
+    -n 2 
     -W 4:00
     -R "rusage[mem=6400]"
 )
@@ -56,11 +56,21 @@ nclusters=(16 32 64 128 256 512 1024)
 for n in ${nclusters[@]}
 do 
     echo "in cluster number" $n
-    bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist --nclusters $n
+    # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist --nclusters $n
+    # bsub "${args[@]}" -oo paraphrase/outputfiles/sentence_agglo_ward_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage ward --matrix_type dist --nclusters $n --sentences yes
+
 done
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average_load.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --nclusters $n --load yes
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_ward_load.out python paraphrase/cluster.py --data bbc --model agglo --linkage ward --matrix_type dist --nclusters $n --load yes
 
+depthFactor=(0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8)
 
+for f in ${depthFactor[@]}
+do
+    echo "Depth factor is" $f
+    # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_${f}.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --custom yes --depth $f
+done
+
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
 
 
