@@ -8,5 +8,5 @@ updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "paraphrase/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: "main"
