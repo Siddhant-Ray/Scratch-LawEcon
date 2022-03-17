@@ -29,8 +29,10 @@ import matplotlib.pyplot as plt
 
 file = "paraphrase/test_corpora/source_corpus2.csv"
 file_bbc = "paraphrase/test_corpora/bbc_data.csv"
+file_trump = "paraphrase/test_corpora/trump_archive.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
+stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = SentenceTransformer('all-MiniLM-L6-v2', device = device)
@@ -77,6 +79,16 @@ def get_bbc_corpus_spacy(full_file_path):
     new_df['tokenized_sents'] = new_df.apply(lambda row: custom_spacy_tokenizer(row['transcript']), axis=1)
     new_df = new_df.drop(columns=['transcript'])
     new_df = new_df.explode('tokenized_sents', ignore_index=True)
+    return new_df
+
+# NLT based trumnp corpus loader
+def get_trump_corpus_nltk(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    new_df = pd.DataFrame({"doc":data_file.doc})
+    '''new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['doc']), axis=1)
+    new_df = new_df.drop(columns=['doc'])
+    new_df = new_df.explode('tokenized_sents', ignore_index=True)'''
+    new_df = new_df
     return new_df
 
 # Get all verbs using a Spacy based function
@@ -135,7 +147,6 @@ def generate_and_save_embeddings(sentences):
     
     list_of_sentences = sentences
     list_of_embeddings = model.encode(sentences)
-    
     with open('paraphrase/data/test_corpus1.pkl', "wb") as fOut1:
         pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
     return list_of_embeddings, list_of_sentences
@@ -145,8 +156,16 @@ def generate_and_save_embeddings_bbc(sentences):
 
     list_of_sentences = sentences
     list_of_embeddings = model.encode(sentences)
-
     with open('paraphrase/data/test_corpus_bbc.pkl', "wb") as fOut1:
+        pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+    return list_of_embeddings, list_of_sentences
+
+# SAVE embeddings for the trump dataset
+def generate_and_save_embeddings_trump(sentences):
+
+    list_of_sentences = sentences
+    list_of_embeddings = model.encode(sentences)
+    with open('paraphrase/data/test_corpus_trunp.pkl', "wb") as fOut1:
         pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
     return list_of_embeddings, list_of_sentences
 
@@ -231,21 +250,26 @@ def main():
                 sentences = sentences[sentences.sent_len > 5]
                 sentences = sentences[sentences.sent_len <= 20]
                 sentences = sentences[sentences.verb_num <= 2]
-                #sentences = sentences.drop(sentences[sentences.sent_len <= 5].index)
-                #sentences = sentences.drop(sentences[sentences.sent_len > 20].index)
-                #sentences = sentences.drop(sentences[sentences.verb_num <= 2].index)
                 sentences = sentences.reset_index(drop=True)
 
-                # sentences.drop(['sent_verbs', 'sent_len', 'verb_num'], axis=1)
-
                 print(sentences.head(), sentences.shape)
-
-                sentences_frame = pd.DataFrame({"tokenized_sents": sentences['tokenized_sents']})
-                print(sentences_frame.head(), sentences_frame.shape)
-
                 list_of_embeddings, list_of_sentences = generate_and_save_embeddings_bbc(sentences["tokenized_sents"])
                 print(list_of_embeddings.shape)
-                exit()
+
+            elif args.data == "trump":
+                print("generating new embeddings from {} ........".format(args.data))
+                sentences = get_trump_corpus_nltk(file_trump)
+                print(sentences.head(), sentences.shape)
+                sentences['sent_verbs'] = sentences['doc'].apply(lambda row: get_verbs(row))
+                sentences['sent_len'] = sentences['doc'].apply(lambda row: get_sentence_length(row))
+                sentences['verb_num']= sentences['sent_verbs'].str.len()
+                sentences = sentences[sentences.sent_len > 5]
+                sentences = sentences[sentences.verb_num <= 2]
+                sentences = sentences.reset_index(drop=True)
+
+                print(sentences.head(), sentences.shape)
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_trump(sentences["doc"].to_list())
+                print(list_of_embeddings.shape)
 
             else:
                 print("generating new embeddings for big corpus........")
@@ -258,6 +282,9 @@ def main():
             if args.data == "bbc":
                 print("loading stored embeddings from {} ........".format(args.data))
                 stored_data = load_embeddings(stored_file_bbc)
+            elif args.data == "trump":
+                print("loading stored embeddings from {} ........".format(args.data))
+                stored_data = load_embeddings(stored_file_trump)
             else:
                 print("loading stored embeddings from big corpus ........")
                 stored_data = load_embeddings(stored_file)
@@ -273,6 +300,11 @@ def main():
             if args.data == "bbc":
                 np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_bbc.npy", pair_cosine_matrix.astype(np.float16))
+
+            elif args.data == "trump":
+                np.save("paraphrase/data/cosine_sim_trump.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16_trump.npy", pair_cosine_matrix.astype(np.float16))
+
             else:
                 np.save("paraphrase/data/cosine_sim_bigcorpus.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_bigcorpus.npy", pair_cosine_matrix.astype(np.float16))
