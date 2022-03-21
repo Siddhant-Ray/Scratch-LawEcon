@@ -165,7 +165,7 @@ def generate_and_save_embeddings_trump(sentences):
 
     list_of_sentences = sentences
     list_of_embeddings = model.encode(sentences)
-    with open('paraphrase/data/test_corpus_trunp.pkl', "wb") as fOut1:
+    with open('paraphrase/data/test_corpus_trump.pkl', "wb") as fOut1:
         pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
     return list_of_embeddings, list_of_sentences
 

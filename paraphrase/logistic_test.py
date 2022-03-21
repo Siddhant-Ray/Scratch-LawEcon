@@ -21,10 +21,11 @@ PATH = "paraphrase/figs/"
 # Test corpus
 stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
+stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 stored_indices_path = "paraphrase/data/"
 data_file = "paraphrase/test_corpora/source_corpus2.csv"
 data_file_bbc = "paraphrase/test_corpora/bbc_data.csv"
-
+data_file_trump = "paraphrase/test_corpora/trump_archive.csv"
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -169,36 +170,33 @@ def evaluate_model(clf, vectors1, vectors2):
     return clf, t_preds, t_pred_probs
 
 # EVALUATE corpus sentence pairs, less memory usage but SLOW
-def evaluate_model_slow(clf, vectors1, vectors2):
+def evaluate_model_slow(clf, vectors):
 
     para_probs = []
-    para_preds = []
-
     print("Evaluating para probs on pair wise sentences")
-    assert(vectors1.shape[0] == vectors2.shape[0])
+    
+    for row in vectors:
+        vector1 = np.array(len(vectors) * [row])
+        vector2 = vectors
+        assert(vector1.shape[0] == vector2.shape[0])
 
-    for index in range(vectors1.shape[0]):
-        vector1 = vectors1[index]
-        vector2 = vectors2[index]
         abs_diff = np.abs(vector1 - vector2)
         elem_prod = vector1 * vector2
         combined_test = np.concatenate((vector1, 
-                        vector2, abs_diff,elem_prod))
-        print(combined_test.shape)  
-        print("Metrics for test dataset......")       
+                        vector2, abs_diff,elem_prod), axis = 1)
+        # print(combined_test.shape)  
+        # print("Metrics for test dataset......")       
         t_preds = clf.predict(combined_test) 
         t_pred_probs = clf.predict_proba(combined_test)
-        para_probs.append(t_pred_probs)
-        para_preds.append(t_preds)
-
-    t_preds = np.array(para_preds)
+        # print(t_pred_probs.shape)
+        para_probs = para_probs + t_pred_probs[:,1].tolist()
+       
     t_pred_probs = np.array(para_probs)
-
-    print("Predictions for 10 are", t_preds[0:10])
     print("Prediction probs for 10 are", t_pred_probs[0:10])
+    print("Shape of paraprobs is", t_pred_probs.shape)
 
-    return clf, t_preds, t_pred_probs
-    
+    return clf, t_pred_probs
+
 #FILTER corpus based on indices
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
     data_file = pd.read_csv(full_file_path)['text']
@@ -307,6 +305,11 @@ def main():
         save_name = args.data
         print("From {}".format(save_name))
         stored_data = load_embeddings(stored_file_bbc)
+
+    elif args.data == "trump":
+        save_name = args.data
+        print("From {}".format(save_name))
+        stored_data = load_embeddings(stored_file_trump)
         
     else:
         save_name = "bigcorpus"
@@ -330,24 +333,32 @@ def main():
         sent1_indices, sent2_indices = load_unique_indices(stored_indices_path)
         print("Loading pairs {} without equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
-
+    elif args.data == "trump":
+        pass
     else:
         sent1_indices, sent2_indices = load_indices(stored_indices_path)
         print("Loading pairs {} with equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
-    
-    ### Run the model on the sentence pairs on the big corpus 
-    sent_vectors_1 = list_of_embeddings[sent1_indices]
-    sent_vectors_2 =  list_of_embeddings[sent2_indices]
+    if save_name != "trump":
+        ### Run the model on the sentence pairs on the big corpus 
+        sent_vectors_1 = list_of_embeddings[sent1_indices]
+        sent_vectors_2 =  list_of_embeddings[sent2_indices]
+    elif save_name == "trump":
+        sent_vectors = list_of_embeddings
 
     if args.save:
-
-        model, preds, probs = evaluate_model(saved_model, sent_vectors_1, sent_vectors_2)
-        print(probs[0:10])
-        print(probs[:,1].shape)
-
-        para_probs = probs[:,1]
+        print("Running model on {} dataset".format(save_name))
+        if save_name == "trump":
+            model, probs = evaluate_model_slow(saved_model, sent_vectors)
+            print(probs[0:10])
+            print(probs.shape)
+            para_probs = probs
+        else:
+            model, preds, probs = evaluate_model(saved_model, sent_vectors_1, sent_vectors_2)
+            print(probs[0:10])
+            print(probs[:,1].shape)
+            para_probs = probs[:,1]
 
         plt.figure(1)
         plt.hist(para_probs, bins='auto')  
