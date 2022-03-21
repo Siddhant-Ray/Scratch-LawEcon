@@ -16,6 +16,8 @@ from spacy.matcher import Matcher
 from spacy.util import filter_spans
 nlp = spacy.load('en_core_web_sm')
 
+from tqdm import tqdm
+
 PATH = "paraphrase/figs/"
 
 # Test corpus
@@ -175,7 +177,7 @@ def evaluate_model_slow(clf, vectors):
     para_probs = []
     print("Evaluating para probs on pair wise sentences")
     
-    for row in vectors:
+    for row in tqdm(vectors):
         vector1 = np.array(len(vectors) * [row])
         vector2 = vectors
         assert(vector1.shape[0] == vector2.shape[0])
@@ -360,15 +362,15 @@ def main():
             print(probs[:,1].shape)
             para_probs = probs[:,1]
 
-        plt.figure(1)
-        plt.hist(para_probs, bins='auto')  
-        plt.title("Histogram of para_probs for {}".format(save_name))
+        # plt.figure(1)
+        # plt.hist(para_probs, bins='auto')  
+        # plt.title("Histogram of para_probs for {}".format(save_name))
         
         if args.noequal:
-            plt.savefig("paraphrase/figs/hist_para_probs_0.5_noequal_thresh_{}.png".format(save_name),format="png")
+            # plt.savefig("paraphrase/figs/hist_para_probs_0.5_noequal_thresh_{}.png".format(save_name),format="png")
             np.save("paraphrase/data/para_probs_noequal_{}.npy".format(save_name), para_probs)
         else:
-            plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_{}.png".format(save_name),format="png")
+            # plt.savefig("paraphrase/figs/hist_para_probs_0.5_thresh_{}.png".format(save_name),format="png")
             np.save("paraphrase/data/para_probs_{}.npy".format(save_name), para_probs)
 
 
