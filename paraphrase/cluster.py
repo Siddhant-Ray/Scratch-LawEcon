@@ -19,6 +19,7 @@ from scipy.cluster.hierarchy import dendrogram
 
 PATH = "paraphrase/data/"
 embedding_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
+embedding_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 
 # LOAD numpy indices for pairs above a threshold for bbc
 # We want equality pairs for the distance matrix, else 0 for (i,i)
@@ -189,37 +190,60 @@ def main():
         print("indices shape", sent1_indices.shape, sent2_indices.shape)
         print("para_probs shape", para_probs.shape)
       
-    else:
-        pass 
+        sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
+        sentences = load_embeddings(embedding_file_bbc)['sentences']
+        print("Sentence vectors loaded from {} .....".format(args.data))
+        print("Shape of sentence vectors", sentence_embeddings.shape)
 
-    sentence_embeddings = load_embeddings(embedding_file_bbc)['embeddings']
-    sentences = load_embeddings(embedding_file_bbc)['sentences']
-    print("Sentence vectors loaded from {} .....".format(args.data))
-    print("Shape of sentence vectors", sentence_embeddings.shape)
+        tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
+        ### Shape of matrix should be sentence X sentences
+        ### This matrix has the paraphrase probabilities for certain indices
+        ### which indices have a paraphrase probability , with cosine sim 
+        ### > 0.5 between the pair
 
-    tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
-    ### Shape of matrix should be sentence X sentences
-    ### This matrix has the paraphrase probabilities for certain indices
-    ### which indices have a paraphrase probability , with cosine sim 
-    ### > 0.5 between the pair
+        matrix_init = np.zeros((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print("Empty matrix.......")
+        print(matrix_init[0], matrix_init.shape)
 
-    matrix_init = np.zeros((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
-    print("Empty matrix.......")
-    print(matrix_init[0], matrix_init.shape)
+        for ix, index in enumerate(tuples_of_indices):
+            matrix_init[index] = para_probs[ix]
 
-    for ix, index in enumerate(tuples_of_indices):
-        matrix_init[index] = para_probs[ix]
+        print("Similarity matrix filled with paraprobs.......")
+        print(matrix_init[0], matrix_init.shape)
 
-    print("Similarity matrix filled with paraprobs.......")
-    print(matrix_init[0], matrix_init.shape)
+        ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print("Empty ones matrix.......")
+        print(ones_matrix[0], ones_matrix.shape)
 
-    ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
-    print("Empty ones matrix.......")
-    print(ones_matrix[0], ones_matrix.shape)
+        dist_matrix = ones_matrix - matrix_init
+        print("Distance matrix.......")
+        print(dist_matrix[0], dist_matrix.shape)
 
-    dist_matrix = ones_matrix - matrix_init
-    print("Distance matrix.......")
-    print(dist_matrix[0], dist_matrix.shape)
+    elif args.data == "trump":
+
+        file = PATH + "para_probs_{}.npy".format(args.data)
+        para_probs = load_paraphrase_probs(file)
+        print("Loaded {} pairs indices from saved with (i,i) pairs .....".format(args.data))
+        print("para_probs shape", para_probs.shape)
+
+        sentence_embeddings = load_embeddings(embedding_file_trump)['embeddings']
+        sentences = load_embeddings(embedding_file_trump)['sentences']
+        print("Sentence vectors loaded from {} .....".format(args.data))
+        print("Shape of sentence vectors", sentence_embeddings.shape)
+
+        ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print("All ones matrix.......")
+        print(ones_matrix[0], ones_matrix.shape)
+
+        print("Similarity matrix filled with paraprobs.......")
+        sim_matrix = para_probs.reshape((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print(sim_matrix[0], sim_matrix.shape)
+
+        dist_matrix = ones_matrix - sim_matrix
+        matrix_init = sim_matrix
+        print("Distance matrix.......")
+        print(dist_matrix[0], dist_matrix.shape)
+
 
     if args.classifier == "kmeans":
          model = KMeans(random_state = 42)
@@ -247,7 +271,7 @@ def main():
     if args.custom:
         model = AgglomerativeClustering(distance_threshold=0, affinity="precomputed", n_clusters=None, linkage=args.linkage)
         model.fit(input_distance_matrix)
-        np.save("paraphrase/data/{}_matrix.npy".format(args.matrix_type), input_distance_matrix)
+        np.save("paraphrase/data/{}_matrix_{}.npy".format(args.matrix_type, args.data), input_distance_matrix)
         linkage_matrix = plot_dendrogram(model, truncate_mode="level", p=3)
         clusters = get_clusters_from_linkage_matrix(linkage_matrix, args.depth) 
 
@@ -258,7 +282,7 @@ def main():
         print("num sentences appearing in clusters", sum(len(i) for i in clusters.values()))
         print("n clusters", len(clusters), "max length", max_len)
     
-        tokenized_sents = pd.DataFrame(sentences)
+        tokenized_sents = pd.DataFrame(sentences, columns=['tokenized_sents'])
         print(tokenized_sents.head())
         
         out = []
@@ -268,9 +292,10 @@ def main():
                     out.append((tokenized_sents.iloc[index].tokenized_sents, i))
         df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
         #df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
-        df.sort_values(by=['cluster'],ascending=False)
+        df = df.sort_values(by=['cluster'],ascending=False)
         print(df.head())
-        df.to_csv("paraphrase/figs/agglo_{}_custom_sorted_dfactor_{}.csv".format(args.linkage,args.depth), index=False)
+        df.to_csv("paraphrase/figs/agglo_{}_custom_{}_sorted_dfactor_{}.csv".format(args.linkage,args.data,args.depth), 
+                                                                            index=False)
 
     else:
         ## From the kelblow plots, we have k = 7 
