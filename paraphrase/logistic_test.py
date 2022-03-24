@@ -24,10 +24,13 @@ PATH = "paraphrase/figs/"
 stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
+stored_file_custom = "paraphrase/data/test_corpus_custom.pkl"
 stored_indices_path = "paraphrase/data/"
 data_file = "paraphrase/test_corpora/source_corpus2.csv"
 data_file_bbc = "paraphrase/test_corpora/bbc_data.csv"
 data_file_trump = "paraphrase/test_corpora/trump_archive.csv"
+data_file_custom = "paraphrase/test_corpora/custom_train_fromjson.csv"
+
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -312,6 +315,11 @@ def main():
         save_name = args.data
         print("From {}".format(save_name))
         stored_data = load_embeddings(stored_file_trump)
+    
+    elif args.data == "custom":
+        save_name = args.data
+        print("From {}".format(save_name))
+        stored_data = load_embeddings(stored_file_custom)
         
     else:
         save_name = "bigcorpus"
@@ -337,21 +345,23 @@ def main():
         print(sent1_indices.shape, sent2_indices.shape)
     elif args.data == "trump":
         pass
+    elif args.data == "custom":
+        pass
     else:
         sent1_indices, sent2_indices = load_indices(stored_indices_path)
         print("Loading pairs {} with equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
-    if save_name != "trump":
+    if save_name != "trump" or save_name != "custom":
         ### Run the model on the sentence pairs on the big corpus 
         sent_vectors_1 = list_of_embeddings[sent1_indices]
         sent_vectors_2 =  list_of_embeddings[sent2_indices]
-    elif save_name == "trump":
+    elif save_name == "trump" or save_name == "custom":
         sent_vectors = list_of_embeddings
-
+    
     if args.save:
         print("Running model on {} dataset".format(save_name))
-        if save_name == "trump":
+        if save_name == "trump" or save_name == "custom":
             model, probs = evaluate_model_slow(saved_model, sent_vectors)
             print(probs[0:10])
             print(probs.shape)

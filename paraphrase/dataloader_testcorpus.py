@@ -30,9 +30,11 @@ import matplotlib.pyplot as plt
 file = "paraphrase/test_corpora/source_corpus2.csv"
 file_bbc = "paraphrase/test_corpora/bbc_data.csv"
 file_trump = "paraphrase/test_corpora/trump_archive.csv"
+file_custom = "paraphrase/test_corpora/custom_train_fromjson.csv"
 stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
+stored_file_custom = "paraphrase/data/test_corpus_custom.pkl"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = SentenceTransformer('all-MiniLM-L6-v2', device = device)
@@ -81,15 +83,17 @@ def get_bbc_corpus_spacy(full_file_path):
     new_df = new_df.explode('tokenized_sents', ignore_index=True)
     return new_df
 
-# NLT based trumnp corpus loader
+# NLTK based trumnp corpus loader
 def get_trump_corpus_nltk(full_file_path):
     data_file = pd.read_csv(full_file_path)
     new_df = pd.DataFrame({"doc":data_file.doc})
-    '''new_df['tokenized_sents'] = new_df.apply(lambda row: sent_tokenize(row['doc']), axis=1)
-    new_df = new_df.drop(columns=['doc'])
-    new_df = new_df.explode('tokenized_sents', ignore_index=True)'''
     new_df = new_df
     return new_df
+
+# GET corpus for custom json derived csv
+def get_custom_corpus(full_file_path):
+    data_file = pd.read_csv(full_file_path)
+    return data_file
 
 # Get all verbs using a Spacy based function
 def get_verbs(input_sentence):
@@ -168,6 +172,17 @@ def generate_and_save_embeddings_trump(sentences):
     with open('paraphrase/data/test_corpus_trump.pkl', "wb") as fOut1:
         pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
     return list_of_embeddings, list_of_sentences
+
+ # SAVE embeddings for the custom dataset
+def generate_and_save_embeddings_custom(data_frame):
+
+    list_of_sentences = data_frame["texts"]
+    list_of_labels = data_frame["labels"]
+    list_of_embeddings = model.encode(list_of_sentences)
+    with open('paraphrase/data/test_corpus_custom.pkl', "wb") as fOut1:
+        pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings, 'labels': list_of_labels},
+                                                 fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+    return list_of_embeddings, list_of_sentences, list_of_labels   
 
 
 # LOAD embeddings from stored state
@@ -271,6 +286,13 @@ def main():
                 list_of_embeddings, list_of_sentences = generate_and_save_embeddings_trump(sentences["doc"].to_list())
                 print(list_of_embeddings.shape)
 
+            elif args.data == "custom":
+                print("generating new embeddings from {} ........".format(args.data))
+                data_frame = get_custom_corpus(file_custom)
+                print(data_frame.head(), data_frame.shape)
+                list_of_embeddings, list_of_sentences, list_of_labels = generate_and_save_embeddings_custom(data_frame)
+                print(list_of_embeddings.shape)
+
             else:
                 print("generating new embeddings for big corpus........")
                 sentences = get_corpus(file)
@@ -285,6 +307,9 @@ def main():
             elif args.data == "trump":
                 print("loading stored embeddings from {} ........".format(args.data))
                 stored_data = load_embeddings(stored_file_trump)
+            elif args.data == "custom":
+                print("loading stored embeddings from {} ........".format(args.data))
+                stored_data = load_embeddings(stored_file_custom)    
             else:
                 print("loading stored embeddings from big corpus ........")
                 stored_data = load_embeddings(stored_file)
