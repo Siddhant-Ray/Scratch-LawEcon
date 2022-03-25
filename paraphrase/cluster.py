@@ -322,13 +322,27 @@ def main():
                 for index in j:
                     out.append((tokenized_sents.iloc[index].tokenized_sents, i))
         df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
-
+        
         if args.data == "custom":
             true_labels = [labels[sentences.index(value[0])] for value in out]
             df["true_label"] = true_labels
             # print(true_labels[0:10])
+            df["max_cluster_label"] = ""
 
+            cluster_ids = set(df["cluster"])
+            # print(cluster_ids)
+            for value in cluster_ids:
+                labels_for_cluster = df.loc[df["cluster"] == value]
+                list_of_labels = labels_for_cluster["true_label"].tolist()
+                max_label = max(list_of_labels,key=list_of_labels.count)
+                # print(max_label)
+                # print(labels_for_cluster.index)
+                df["max_cluster_label"].iloc[labels_for_cluster.index] = max_label
+                # print(df.iloc[labels_for_cluster.index])
+                
         df = df.sort_values(by=['cluster'],ascending=False)
+        reversed_cols = df.columns.tolist()[::-1]
+        df = df[reversed_cols]
         print(df.head())
         df.to_csv("paraphrase/figs/agglo_{}_custom_{}_sorted_dfactor_{}.csv".format(args.linkage,args.data,args.depth), 
                                                                             index=False)
