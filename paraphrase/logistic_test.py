@@ -352,12 +352,14 @@ def main():
         print("Loading pairs {} with equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
-    if save_name != "trump" or save_name != "custom":
+    if save_name == "trump" or save_name == "custom":
+        sent_vectors = list_of_embeddings
+    elif save_name == "bbc" or save_name == "bigcorpus":
         ### Run the model on the sentence pairs on the big corpus 
         sent_vectors_1 = list_of_embeddings[sent1_indices]
         sent_vectors_2 =  list_of_embeddings[sent2_indices]
-    elif save_name == "trump" or save_name == "custom":
-        sent_vectors = list_of_embeddings
+    else:
+        pass
     
     if args.save:
         print("Running model on {} dataset".format(save_name))
