@@ -1,3 +1,4 @@
+import email
 import json, pickle
 from operator import le
 import os, sys, time, math, random
@@ -20,6 +21,8 @@ from scipy.cluster.hierarchy import dendrogram
 PATH = "paraphrase/data/"
 embedding_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 embedding_file_trump = "paraphrase/data/test_corpus_trump.pkl"
+embedding_file_custom= "paraphrase/data/test_corpus_custom.pkl"
+
 
 # LOAD numpy indices for pairs above a threshold for bbc
 # We want equality pairs for the distance matrix, else 0 for (i,i)
@@ -244,6 +247,34 @@ def main():
         print("Distance matrix.......")
         print(dist_matrix[0], dist_matrix.shape)
 
+    elif args.data == "custom":
+        file = PATH + "para_probs_{}.npy".format(args.data)
+        para_probs = load_paraphrase_probs(file)
+        print("Loaded {} pairs indices from saved with (i,i) pairs .....".format(args.data))
+        print("para_probs shape", para_probs.shape)
+
+        sentence_embeddings = load_embeddings(embedding_file_custom)['embeddings']
+        sentences = load_embeddings(embedding_file_custom)['sentences'].tolist()
+        labels = load_embeddings(embedding_file_custom)['labels'].tolist()
+        print("Sentence vectors loaded from {} .....".format(args.data))
+        print("Shape of sentence vectors", sentence_embeddings.shape)
+        print("No of labels", len(labels))
+        print("No of sentences", len(sentences))
+
+        assert(len(sentences) == len(labels))
+
+        ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print("All ones matrix.......")
+        print(ones_matrix[0], ones_matrix.shape)
+
+        print("Similarity matrix filled with paraprobs.......")
+        sim_matrix = para_probs.reshape((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print(sim_matrix[0], sim_matrix.shape)
+
+        dist_matrix = ones_matrix - sim_matrix
+        matrix_init = sim_matrix
+        print("Distance matrix.......")
+        print(dist_matrix[0], dist_matrix.shape)
 
     if args.classifier == "kmeans":
          model = KMeans(random_state = 42)
@@ -281,7 +312,7 @@ def main():
         print("depth factor is ", args.depth)
         print("num sentences appearing in clusters", sum(len(i) for i in clusters.values()))
         print("n clusters", len(clusters), "max length", max_len)
-    
+        
         tokenized_sents = pd.DataFrame(sentences, columns=['tokenized_sents'])
         print(tokenized_sents.head())
         
@@ -291,7 +322,12 @@ def main():
                 for index in j:
                     out.append((tokenized_sents.iloc[index].tokenized_sents, i))
         df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
-        #df.to_csv("paraphrase/figs/agglo_{}_custom.csv".format(args.linkage), index = False)
+
+        if args.data == "custom":
+            true_labels = [labels[sentences.index(value[0])] for value in out]
+            df["true_label"] = true_labels
+            # print(true_labels[0:10])
+
         df = df.sort_values(by=['cluster'],ascending=False)
         print(df.head())
         df.to_csv("paraphrase/figs/agglo_{}_custom_{}_sorted_dfactor_{}.csv".format(args.linkage,args.data,args.depth), 
