@@ -71,6 +71,7 @@ do
     # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_${f}.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --custom yes --depth $f
 done
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
-
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_bbc.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_trump.out python paraphrase/cluster.py --data trump --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
+bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_custom.out python paraphrase/cluster.py --data custom --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
 

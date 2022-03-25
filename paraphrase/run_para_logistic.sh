@@ -18,7 +18,7 @@ source venv_para/bin/activate
 args=(
     -G ls_lawecon
     -n 4 
-    -W 4:00
+    -W 24:00
     -R "rusage[mem=12800]"
 )
 
@@ -48,13 +48,13 @@ done
 # bsub "${args[@]}" python paraphrase/visualize.py
 
 
-bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device gpu --save yes --threshold -1 --data trump 
+# bsub "${args[@]}" python paraphrase/dataloader_testcorpus.py --device gpu --save yes --threshold -1 --data custom
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_full.out python paraphrase/logistic_classifier.py --train full --eval mprc --test corp1 -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc -th_min 0.05 -th_max 0.00
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --save yes --data bbc --noequal yes
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --save yes --data custom 
 
 # bsub "${args[@]}" python paraphrase/filter_predictions.py
 
