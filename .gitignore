@@ -151,3 +151,6 @@ paraphrase/snnclassifiermetrics/
 paraphrase/outputfiles
 paraphrase/saved_models
 paraphrase/test_corpora
+
+# Memsum (don't track in this repo)
+Memsum
