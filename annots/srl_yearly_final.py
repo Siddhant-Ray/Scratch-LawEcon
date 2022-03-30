@@ -37,7 +37,8 @@ if file_name.endswith(".csv"):
     print(len(original_df.index))
 
     # make a doc_ID for the file in form of the date without - eg. 20050101
-    document_ID = file_name.replace(".csv","").split("_")[-1]
+    # document_ID = file_name.replace(".csv","").split("_")[-1]
+    document_ID = file_name.replace(".csv","").split("-")
     document_ID = "".join(document_ID)
     print(document_ID)
     

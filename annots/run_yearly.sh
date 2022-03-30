@@ -36,7 +36,7 @@ done
 declare -a arrFiles
 
 path=/cluster/work/lawecon/Projects/Ash_Galletta_Widmer/data/scrapes_clean
-path2=/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980/
+path2=/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980/1980
 
 count=0
 
@@ -47,9 +47,9 @@ do
    echo $count
    if [ "$count" -gt 0 ]
    then
-        bsub "${args[@]}" python annots/splitter.py $eachfile
-        # bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
-        # break 
+        # bsub "${args[@]}" python annots/splitter.py $eachfile
+        bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
+        break 
    fi
    if [ "$count" -eq 1500 ]
    then
