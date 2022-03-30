@@ -56,11 +56,13 @@ if file_name.endswith(".csv"):
     for i, df in dfs.items():
         date_text = df['date'].iloc[0]
         date = parser.parse(date_text)
-        date = date.strftime('%d-%m-%Y')
+        date = date.strftime('%Y-%m-%d')
         print(date)
-        
+        df = df.reset_index(drop=True)
+        # print(df.head())
+        # print(df.tail())
         df.to_csv(new_path + "/" + date + ".csv", index = False)
-        
+
 
    
 
