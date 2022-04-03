@@ -13,7 +13,7 @@ source venv/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 4
+    -n 2
     -W 4:00
     -R "rusage[mem=6400]"
 )
@@ -36,7 +36,7 @@ done
 declare -a arrFiles
 
 path=/cluster/work/lawecon/Projects/Ash_Galletta_Widmer/data/scrapes_clean
-path2=/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980/1980
+path2=/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980/2004
 
 count=0
 
@@ -49,9 +49,9 @@ do
    then
         # bsub "${args[@]}" python annots/splitter.py $eachfile
         bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
-        break 
+        # break 
    fi
-   if [ "$count" -eq 1500 ]
+   if [ "$count" -eq 2000 ]
    then
        break
    fi
