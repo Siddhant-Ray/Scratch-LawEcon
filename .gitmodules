@@ -1,0 +1,3 @@
+[submodule "MemSumExtractor"]
+	path = MemSumExtractor
+	url = https://github.com/Siddhant-Ray/MemSum
