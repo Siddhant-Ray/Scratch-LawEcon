@@ -21,7 +21,9 @@ rsync -v paraphrase/ridge_test.py sidray@euler.ethz.ch:/cluster/home/sidray/work
 
 rsync -v paraphrase/filter_predictions.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 rsync -v paraphrase/cluster.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
-rsync -v paraphrase/memsum_extractor.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
+
+rsync -rv MemSum/memsum_extractor.py sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/MemSum/
+rsync -rv MemSum/run_memsum.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/MemSum/
 
 # rsync -rv paraphrase/test_corpora sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
 
