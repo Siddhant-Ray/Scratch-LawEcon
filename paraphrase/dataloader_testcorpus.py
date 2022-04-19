@@ -1,5 +1,5 @@
 import json, pickle, argparse
-import random
+import random, os
 import math, string
 from re import L
 
@@ -35,6 +35,9 @@ stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 stored_file_custom = "paraphrase/data/test_corpus_custom.pkl"
+
+folder_memsum = "paraphrase/test_corpora/extracted_archive/"
+stored_file_memsum = "paraphrase/data/test_corpus_memsum.pkl"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = SentenceTransformer('all-MiniLM-L6-v2', device = device)
@@ -234,6 +237,31 @@ def filter_for_single_threshold(cos_matrix, threshold):
 
     return indices_for_similar[0], indices_for_similar[1]
 
+# Get combination of memsum extracted summaries
+def get_memsum_corpus(folder):
+    list_of_files = sorted(os.listdir(folder))
+    list_of_all_sentences = []
+    for file in list_of_files:
+        if file.endswith(".txt"):
+            print(file)
+            text = open(folder + file)
+            lines = text.readlines()
+            for line in lines:
+                list_of_all_sentences.append(line.rstrip("\n"))
+            text.close()
+            
+    # print(list_of_all_sentences)
+    return list_of_all_sentences
+
+# SAVE embeddings for the trump dataset
+def generate_and_save_embeddings_memsum(sentences):
+
+    list_of_sentences = sentences
+    list_of_embeddings = model.encode(sentences)
+    with open('paraphrase/data/test_corpus_memsum.pkl', "wb") as fOut1:
+        pickle.dump({'sentences': list_of_sentences, 'embeddings': list_of_embeddings}, fOut1, protocol=pickle.HIGHEST_PROTOCOL)
+    return list_of_embeddings, list_of_sentences
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -293,6 +321,12 @@ def main():
                 list_of_embeddings, list_of_sentences, list_of_labels = generate_and_save_embeddings_custom(data_frame)
                 print(list_of_embeddings.shape)
 
+            elif args.data == "memsum":
+                print("generating new embeddings from {} ........".format(args.data))
+                input_sentences = get_memsum_corpus(folder_memsum)
+                list_of_embeddings, list_of_sentences = generate_and_save_embeddings_memsum(input_sentences)
+                print(list_of_embeddings.shape)
+
             else:
                 print("generating new embeddings for big corpus........")
                 sentences = get_corpus(file)
@@ -309,7 +343,10 @@ def main():
                 stored_data = load_embeddings(stored_file_trump)
             elif args.data == "custom":
                 print("loading stored embeddings from {} ........".format(args.data))
-                stored_data = load_embeddings(stored_file_custom)    
+                stored_data = load_embeddings(stored_file_custom) 
+            elif args.data == "memsum":
+                print("loading stored embeddings from {} ........".format(args.data))
+                stored_data = load_embeddings(stored_file_memsum)     
             else:
                 print("loading stored embeddings from big corpus ........")
                 stored_data = load_embeddings(stored_file)
@@ -329,7 +366,12 @@ def main():
             elif args.data == "trump":
                 np.save("paraphrase/data/cosine_sim_trump.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_trump.npy", pair_cosine_matrix.astype(np.float16))
-
+            elif args.data == "custom":
+                np.save("paraphrase/data/cosine_sim_custom.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16_custom.npy", pair_cosine_matrix.astype(np.float16))
+            elif args.data == "memsum":
+                np.save("paraphrase/data/cosine_sim_memsum.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_16_memsum.npy", pair_cosine_matrix.astype(np.float16))
             else:
                 np.save("paraphrase/data/cosine_sim_bigcorpus.npy", pair_cosine_matrix)
                 np.save("paraphrase/data/cosine_sim_16_bigcorpus.npy", pair_cosine_matrix.astype(np.float16))
