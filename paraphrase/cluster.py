@@ -22,7 +22,7 @@ PATH = "paraphrase/data/"
 embedding_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 embedding_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 embedding_file_custom= "paraphrase/data/test_corpus_custom.pkl"
-
+embedding_file_memsum= "paraphrase/data/test_corpus_memsum.pkl"
 
 # LOAD numpy indices for pairs above a threshold for bbc
 # We want equality pairs for the distance matrix, else 0 for (i,i)
@@ -275,6 +275,31 @@ def main():
         matrix_init = sim_matrix
         print("Distance matrix.......")
         print(dist_matrix[0], dist_matrix.shape)
+
+    elif args.data == "memsum":
+        file = PATH + "para_probs_{}.npy".format(args.data)
+        para_probs = load_paraphrase_probs(file)
+        print("Loaded {} pairs indices from saved with (i,i) pairs .....".format(args.data))
+        print("para_probs shape", para_probs.shape)
+
+        sentence_embeddings = load_embeddings(embedding_file_memsum)['embeddings']
+        sentences = load_embeddings(embedding_file_memsum)['sentences']
+        print("Sentence vectors loaded from {} .....".format(args.data))
+        print("Shape of sentence vectors", sentence_embeddings.shape)
+
+        ones_matrix = np.ones((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print("All ones matrix.......")
+        print(ones_matrix[0], ones_matrix.shape)
+
+        print("Similarity matrix filled with paraprobs.......")
+        sim_matrix = para_probs.reshape((sentence_embeddings.shape[0], sentence_embeddings.shape[0]))
+        print(sim_matrix[0], sim_matrix.shape)
+
+        dist_matrix = ones_matrix - sim_matrix
+        matrix_init = sim_matrix
+        print("Distance matrix.......")
+        print(dist_matrix[0], dist_matrix.shape)
+
 
     if args.classifier == "kmeans":
          model = KMeans(random_state = 42)
