@@ -25,6 +25,7 @@ stored_file = "paraphrase/data/test_corpus1.pkl"
 stored_file_bbc = "paraphrase/data/test_corpus_bbc.pkl"
 stored_file_trump = "paraphrase/data/test_corpus_trump.pkl"
 stored_file_custom = "paraphrase/data/test_corpus_custom.pkl"
+stored_file_memsum = "paraphrase/data/test_corpus_memsum.pkl"
 stored_indices_path = "paraphrase/data/"
 data_file = "paraphrase/test_corpora/source_corpus2.csv"
 data_file_bbc = "paraphrase/test_corpora/bbc_data.csv"
@@ -320,7 +321,12 @@ def main():
         save_name = args.data
         print("From {}".format(save_name))
         stored_data = load_embeddings(stored_file_custom)
-        
+    
+    elif args.data == "memsum":
+        save_name = args.data
+        print("From {}".format(save_name))
+        stored_data = load_embeddings(stored_file_memsum)
+
     else:
         save_name = "bigcorpus"
         print("From {}".format(save_name))
@@ -347,12 +353,14 @@ def main():
         pass
     elif args.data == "custom":
         pass
+    elif args.data == "memsum":
+        pass
     else:
         sent1_indices, sent2_indices = load_indices(stored_indices_path)
         print("Loading pairs {} with equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
-    if save_name == "trump" or save_name == "custom":
+    if save_name == "trump" or save_name == "custom" or args.data == "memsum":
         sent_vectors = list_of_embeddings
     elif save_name == "bbc" or save_name == "bigcorpus":
         ### Run the model on the sentence pairs on the big corpus 
@@ -363,7 +371,7 @@ def main():
     
     if args.save:
         print("Running model on {} dataset".format(save_name))
-        if save_name == "trump" or save_name == "custom":
+        if save_name == "trump" or save_name == "custom" or save_name == "memsum":
             model, probs = evaluate_model_slow(saved_model, sent_vectors)
             print(probs[0:10])
             print(probs.shape)
