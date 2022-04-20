@@ -246,8 +246,11 @@ def get_memsum_corpus(folder):
             print(file)
             text = open(folder + file)
             lines = text.readlines()
-            for line in lines:
-                list_of_all_sentences.append(line.rstrip("\n"))
+            lines = [line.rstrip("\n") for line in lines]
+            lines = " ".join(lines)
+            list_of_all_sentences.append(lines)
+            '''for line in lines:
+                list_of_all_sentences.append(line.rstrip("\n"))'''
             text.close()
             
     # print(list_of_all_sentences)
