@@ -26,7 +26,7 @@ class Config:
     train_bs = 64
     valid_bs = 32
     train_pcent = 0.99
-    num_workers = 8
+    num_workers = 0
     bert_model = 'bert-base-german-cased'
     tokenizer = transformers.AutoTokenizer.from_pretrained(bert_model, do_lower_case=True)
 
@@ -48,7 +48,7 @@ class BertData(Dataset):
             None,
             add_special_tokens = True,
             max_length = Config.max_len,
-            padding=True,
+            pad_to_max_length=True,
             truncation='longest_first'
         )
 
@@ -128,7 +128,7 @@ class BERTModel(pl.LightningModule):
         outputs = self(ids=ids, mask=mask, token_type_ids=token_type_ids)
 
         train_loss = self.train_loss_fn(outputs, targets.view(-1, 1))
-        train_acc = accuracy(outputs, targets.view(-1, 1))
+        train_acc = ((outputs > 0) == targets).float().mean().item()
 
         return {'loss': train_loss, 'acc':train_acc}
     
@@ -139,11 +139,11 @@ class BERTModel(pl.LightningModule):
         targets = batch['targets'].float()
 
         outputs = self(ids=ids, mask=mask, token_type_ids=token_type_ids)
-
-        self.all_targets.extend(targets.cpu().detach().numpy().tolist())
         
+        self.all_targets.extend(targets.cpu().detach().numpy().tolist())
+    
         valid_loss = self.valid_loss_fn(outputs, targets.view(-1, 1))
-        valid_acc = accuracy(outputs, targets.view(-1, 1))
+        valid_acc = ((outputs > 0) == targets).float().mean().item()
         return {'loss': valid_loss, 'acc':valid_acc}
     
     def configure_optimizers(self):
@@ -166,15 +166,17 @@ class BERTModel(pl.LightningModule):
         return transformers.AdamW(optimizer_parameters, lr=Config.lr)
 
     def training_epoch_end(self,outputs):
+        print(outputs)
+        exit()
         loss_tensor_list = [item['loss'].to('cpu').numpy() for item in outputs['loss']]
-        acc_tensor_list = [item['acc'].to('cpu').numpy() for item in outputs['acc']]
+        acc_tensor_list = [item for item in outputs['acc']]
 
         print('Avg train loss per epoch', np.mean(np.array(loss_tensor_list)), on_step=False, on_epoch=True)
         print('Avg train acc per epoch', np.mean(np.array(acc_tensor_list)), on_step=False, on_epoch=True)
 
-    def validation_epoch_end(self,outputs):
+    def val_epoch_end(self,outputs):
         loss_tensor_list = [item['loss'].to('cpu').numpy() for item in outputs['loss']]
-        acc_tensor_list = [item['acc'].to('cpu').numpy() for item in outputs['acc']]
+        acc_tensor_list = [item for item in outputs['acc']]
 
         print('Avg val loss per epoch', np.mean(np.array(loss_tensor_list)), on_step=False, on_epoch=True)
         print('Avg val acc per epoch', np.mean(np.array(acc_tensor_list)), on_step=False, on_epoch=True)
@@ -182,7 +184,7 @@ class BERTModel(pl.LightningModule):
 
 
 model = BERTModel()
-trainer = pl.Trainer(max_epochs=10, gpus=1)
+trainer = pl.Trainer(max_epochs=10, gpus=1,log_every_n_steps=10)
 trainer.fit(model)
 
 

@@ -41,6 +41,6 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-
-bsub "${args[@]}" -oo meat_narratives/senti.out python meat_narratives/sentiment.py 
+# bsub "${args[@]}" -oo meat_narratives/senti.out python meat_narratives/sentiment.py 
+bsub "${args[@]}" -oo meat_narratives/classication.out python meat_narratives/meatnarrative_clf.py 
 
