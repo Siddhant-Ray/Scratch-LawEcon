@@ -54,7 +54,8 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_paws.out python paraphrase/logistic_classifier.py --train paws --eval paws -th_min 0.05 -th_max 0.00
 # bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_mprc.out python paraphrase/logistic_classifier.py --train mprc --eval mprc -th_min 0.05 -th_max 0.00
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --save yes --data memsum 
+# bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test.out python paraphrase/logistic_test.py --file full --th 0.00 --save yes --data memsum 
+bsub "${args[@]}" -oo paraphrase/outputfiles/logistic_test_sts.out python paraphrase/logistic_test_sts.py --file sts 
 
 # bsub "${args[@]}" python paraphrase/filter_predictions.py
 

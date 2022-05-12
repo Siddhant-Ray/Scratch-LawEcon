@@ -119,8 +119,8 @@ def get_clusters_from_linkage_matrix(linkage_matrix, depth_factor):
     # i.e., ca. 500 clusters)
 	# depth_of_tree=len(linkage_matrix) // 2
 	#depth_of_tree=len(linkage_matrix)
-
-	depth_of_tree= int(len(linkage_matrix) * float(depth_factor))
+    
+	depth_of_tree= int(len(linkage_matrix) - 10); print("depth of tree"); print(depth_of_tree)
 
 	clusters = defaultdict(set)
 	c = len(linkage_matrix) + 1
