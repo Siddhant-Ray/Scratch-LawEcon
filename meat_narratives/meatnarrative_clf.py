@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from collections import Counter
+import argparse
 
 import torch
 import torch.nn as nn
@@ -20,6 +21,9 @@ from sklearn.model_selection import train_test_split
 
 from transformers import AutoModel, AutoTokenizer
 from transformers import BertTokenizer, BertForSequenceClassification
+
+from tqdm import tqdm
+
 ## Global path and dicts
 DIR = "meat_narratives/data/"
 BERT_MODEL = "bert-base-uncased"
@@ -193,31 +197,31 @@ class MultilabelClassifier(nn.Module):
         self.model.dropout = Identity()
         self.model.classifier = Identity()
 
-        self.type = nn.Sequential(
+        self.s_type = nn.Sequential(
             nn.Dropout(p=0.2),
             nn.Linear(in_features=768, out_features=n_type)
         )
-        self.topic = nn.Sequential(
+        self.s_topic = nn.Sequential(
             nn.Dropout(p=0.2),
             nn.Linear(in_features=768, out_features=n_topic)
         )
-        self.valence = nn.Sequential(
+        self.s_valence = nn.Sequential(
             nn.Dropout(p=0.2),
             nn.Linear(in_features=768, out_features=n_valence)
         )
-        self.reference = nn.Sequential(
+        self.s_reference = nn.Sequential(
             nn.Dropout(p=0.2),
             nn.Linear(in_features=768, out_features=n_reference)
         )
 
-    def forward(self, x):
-        x = self.model(x)
+    def forward(self, x, attn):
+        out = self.model(x, attn)
         
         return {
-            'type': self.topic(x),
-            'topic': self.type(x),
-            'valence': self.valence(x),
-            'reference': self.reference(x)
+            'type': self.s_type(out.logits),
+            'topic': self.s_topic(out.logits),
+            'valence': self.s_valence(out.logits),
+            'reference': self.s_reference(out.logits)
         }
 
 # Combined loss function for all output labels
@@ -226,6 +230,56 @@ def criterion(loss_func,outputs,samples,device):
    for i, key in enumerate(outputs):
        losses += loss_func(outputs[key], samples['labels'][f'label_{key}'].to(device))
    return losses
+
+# Train function
+def train_model(model,device,lr_rate,epochs,train_loader):
+
+    num_epochs = epochs
+    losses = []
+    checkpoint_losses = []
+
+    # Freeze the BERT layers
+    for param in model.model.bert.parameters():
+        param.requires_grad = False
+
+    # Specify optimiser only for FC layers
+    optimizer_params = [
+                {'params': model.s_type.parameters()},
+                {'params': model.s_topic.parameters()},
+                {'params': model.s_valence.parameters()},
+                {'params': model.s_reference.parameters()}
+            ]
+    
+    optimizer = torch.optim.Adam(optimizer_params, lr=lr_rate)
+    n_total_steps = len(train_loader)
+
+    loss_func = nn.CrossEntropyLoss()
+
+    for epoch in tqdm(range(num_epochs)):
+        model.train()
+
+        for idx, batch in enumerate(train_loader):
+            optimizer.zero_grad()
+            input_ids = batch['feature']['input_ids'].to(device)
+            attention_mask = batch['feature']['attention_mask'].to(device)
+            
+            target = batch
+
+            outputs = model(input_ids, attention_mask)
+
+            loss = criterion(loss_func,outputs, target, device)
+            losses.append(loss.item())
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if (idx+1) % (int(n_total_steps/1)) == 0:
+                checkpoint_loss = torch.tensor(losses).mean().item()
+                checkpoint_losses.append(checkpoint_loss)
+                print (f'Epoch [{epoch+1}/{num_epochs}], Step [{idx+1}/{n_total_steps}], Loss: {checkpoint_loss:.4f}')
+
+    return checkpoint_losses
 
 def run(args):
 
@@ -237,7 +291,7 @@ def run(args):
     features, labels = DataCleaner.create_features_and_labels(processed_df)
     print(len(features)); print([len(labels[key]) for key in labels.keys()])
     list_of_sentences = features.to_list()
-    print(list_of_sentences[0:10])
+    print(list_of_sentences[0:2])
     print(len(list_of_sentences))
 
     # Tokenize sentence inputs
@@ -255,9 +309,9 @@ def run(args):
     train_set, val_set = torch.utils.data.random_split(text_data , [train_len, val_len])
 
     # Prepare data loaders
-    train_loader = DataLoader(train_set, batch_size=64, shuffle=True, 
+    train_loader = DataLoader(train_set, batch_size = args.batch_size, shuffle=True, 
                                 num_workers=0, drop_last=False)
-    val_loader = DataLoader(val_set, batch_size=64, shuffle=False, 
+    val_loader = DataLoader(val_set, batch_size = args.batch_size, shuffle=False, 
                                 num_workers=0, drop_last=False)
     
     # Get one sample batch from the dataloader
@@ -268,17 +322,43 @@ def run(args):
     print("Targets for each batch in our sample: {}".format(sample['labels']['label_type']))
 
     # Initialise classifier
-    classifier = MultilabelClassifier(3,4,2,17)
+    num_types = len(statement_type_dict.keys())
+    num_topics = len(statement_topic_dict.keys())
+    num_valence = len(topic_valence_dict.keys())
+    num_refs = len(statement_reference_dict.keys())
+    print(num_types, num_topics, num_valence, num_refs)
+
+    classifier = MultilabelClassifier(num_types, num_topics,
+                                    num_valence, num_refs)
+    # print(classifier)
+    
+    # Choose device to run on
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
     classifier.to(device)  
 
-    
-
+    checkpoint_losses = train_model(classifier, device, args.learning_rate,
+                                    args.num_epochs, train_loader)
 
 def main():
-    test_args = ""
-    run(test_args)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-bs", "--batch_size",
+                        type=int, default=64,
+                        required=False,
+                        help = "select the batch_size")
+    parser.add_argument("-nepochs", "--num_epochs",
+                        type=int, default=10,
+                        required=False,
+                        help= "choose number of epochs to run")
+    parser.add_argument("-lr", "--learning_rate", 
+                        type=float, default=1e-4,
+                        required=False,
+                        help= "choose learning rate")
+    
+    args = parser.parse_args()
+    print(args)
+
+    run(args)
 
 if __name__=="__main__":
     main()
