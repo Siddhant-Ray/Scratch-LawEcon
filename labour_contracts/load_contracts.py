@@ -34,5 +34,8 @@ def main():
     df = pd.DataFrame(load_generator)
     print(df.head())
 
+    save_path = "labour_contracts/data/relatio_formatted.csv"
+    df.to_csv(path, index=False)
+
 if __name__=="__main__":
     main()
