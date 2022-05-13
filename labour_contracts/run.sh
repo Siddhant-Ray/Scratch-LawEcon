@@ -15,7 +15,7 @@ args=(
     -G ls_lawecon
     -n 4
     -W 4:00
-    -R "rusage[mem=4500]"
+    -R "rusage[mem=8192]"
 )
 
 if [ -z "$1" ]; then echo "CPU mode selected"; fi

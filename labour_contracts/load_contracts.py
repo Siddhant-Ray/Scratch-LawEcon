@@ -31,7 +31,9 @@ def main():
         print(value)
         break
 
-    df = pd.DataFrame(load_generator)
+    cols = ["id", "header", "text"]
+
+    df = pd.DataFrame(load_generator, columns = cols)
     print(df.head())
 
     save_path = "labour_contracts/data/relatio_formatted.csv"
