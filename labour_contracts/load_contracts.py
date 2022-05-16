@@ -37,7 +37,7 @@ def main():
     print(df.head())
 
     save_path = "labour_contracts/data/relatio_formatted.csv"
-    df.to_csv(path, index=False)
+    df.to_csv(save_path, index=False)
 
 if __name__=="__main__":
     main()
