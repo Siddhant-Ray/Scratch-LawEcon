@@ -1,0 +1,70 @@
+Original sentence : 
+ The cost of the meal will not exceed $6.00, and the lunching time required to eat such meal will be limited to twenty minutes. 
+High-dimensional narrative: 
+ eat require lunch time 
+Low-dimensional narrative: 
+ cookery require time 
+--------------------------------------------------- 
+Original sentence : 
+ An employee who has established seniority in accordance with Section 12.02 of Article XII shall retain his accumulation of days for his rate of vacation pay for as long as he retains seniority rights with the Company. 
+High-dimensional narrative: 
+ employee establish seniority 
+Low-dimensional narrative: 
+ employee establish seniority 
+--------------------------------------------------- 
+Original sentence : 
+ in construction of new camps, the Company agrees to construct all living quarters into suitable rooms housing not more than two (2) employees per room. 
+High-dimensional narrative: 
+ company construct living quarter 
+Low-dimensional narrative: 
+ company construct day work plus work day 
+--------------------------------------------------- 
+Original sentence : 
+ 2002, the Company will compensate an employee when a fee Is charged by a physician for completion of a medical certificate required to support a claim for benefits pursuant to the Weekly or Long Term Disability Plan. 
+High-dimensional narrative: 
+ medical certificate require support claim benefit pursuant weekly long term disability plan 
+Low-dimensional narrative: 
+ advancement condition set forth require provision 
+--------------------------------------------------- 
+Original sentence : 
+ When the employee reverts to his original shift, he shall be paid at his regular straight time rate provided that there is a break of at least eight (8) hours between shifts worked, and if not. 
+High-dimensional narrative: 
+ rate provide break hour shift work 
+Low-dimensional narrative: 
+ rate provide hour 
+--------------------------------------------------- 
+Original sentence : 
+ Either party shall appoint its nominee not later than five (5) days after receipt of written notice of the name of the other party’s nominee and shall forthwith inform the other party of the name of the nominee. 
+High-dimensional narrative: 
+ party appoint nominee 
+Low-dimensional narrative: 
+ party appoint party 
+--------------------------------------------------- 
+Original sentence : 
+ The record of any disciplinary action for offenses shall not be used against an employee after twenty-four (24) months has elapsed since the date of the disciplinary action and provided no similar offense has occurred during the twenty-four (24) month period. 
+High-dimensional narrative: 
+ action offense provide similar offense occur month period 
+Low-dimensional narrative: 
+ matter provide matter 
+--------------------------------------------------- 
+Original sentence : 
+ 6.03 Days worked for purposes of this Article shall mean all days worked, plus working days which normally would have been worked but were lost as a result of sickenss or injury certified by a licensed physician, dentist, or chiropractor, and all total days on Union business, off-the-job training, vacation, holidays with pay, jury duty and bereavement leave in any calendar year. 
+High-dimensional narrative: 
+ day article mean day work plus work day normally work lose result sickenss injury certify license physician dentist chiropractor total day union business job training vacation holiday pay jury duty bereavement leave calendar year 
+Low-dimensional narrative: 
+ write mean vacation pay 
+--------------------------------------------------- 
+Original sentence : 
+ Representatives carrying proper credentials shall have the right to visit all operations in connection with Union business as it pertains to the Company's operations and sh,all report to the Camp Foreman or clerk on arrival at camp. 
+High-dimensional narrative: 
+ representative carry proper credential 
+Low-dimensional narrative: 
+ party carry representative carry proper credential 
+--------------------------------------------------- 
+Original sentence : 
+ a) Received at least two days notice as per article 12.04 and the employee advises the company in writing on forms to be supplied by the company of his desire to exercise his seniority or to be laid-off. 
+High-dimensional narrative: 
+ company supply company form 
+Low-dimensional narrative: 
+ company supply company 
+--------------------------------------------------- 
