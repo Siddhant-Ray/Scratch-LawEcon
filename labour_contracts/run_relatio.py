@@ -90,9 +90,18 @@ if run_narrative:
     narrative_model = build_narrative_model(
         srl_res=srl_res,
         sentences=sentences,
+        roles_considered = [
+        "ARG0",
+        "B-V",
+        "B-ARGM-NEG",
+        "B-ARGM-MOD",
+        "ARG1",
+        "ARG2",
+        ],
         embeddings_type="gensim_keyed_vectors", 
         embeddings_path="glove-wiki-gigaword-100",
-        n_clusters=[[100]],
+        n_clusters=[[8]],
+        roles_with_entities = [],
         top_n_entities=100,
         stop_words = spacy_stopwords,
         remove_n_letter_words = 1,
@@ -137,6 +146,7 @@ if gen_narratives:
 # ANALYSE sentiments (this is mainly done very similarly as the tutorial)    
 if analyse_narratives:
     final_statements = pd.read_csv('labour_contracts/data/narratives.csv')
+    print(final_statements.columns)
 
     # Entity coherence
     # Print most frequent phrases per entity
@@ -177,8 +187,9 @@ if analyse_narratives:
     df = df[['ARG', 'cluster_elements']]
 
     for l in df.values.tolist():
-        print('entity: \n %s \n' % l[0])
-        print('most frequent phrases: \n %s \n' % l[1])
+        pass
+        #print('entity: \n %s \n' % l[0])
+        # print('most frequent phrases: \n %s \n' % l[1])
 
     
     # Low-dimensional vs. high-dimensional narrative statements
@@ -187,13 +198,14 @@ if analyse_narratives:
     ## In our data, this leads to many NANs but some values are quite good
 
     final_statements['B-V_lowdim_with_neg'] = np.where(final_statements['B-ARGM-NEG_lowdim'] == True, 
-                                            'not-' + final_statements['B-V_lowdim'], 
-                                            final_statements['B-V_lowdim'])
+                                            final_statements['B-V_lowdim'],
+                                            'not_' + final_statements['B-V_lowdim'])
 
     final_statements['B-V_highdim_with_neg'] = np.where(final_statements['B-ARGM-NEG_highdim'] == True, 
-                                            'not-' + final_statements['B-V_lowdim'], 
-                                            final_statements['B-V_highdim'])
+                                            final_statements['B-V_highdim'],
+                                            'not_' + final_statements['B-V_lowdim']) 
 
+    
     # Concatenate high-dimensional narratives (with text preprocessing but no clustering)
 
     final_statements['narrative_highdim'] = (final_statements['ARG0_highdim'] + ' ' + 
@@ -245,18 +257,21 @@ if analyse_narratives:
 if plot_graph:
 
     complete_narratives = pd.read_csv('labour_contracts/data/complete_narratives.csv')
-    temp = complete_narratives[["ARG0_lowdim", "ARG1_lowdim", "B-V_lowdim"]]
-    temp.columns = ["ARG0", "ARG1", "B-V"]
-    temp = temp[(temp["ARG0"] != "") & (temp["ARG1"] != "") & (temp["B-V"] != "")]
-    temp = temp.groupby(["ARG0", "ARG1", "B-V"]).size().reset_index(name="weight")
+    print(complete_narratives.columns)
+    temp = complete_narratives[["ARG0_lowdim", "ARG1_lowdim", "B-V_lowdim", "B-ARGM-MOD_highdim"]]
+    temp.columns = ["ARG0", "ARG1", "B-V", "B-M"]
+    temp = temp[(temp["ARG0"] != "") & (temp["ARG1"] != "") & (temp["B-V"] != "") & (temp["B-M"] != 0)]
+    temp = temp.groupby(["ARG0", "ARG1", "B-V", "B-M"]).size().reset_index(name="weight")
     temp = temp.sort_values(by="weight", ascending=False).iloc[0:100]  # pick top 100 most frequent narratives
     temp = temp.to_dict(orient="records")
+
+    print(temp)
 
     for l in temp:
         l["color"] = None
 
     G = build_graph(
-        dict_edges=temp, dict_args={}, edge_size=None, node_size=10, prune_network=True
+        dict_edges=temp, dict_args={}, edge_size=None, node_size=2, prune_network=True
     )
 
-    draw_graph(G, notebook=True, width="10000px", height="10000px", output_filename="labour_contracts/data/final_graph.html")
+    draw_graph(G, notebook=True, width="50000px", height="50000px", output_filename="labour_contracts/data/final_graph.html")
