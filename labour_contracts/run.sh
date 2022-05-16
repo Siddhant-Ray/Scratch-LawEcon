@@ -13,9 +13,9 @@ source venv/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 4
+    -n 8
     -W 4:00
-    -R "rusage[mem=8192]"
+    -R "rusage[mem=4096]"
 )
 
 if [ -z "$1" ]; then echo "CPU mode selected"; fi
@@ -33,4 +33,5 @@ while [ ! -z "$1" ]; do
     shift
 done
 
-bsub "${args[@]}" python labour_contracts/load_contracts.py
+# bsub "${args[@]}" python labour_contracts/load_contracts.py
+bsub "${args[@]}" -oo labour_contracts/relatio.out python labour_contracts/run_relatio.py
