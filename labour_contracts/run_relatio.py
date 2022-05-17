@@ -260,19 +260,25 @@ if plot_graph:
     print(complete_narratives.columns)
     temp = complete_narratives[["ARG0_lowdim", "ARG1_lowdim", "B-V_lowdim", "B-ARGM-MOD_highdim"]]
     temp.columns = ["ARG0", "ARG1", "B-V", "B-M"]
+    temp = temp[["ARG1", "ARG0", "B-V", "B-M"]]
     temp = temp[(temp["ARG0"] != "") & (temp["ARG1"] != "") & (temp["B-V"] != "") & (temp["B-M"] != 0)]
-    temp = temp.groupby(["ARG0", "ARG1", "B-V", "B-M"]).size().reset_index(name="weight")
-    temp = temp.sort_values(by="weight", ascending=False).iloc[0:30]  # pick top 100 most frequent narratives
+    temp["B-V"] = temp["B-M"] + " " + temp["B-V"]
+    temp.drop("B-M", axis=1, inplace=True)
+    temp = temp.groupby(["ARG1", "ARG0", "B-V"]).size().reset_index(name="weight")
+    temp = temp.sort_values(by="weight", ascending=False).iloc[0:20]  # pick top 100 most frequent narratives
     temp = temp.to_dict(orient="records")
-
-    print(temp)
 
     for l in temp:
         l["color"] = None
 
-    G = build_graph(
+
+    G1 = build_graph(
         dict_edges=temp, dict_args={}, edge_size=None, node_size=5, prune_network=True
     )
 
-    draw_graph(G, notebook=True, width="1000px", height="1000px", show_buttons = True, only_physics_buttons=True,
-                 output_filename="labour_contracts/data/final_graph.html")
+    draw_graph(G1, notebook=True, width="1000px", height="1000px", show_buttons = True, only_physics_buttons=True,
+                 output_filename="labour_contracts/data/final_graph1.html")
+
+    
+
+   
