@@ -156,3 +156,6 @@ paraphrase/test_corpora
 Memsum/src
 Memsum/model
 Memsum/data
+
+# Don't track html, txt
+labour_contracts/data/
