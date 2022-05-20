@@ -18,11 +18,17 @@ import pandas as pd
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 
 from transformers import AutoModel, AutoTokenizer
 from transformers import BertTokenizer, BertForSequenceClassification
 
 from tqdm import tqdm
+
+# Set seeds 
+np.random.seed(0)
+torch.manual_seed(0)
+random.seed(0)
 
 ## Global path and dicts
 DIR = "meat_narratives/data/"
@@ -62,7 +68,12 @@ statement_reference_dict = {
             "world food supply" : 14,
             "highly processed" : 15,
             "social fairness" : 16 
-}    
+}  
+
+class color:
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   END = '\033[0m'
 
 # Cleaner class
 class DataCleaner():
@@ -281,6 +292,53 @@ def train_model(model,device,lr_rate,epochs,train_loader):
 
     return checkpoint_losses
 
+def validate_model(model,device, val_loader, batch_size):
+    model.eval()
+
+    with torch.no_grad():
+        val_losses = []
+        accuracy_dict = {}
+        accuracy_dict["type"] = 0
+        accuracy_dict["topic"] = 0
+        accuracy_dict["valence"] = 0
+        accuracy_dict["reference"] = 0
+
+        for idx, batch in enumerate(val_loader):
+
+            input_ids = batch['feature']['input_ids'].to(device)
+            attention_mask = batch['feature']['attention_mask'].to(device)
+            outputs = model(input_ids, attention_mask)
+
+            correct_dict = {}
+
+            target = batch
+
+            loss_func = nn.CrossEntropyLoss()
+            loss = criterion(loss_func,outputs, target, device)
+            val_losses.append(loss.item())
+
+            correct_dict["type"] = batch['labels']['label_type'].to(device)
+            correct_dict["topic"] = batch['labels']['label_topic'].to(device)
+            correct_dict["valence"] = batch['labels']['label_valence'].to(device)
+            correct_dict["reference"] = batch['labels']['label_reference'].to(device)
+            
+            for i,out in enumerate(outputs):
+                _, predicted = torch.max(outputs[out],1)
+                accuracy = (outputs[out].argmax(-1) == correct_dict[out]).float().mean()
+                append_acc = (accuracy.cpu().item())
+                accuracy_dict[out] += append_acc 
+
+        print()
+        print("Validation loss is ", torch.tensor(val_losses).mean().item())
+        print()
+        print("Accuracy of statement type is ", accuracy_dict["type"]/len(val_loader))
+        print("Accuracy of statement topic is ", accuracy_dict["topic"]/len(val_loader))
+        print("Accuracy of topic valence is ", accuracy_dict["valence"]/len(val_loader))
+        print("Accuracy of statement reference is ", accuracy_dict["reference"]/len(val_loader))
+    
+    return val_losses,accuracy_dict
+
+
 def run(args):
 
     # Load the cleaned dataset
@@ -339,6 +397,11 @@ def run(args):
 
     checkpoint_losses = train_model(classifier, device, args.learning_rate,
                                     args.num_epochs, train_loader)
+
+    
+    val_losses, accuracy_values = validate_model(classifier, device,
+                                    val_loader, args.batch_size)
+
 
 def main():
     parser = argparse.ArgumentParser()
