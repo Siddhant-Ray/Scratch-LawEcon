@@ -1,9 +1,12 @@
+from calendar import c
 import random, os
 import numpy as np 
 import pandas as pd
 
 from collections import Counter
 import argparse
+
+import json 
 
 import torch
 import torch.nn as nn
@@ -150,6 +153,15 @@ class DataCleaner():
         return dataframe
 
     @staticmethod
+    def count_label_occurrences(dataframe):
+        counter_1 = Counter(dataframe['statement_type'])
+        counter_2 = Counter(dataframe['statement_topic'])
+        counter_3 = Counter(dataframe['topic_valence'])
+        counter_4 = Counter(dataframe['statement_reference'])
+
+        return counter_1, counter_2, counter_3, counter_4
+
+    @staticmethod
     def create_features_and_labels(dataframe):
         features = dataframe["text"]
         multilabel_dict = {
@@ -280,8 +292,6 @@ def train_model(model,device,lr_rate,epochs,train_loader):
 
             loss = criterion(loss_func,outputs, target, device)
             losses.append(loss.item())
-
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -294,6 +304,14 @@ def train_model(model,device,lr_rate,epochs,train_loader):
 
 def validate_model(model,device, val_loader, batch_size):
     model.eval()
+
+    class_list = ["type", "topic", "valence", "reference"]
+    actual_targets = {}
+    predicted_targets = {}
+
+    for value in class_list:
+        actual_targets[value] = []
+        predicted_targets[value] = []
 
     with torch.no_grad():
         val_losses = []
@@ -328,6 +346,12 @@ def validate_model(model,device, val_loader, batch_size):
                 append_acc = (accuracy.cpu().item())
                 accuracy_dict[out] += append_acc 
 
+                pred_outs = predicted.cpu().detach().numpy().tolist()
+                true_outs = correct_dict[out].cpu().detach().numpy().tolist()
+               
+                predicted_targets[out].extend(pred_outs)
+                actual_targets[out].extend(true_outs)
+
         print()
         print("Validation loss is ", torch.tensor(val_losses).mean().item())
         print()
@@ -336,15 +360,27 @@ def validate_model(model,device, val_loader, batch_size):
         print("Accuracy of topic valence is ", accuracy_dict["valence"]/len(val_loader))
         print("Accuracy of statement reference is ", accuracy_dict["reference"]/len(val_loader))
     
-    return val_losses,accuracy_dict
+    return val_losses,accuracy_dict, actual_targets, predicted_targets
 
+def calculate_f1_score(true, pred):
+    return f1_score(true, pred, average="macro")
 
 def run(args):
 
     # Load the cleaned dataset
     df = DataCleaner.generate_dataset(DIR)
+
+    print()
+    ## Print counts of all labels
+    counter1, counter2, counter3, counter4 = DataCleaner.count_label_occurrences(df)
+    print(json.dumps(counter1, indent=2))
+    print(json.dumps(counter2, indent=2))
+    print(json.dumps(counter3, indent=2))
+    print(json.dumps(counter4, indent=2))
+
+    # Create numeric labels
     processed_df = DataCleaner.pre_process_data_to_numeric_labels(df)
-    
+
     # Create lists of sentences and labels
     features, labels = DataCleaner.create_features_and_labels(processed_df)
     print(len(features)); print([len(labels[key]) for key in labels.keys()])
@@ -399,9 +435,15 @@ def run(args):
                                     args.num_epochs, train_loader)
 
     
-    val_losses, accuracy_values = validate_model(classifier, device,
+    val_losses, accuracy_values, actual_values, predicted_values = validate_model(classifier, device,
                                     val_loader, args.batch_size)
 
+    print()
+    for key in actual_values.keys():
+        if key != "valence":
+            print("F1 macro score on statement {} is ".format(key), calculate_f1_score(actual_values[key], predicted_values[key]))
+        else:
+            print("F1 macro score on topic {} is ".format(key), calculate_f1_score(actual_values[key], predicted_values[key]))
 
 def main():
     parser = argparse.ArgumentParser()
