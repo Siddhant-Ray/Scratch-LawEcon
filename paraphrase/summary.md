@@ -46,6 +46,7 @@ pairs sampled at random from the SNLI dataset.
 #### Side note:
 
 We also evaluated the paraphrase detection model on the STS dataset, which returned results which were acceptable. 
-correlation with yes prob:  SpearmanrResult(correlation=0.7635264850015682, pvalue=5.255517463444269e-49)
-correlation with no prob:  SpearmanrResult(correlation=-0.7635264850015682, pvalue=5.255517463444269e-49)
+
+- correlation with yes prob:  SpearmanrResult(correlation=0.7635264850015682, pvalue=5.255517463444269e-49)
+- correlation with no prob:  SpearmanrResult(correlation=-0.7635264850015682, pvalue=5.255517463444269e-49)
   
