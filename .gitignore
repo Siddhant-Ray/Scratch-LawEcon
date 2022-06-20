@@ -159,3 +159,6 @@ Memsum/data
 
 # Don't track html, txt
 labour_contracts/data/
+
+# Clustering 
+simplification_clustering/Datasets
