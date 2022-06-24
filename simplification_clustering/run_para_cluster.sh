@@ -41,6 +41,11 @@ while [ ! -z "$1" ]; do
     shift
 done
 
+nclusters=(16 32 64 128 256 512 1024)
 
-bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster.out python simplification_clustering/embed_cluster.py
+for n in ${nclusters[@]}
+do 
+    echo "in cluster number" $n 
+    bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster_${n}.out python simplification_clustering/embed_cluster.py --path DisSim --n_clusters $n
+done
 

@@ -6,10 +6,11 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import MiniBatchKMeans
 
-PATH = "simplificaiton_clustering/datasets/ABCD/"
+PATH = "simplification_clustering/datasets/"
 
 # Get embeddings
 def embedd_sentences(sentences):
+    
     sbert_model = 'all-MiniLM-L6-v2'
     max_seq_length = 128
     embedder = SentenceTransformer(sbert_model)
@@ -19,18 +20,43 @@ def embedd_sentences(sentences):
 
 # Get clusters
 def run_kmeans(X, n_clusters=44):
-        kmeans = MiniBatchKMeans(n_clusters=n_clusters, batch_size=512).fit(X)
-        labels = kmeans.labels_
-        return labels
+    
+    kmeans = MiniBatchKMeans(n_clusters=n_clusters, batch_size=512).fit(X)
+    labels = kmeans.labels_
+    return labels
 
 # Load data
 def load_data(path):
-    data = open(path+"bbc_data_splitted.txt", 'r').readlines()
-    print(data)
+    non_simplified_sentences = []
+    simplified_sentences = []
+
+    data = open(path+"bbc_data_complex_splitted.txt", 'r').readlines()
+    for line in data:
+        line_val = json.loads(line)
+        for item in line_val['simplified']:
+            if len(item["text"].split()) >=6:   
+                simplified_sentences.append(item['text'])
+
+    sdata = open(path+"bbc_data_simple_sentences.txt", 'r').readlines()
+    for line in sdata:
+        if len(line.split()) >=6:    
+            non_simplified_sentences.append(line.strip())
+
+    sentences = non_simplified_sentences + simplified_sentences
+    return sentences   
 
 # Run embeddings and clustering
 def run(args):
-    load_data(args.path)
+    path = PATH + args.path + "/"
+    sentences = load_data(path)
+    embeddings = embedd_sentences(sentences)
+
+    labels = run_kmeans(embeddings, args.n_clusters)
+    
+    assert(len(labels) == len(sentences) == len(embeddings))
+
+    data_frame = pd.DataFrame({"sentence": sentences, "label": labels})
+    data_frame.to_csv(path+"bbc_data_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
 
 # Main
 def main():
