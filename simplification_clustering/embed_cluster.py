@@ -45,10 +45,26 @@ def load_data(path):
     sentences = non_simplified_sentences + simplified_sentences
     return sentences   
 
+# Load data
+def load_data_manf(path):
+    non_simplified_sentences = []
+    simplified_sentences = []
+
+    data = open(path+"manifesto_simplified.txt", 'r').readlines()
+    for line in data:
+        line_val = json.loads(line)
+        for item in line_val['simplified']:
+            if len(item["text"].split()) >=6:   
+                simplified_sentences.append(item['text'])
+
+    sentences = simplified_sentences
+    return sentences   
+
+
 # Run embeddings and clustering
 def run(args):
     path = PATH + args.path + "/"
-    sentences = load_data(path)
+    sentences = load_data_manf(path)
     embeddings = embedd_sentences(sentences)
 
     labels = run_kmeans(embeddings, args.n_clusters)
@@ -56,7 +72,7 @@ def run(args):
     assert(len(labels) == len(sentences) == len(embeddings))
 
     data_frame = pd.DataFrame({"sentence": sentences, "label": labels})
-    data_frame.to_csv(path+"bbc_data_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
+    data_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
 
 # Main
 def main():
