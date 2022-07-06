@@ -46,6 +46,8 @@ nclusters=(16 32 64 128 256 512 1024)
 for n in ${nclusters[@]}
 do 
     echo "in cluster number" $n 
-    bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster_${n}.out python simplification_clustering/embed_cluster.py --path DisSim --n_clusters $n
+    # bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster_${n}.out python simplification_clustering/embed_cluster.py --path DisSim --n_clusters $n
 done
+
+bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval.out python simplification_clustering/evaluate_clusters.py --path DisSim 
 
