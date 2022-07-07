@@ -35,7 +35,7 @@ def run_hdbscan(X):
     labels = hdb.labels_
 
     # Score over search space
-    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True).fit(X)
+    '''hdb = hdbscan.HDBSCAN(gen_min_span_tree=True).fit(X)
     param_dist = {'min_samples': [15,30,50,100],
                 'min_cluster_size':[10,50,100,250,500],  
                 'cluster_selection_method' : ['eom','leaf'],
@@ -53,7 +53,7 @@ def run_hdbscan(X):
     random_search.fit(X)
 
     print(f"Best Parameters {random_search.best_params_}")
-    print(f"DBCV score :{random_search.best_estimator_.relative_validity_}")
+    print(f"DBCV score :{random_search.best_estimator_.relative_validity_}")'''
 
     return labels
 
