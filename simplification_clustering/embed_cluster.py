@@ -5,6 +5,10 @@ import numpy as np
 
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import MiniBatchKMeans
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import make_scorer
+import hdbscan
+
 
 PATH = "simplification_clustering/datasets/"
 
@@ -23,6 +27,34 @@ def run_kmeans(X, n_clusters=44):
     
     kmeans = MiniBatchKMeans(n_clusters=n_clusters, batch_size=512).fit(X)
     labels = kmeans.labels_
+    return labels
+
+# Get clusters from HDBScan 
+def run_hdbscan(X):
+    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=16, min_samples=10).fit(X)
+    labels = hdb.labels_
+
+    # Score over search space
+    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True).fit(X)
+    param_dist = {'min_samples': [15,30,50,100],
+                'min_cluster_size':[10,50,100,250,500],  
+                'cluster_selection_method' : ['eom','leaf'],
+                'metric' : ['euclidean'] 
+                }
+
+    validity_scorer = make_scorer(hdbscan.validity.validity_index,greater_is_better=True)
+
+    n_iter_search = 20
+    random_search = RandomizedSearchCV(hdb,
+                                    param_distributions=param_dist,
+                                    n_iter=n_iter_search,
+                                    scoring=validity_scorer,
+                                    random_state=0)
+    random_search.fit(X)
+
+    print(f"Best Parameters {random_search.best_params_}")
+    print(f"DBCV score :{random_search.best_estimator_.relative_validity_}")
+
     return labels
 
 # Load data
@@ -67,18 +99,25 @@ def run(args):
     sentences = load_data_manf(path)
     embeddings = embedd_sentences(sentences)
 
-    labels = run_kmeans(embeddings, args.n_clusters)
+    if args.model == "kmeans":
+        labels = run_kmeans(embeddings, args.n_clusters)
+    elif args.model == "hdbscan":
+        labels = run_hdbscan(embeddings)
     
     assert(len(labels) == len(sentences) == len(embeddings))
 
     data_frame = pd.DataFrame({"sentence": sentences, "label": labels})
-    data_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
+    if args.model == "kmeans": 
+        data_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
+    elif args.model == "hdbscan":
+        data_frame.to_csv(path+"manifesto_clustered_hdbscan.csv", index=False)
 
 # Main
 def main():
     parser = argparse.ArgumentParser(description='Run K-Means clustering on the dataset')
     parser.add_argument('--path', type=str, default=PATH, help='Path to the dataset')
     parser.add_argument('--n_clusters', type=int, default=44, help='Number of clusters')
+    parser.add_argument('--model', type=str, help='Choose clustering model', required=True)
     args = parser.parse_args()
 
     run(args)
