@@ -49,17 +49,54 @@ def map_df(mapping_df, actual_labels):
 
 def run(args):
     path = PATH + args.path + "/"
-    mapping_df = load_data_manf_map(path)
-    actual_labels = load_actual_labels(path)
-    print(mapping_df.head())
-    mapping_df_with_labels = map_df(mapping_df, actual_labels)
 
-    mapping_df_with_labels.to_csv(path+"mapping_data.csv", index=False)
-   
+    if not args.load:
+        mapping_df = load_data_manf_map(path)
+        actual_labels = load_actual_labels(path)
+        print(mapping_df.head())
+        mapping_df_with_labels = map_df(mapping_df, actual_labels)
+        mapping_df_with_labels.to_csv(path+"mapping_data.csv", index=False)
+
+    else:
+        # Load map
+        mapping_df_with_labels = pd.read_csv(path+"mapping_data.csv")
+
+        # Load clustered files
+        clustered_frame = pd.read_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters))
+        # Sort clustered frame by label ascending
+        clustered_frame.sort_values(by=['label'], inplace=True)
+
+        # Get labels from mapping data
+        mapping = {i:j for i,j in zip(mapping_df_with_labels["simplified"], mapping_df_with_labels["label1"])}
+
+        max_cluster_label_dict = {}
+
+        for i in range(args.n_clusters):
+            df_small = clustered_frame[clustered_frame.label == i]
+            labels = [mapping[i] for i in df_small["sentence"]]
+            counts = np.unique(labels, return_counts=True)
+            #print (counts)
+            argmax = counts[1].argmax()
+            print ("argmax", argmax, "num occurrences", counts[1][argmax])
+            print ("label", counts[0][argmax])
+
+            max_cluster_label_dict[i] = counts[0][argmax]
+
+        print (max_cluster_label_dict)
+
+        # Create a new column which is a copy of the label column 
+        clustered_frame["true max label"] = clustered_frame["label"]
+        # Replace every value in this column by its dictionary value using apply
+        clustered_frame["true max label"] = clustered_frame["true max label"].apply(lambda x: max_cluster_label_dict[x])
+        clustered_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
+            
+        
 # Main
 def main():
     parser = argparse.ArgumentParser(description='Evaluate dataset')
     parser.add_argument('--path', type=str, default=PATH, help='Path to the dataset')
+    parser.add_argument('--load', type=bool, default=None, help='Path to the dataset')
+    parser.add_argument('--n_clusters', type=int, default=None, help='Number of clusters')
     args = parser.parse_args()
 
     run(args)

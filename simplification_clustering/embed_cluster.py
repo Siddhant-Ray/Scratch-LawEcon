@@ -8,7 +8,8 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import make_scorer
 import hdbscan
-
+from sklearn.decomposition import PCA
+import umap
 
 PATH = "simplification_clustering/datasets/"
 
@@ -30,8 +31,18 @@ def run_kmeans(X, n_clusters=44):
     return labels
 
 # Get clusters from HDBScan 
-def run_hdbscan(X):
-    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=16, min_samples=10).fit(X)
+def run_hdbscan(X, cluster_size, samples, reduced=False,):
+
+    if reduced:
+        # Apply PCA to reduce to 64, then umap to reduce to 8 (should be faster)
+        pca = PCA(n_components=64)
+        X_pca = pca.fit_transform(X)
+
+        umap_ = umap.UMAP(n_neighbors=10, min_dist=0.5, n_components=8)
+        X_umap = umap_.fit_transform(X_pca)
+        X = X_umap
+
+    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=cluster_size, min_samples=10).fit(X)
     labels = hdb.labels_
 
     # Score over search space
@@ -102,7 +113,7 @@ def run(args):
     if args.model == "kmeans":
         labels = run_kmeans(embeddings, args.n_clusters)
     elif args.model == "hdbscan":
-        labels = run_hdbscan(embeddings)
+        labels = run_hdbscan(embeddings, reduced = args.reduction)
     
     assert(len(labels) == len(sentences) == len(embeddings))
 
@@ -118,6 +129,7 @@ def main():
     parser.add_argument('--path', type=str, default=PATH, help='Path to the dataset')
     parser.add_argument('--n_clusters', type=int, default=44, help='Number of clusters')
     parser.add_argument('--model', type=str, help='Choose clustering model', required=True)
+    parser.add_argument('--reduction', type=bool, default=False, help='Apply PCA and UMAP')
     args = parser.parse_args()
 
     run(args)
