@@ -48,7 +48,6 @@ do
     echo "in cluster number" $n 
     # bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster_${n}.out python simplification_clustering/embed_cluster.py --path DisSim --n_clusters $n --model kmeans
     bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval_${n}.out python simplification_clustering/evaluate_clusters.py --path ABCD --load true --n_clusters $n
-
 done
 
 # bsub "${args[@]}" -oo simplification_clustering/outputfiles/hdb.out python simplification_clustering/embed_cluster.py --path ABCD --model hdbscan
@@ -57,3 +56,11 @@ done
 # Eval clusters 
 # bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval.out python simplification_clustering/evaluate_clusters.py --path DisSim 
 
+clustersizes=(16 32 64 128 256 512 1024)
+for n in ${clustersizes[@]}
+do
+    echo "in cluster size" $n
+    samples=20
+    # bsub "${args[@]}" -oo simplification_clustering/outputfiles/hdb_reduced_${n}_clustersize.out python simplification_clustering/embed_cluster.py --path ABCD --model hdbscan --reduction true --cluster_size $n --samples $samples
+    samples=$((samples+20))
+done

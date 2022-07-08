@@ -3,6 +3,7 @@ from re import M
 import argparse
 import pandas as pd
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 PATH = "simplification_clustering/datasets/"
 
@@ -75,7 +76,11 @@ def run(args):
             df_small = clustered_frame[clustered_frame.label == i]
             labels = [mapping[i] for i in df_small["sentence"]]
             counts = np.unique(labels, return_counts=True)
-            #print (counts)
+
+            # Check for empty cluster id
+            if counts[1].size == 0:
+                continue
+
             argmax = counts[1].argmax()
             print ("argmax", argmax, "num occurrences", counts[1][argmax])
             print ("label", counts[0][argmax])
@@ -89,7 +94,20 @@ def run(args):
         # Replace every value in this column by its dictionary value using apply
         clustered_frame["true max label"] = clustered_frame["true max label"].apply(lambda x: max_cluster_label_dict[x])
         clustered_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
-            
+
+        ## Compute cluster accuracy 
+        mapping_df_with_labels.sort_values(by=["simplified"], inplace=True)
+        mapping_df_with_labels['label1'] = mapping_df_with_labels['label1'].fillna("No label")
+
+        clustered_frame.sort_values(by=["sentence"], inplace=True)
+
+        targets = list(mapping_df_with_labels["label1"])    
+        predictions = list(clustered_frame["true max label"])
+
+        assert(list(clustered_frame["sentence"]) == list(mapping_df_with_labels["simplified"]))
+        assert(len(targets) == len(predictions))
+
+        print ("Accuracy of numclusters = {}:".format(args.n_clusters), accuracy_score(targets, predictions))
         
 # Main
 def main():

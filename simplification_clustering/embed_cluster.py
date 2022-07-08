@@ -42,7 +42,7 @@ def run_hdbscan(X, cluster_size, samples, reduced=False,):
         X_umap = umap_.fit_transform(X_pca)
         X = X_umap
 
-    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=cluster_size, min_samples=10).fit(X)
+    hdb = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=cluster_size, min_samples=samples).fit(X)
     labels = hdb.labels_
 
     # Score over search space
@@ -113,7 +113,7 @@ def run(args):
     if args.model == "kmeans":
         labels = run_kmeans(embeddings, args.n_clusters)
     elif args.model == "hdbscan":
-        labels = run_hdbscan(embeddings, reduced = args.reduction)
+        labels = run_hdbscan(embeddings, args.cluster_size, args.samples, reduced = args.reduction)
     
     assert(len(labels) == len(sentences) == len(embeddings))
 
@@ -121,15 +121,19 @@ def run(args):
     if args.model == "kmeans": 
         data_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
     elif args.model == "hdbscan":
-        data_frame.to_csv(path+"manifesto_clustered_hdbscan.csv", index=False)
+        data_frame.to_csv(path+"manifesto_clustered_hdbscan_min_cluster_{}.csv".format(args.args.cluster_size), index=False)
 
 # Main
 def main():
     parser = argparse.ArgumentParser(description='Run K-Means clustering on the dataset')
     parser.add_argument('--path', type=str, default=PATH, help='Path to the dataset')
-    parser.add_argument('--n_clusters', type=int, default=44, help='Number of clusters')
     parser.add_argument('--model', type=str, help='Choose clustering model', required=True)
     parser.add_argument('--reduction', type=bool, default=False, help='Apply PCA and UMAP')
+    parser.add_argument('--cluster_size', type=int, help='Cluster size')
+    parser.add_argument('--samples', type=int, help='Samples')
+    args = parser.parse_args()
+    run(args)
+
     args = parser.parse_args()
 
     run(args)
