@@ -31,7 +31,7 @@ def run_kmeans(X, n_clusters=44):
     return labels
 
 # Get clusters from HDBScan 
-def run_hdbscan(X, cluster_size, samples, reduced=False,):
+def run_hdbscan(X, cluster_size, samples, reduced=False):
 
     if reduced:
         # Apply PCA to reduce to 64, then umap to reduce to 8 (should be faster)
@@ -121,7 +121,8 @@ def run(args):
     if args.model == "kmeans": 
         data_frame.to_csv(path+"manifesto_clustered_numclusters_{}.csv".format(args.n_clusters), index=False)
     elif args.model == "hdbscan":
-        data_frame.to_csv(path+"manifesto_clustered_hdbscan_min_cluster_{}.csv".format(args.args.cluster_size), index=False)
+        data_frame.to_csv(path+"manifesto_clustered_hdbscan_min_cluster_{}.csv".format(args.cluster_size), index=False)
+        print(data_frame['label'].value_counts())
 
 # Main
 def main():
@@ -132,9 +133,8 @@ def main():
     parser.add_argument('--cluster_size', type=int, help='Cluster size')
     parser.add_argument('--samples', type=int, help='Samples')
     args = parser.parse_args()
-    run(args)
-
-    args = parser.parse_args()
+    
+    print(args)
 
     run(args)
 
