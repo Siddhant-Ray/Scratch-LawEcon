@@ -103,11 +103,26 @@ def load_data_manf(path):
     sentences = simplified_sentences
     return sentences   
 
+ # Load data
+def load_data_manf_full_sent(path):
+    non_simplified_sentences = []
+    
+    data = open(path+"manifesto_simplified.txt", 'r').readlines()
+    for line in data:
+        line_val = json.loads(line)
+        for item in line_val['simplified']:
+            if len(item["text"].split()) >=6:   
+                non_simplified_sentences.append(line_val['original'])
+                continue
+
+    sentences = non_simplified_sentences
+    return sentences     
+
 
 # Run embeddings and clustering
 def run(args):
     path = PATH + args.path + "/"
-    sentences = load_data_manf(path)
+    sentences = load_data_manf_full_sent(path)
     embeddings = embedd_sentences(sentences)
 
     if args.model == "kmeans":
