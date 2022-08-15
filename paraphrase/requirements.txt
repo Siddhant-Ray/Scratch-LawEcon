@@ -45,7 +45,7 @@ requests==2.26.0
 requests-oauthlib==1.3.1
 rsa==4.8
 sacremoses==0.0.49
-scikit-learn==1.0.2
+scikit-learn==1.1.2
 scipy==1.8.0
 seaborn==0.11.2
 sentence-transformers==2.2.0
@@ -68,10 +68,10 @@ torch==1.11.0
 torchvision==0.12.0
 tqdm==4.62.3
 transformers==4.12.3
-typer==0.4.0
+typer==0.6.1
 typing-extensions==3.10.0.2
 urllib3==1.26.7
-wasabi==0.9.0
+wasabi==0.10.1
 Werkzeug==2.1.2
 yellowbrick==1.4
 zipp==3.6.0
