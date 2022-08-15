@@ -98,7 +98,7 @@ def evaluate_model(clf, vectors1, vectors2):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-file", "--file",
-                        help = "choose csv file for loading")
+                        help = "choose csv file for loading", default="sts")
     parser.add_argument("-sv", "--save",
                         required=False,
                         help = "choose to generate sts embeddings")                    
@@ -111,6 +111,7 @@ def main():
         print(text_a[0], text_b[0], lbls[0], sep="\n") 
 
     if args.save:
+        model = SentenceTransformer('all-MiniLM-L6-v2', device = device)
         generate_embeddings(model, text_a, text_b, lbls)
     else:
         loaded_data = load_embeddings(DATA_PATH+STS_SAVED_FILE_NAME)
