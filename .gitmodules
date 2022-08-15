@@ -2,6 +2,6 @@
 	path = MemSum
 	url = git@github.com:Siddhant-Ray/MemSum.git
 
-[submodule "MeatNarratives"]
-	path = MeatNarratives
+[submodule "LawEcon-MeatNarratives-Project"]
+	path = LawEcon-MeatNarratives-Project
 	url = git@github.com:Siddhant-Ray/LawEcon-MeatNarratives-Project.git
