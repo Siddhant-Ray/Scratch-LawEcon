@@ -71,7 +71,7 @@ transformers==4.12.3
 typer==0.4.0
 typing-extensions==3.10.0.2
 urllib3==1.26.7
-wasabi==0.9.0
+wasabi==0.10.1
 Werkzeug==2.1.2
 yellowbrick==1.4
 zipp==3.6.0
