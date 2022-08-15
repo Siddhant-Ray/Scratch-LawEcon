@@ -50,7 +50,7 @@ scipy==1.8.0
 seaborn==0.11.2
 sentence-transformers==2.2.0
 sentencepiece==0.1.97
-setuptools-scm==6.4.2
+setuptools-scm==7.0.5
 six==1.16.0
 smart-open==5.2.1
 spacy==3.3.0
