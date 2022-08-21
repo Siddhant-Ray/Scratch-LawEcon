@@ -1,6 +1,10 @@
-import torch
+from __future__ import annotations
+
+import math
 import time
-import math 
+
+import torch
+
 
 class DatasetManager(torch.utils.data.Dataset):
     def __init__(self, list_of_sent1, list_of_sent2, class_labels):
@@ -16,14 +20,15 @@ class DatasetManager(torch.utils.data.Dataset):
         target_tensor = torch.tensor(self.class_labels[idx]).unsqueeze(0).float()
         # target_tensor = torch.tensor(self.class_labels[idx]).float()
 
-
         return input_tensor1, input_tensor2, target_tensor
 
     def __len__(self):
         return len(self.list_of_sent1)
 
 
-def train(input_tensor1, input_tensor2, target_tensor, model, model_optimizer, criterion):
+def train(
+    input_tensor1, input_tensor2, target_tensor, model, model_optimizer, criterion
+):
     model.train()
 
     model_optimizer.zero_grad()
@@ -40,7 +45,9 @@ def train(input_tensor1, input_tensor2, target_tensor, model, model_optimizer, c
     return output, loss.item()
 
 
-def evaluate(input_tensor1, input_tensor2, target_tensor, model, model_optimizer, criterion):
+def evaluate(
+    input_tensor1, input_tensor2, target_tensor, model, model_optimizer, criterion
+):
     model.eval()
 
     with torch.no_grad():
@@ -53,14 +60,16 @@ def evaluate(input_tensor1, input_tensor2, target_tensor, model, model_optimizer
 
     return output, loss.item()
 
+
 def asMinutes(secs):
     mins = math.floor(secs / 60)
     secs -= mins * 60
-    return '%dm %ds' % (mins, secs)
+    return "%dm %ds" % (mins, secs)
+
 
 def timeSince(since, percent):
     now = time.time()
     s = now - since
     es = s / (percent)
     rs = es - s
-    return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
+    return "%s (- %s)" % (asMinutes(s), asMinutes(rs))

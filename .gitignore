@@ -145,7 +145,7 @@ paraphrase/data
 runs/
 
 # Plots for paraphrase
-paraphrase/plots/ 
+paraphrase/plots/
 paraphrase/linearclassifiermetrics/
 paraphrase/snnclassifiermetrics/
 paraphrase/outputfiles
@@ -160,7 +160,7 @@ Memsum/data
 # Don't track html, txt
 labour_contracts/data/
 
-# Clustering 
+# Clustering
 simplification_clustering/Datasets
 simplification_clustering/output_data
 

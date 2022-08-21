@@ -1,18 +1,21 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
-import pandas as pd
-import os, sys
-import relatio
-import numpy as np
+import os
+import sys
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import relatio
 from dateutil import parser
-
-from relatio.wrappers import run_srl
 from relatio.utils import split_into_sentences
+from relatio.wrappers import run_srl
 
 # Path for files to be annotated
-path_to_data_sets = "/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980"
+path_to_data_sets = (
+    "/cluster/home/sidray/work/Ash_Galletta_Widmer/data/scrapes_since_1980"
+)
 list_of_files = sorted(os.listdir(path_to_data_sets))
 
 path_to_save = "/cluster/work/lawecon/Projects/annot_data_Ash_Widmer/non_daily_data"
@@ -38,33 +41,27 @@ if file_name.endswith(".csv"):
 
     folder_name = file_name.split(".")[0][-4:]
     print(folder_name)
-    temp_path = path_to_data_sets + "/" +  folder_name
+    temp_path = path_to_data_sets + "/" + folder_name
     print(temp_path)
 
     if Path(temp_path).is_dir():
-            print("yes")
+        print("yes")
     else:
         print("no")
         new_path = os.path.join(path_to_data_sets, folder_name)
         os.mkdir(new_path)
         print("New path is: {}".format(new_path))
-    
+
     new_path = temp_path
     # print(Path(path_to_data_sets + folder_name).is_dir())
-    dfs = dict(tuple(original_df.groupby('date')))
+    dfs = dict(tuple(original_df.groupby("date")))
 
     for i, df in dfs.items():
-        date_text = df['date'].iloc[0]
+        date_text = df["date"].iloc[0]
         date = parser.parse(date_text)
-        date = date.strftime('%Y-%m-%d')
+        date = date.strftime("%Y-%m-%d")
         print(date)
         df = df.reset_index(drop=True)
         # print(df.head())
         # print(df.tail())
-        df.to_csv(new_path + "/" + date + ".csv", index = False)
-
-
-   
-
-
-
+        df.to_csv(new_path + "/" + date + ".csv", index=False)

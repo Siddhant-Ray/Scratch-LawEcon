@@ -3,6 +3,6 @@
     "hidden_neurons" : 256,
     "num_epochs" : 30,
     "weight_decay": 1e-5,
-    "batch_size": 64, 
+    "batch_size": 64,
     "output_neurons": 1
 }

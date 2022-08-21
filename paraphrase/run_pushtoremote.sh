@@ -27,7 +27,3 @@ rsync -rv MemSum/memsum_extractor.py sidray@euler.ethz.ch:/cluster/home/sidray/w
 rsync -rv MemSum/run_memsum.sh sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/MemSum/
 
 # rsync -rv paraphrase/test_corpora sidray@euler.ethz.ch:/cluster/home/sidray/work/Siddhant_Ray/Scratch-LawEcon/paraphrase/
-
-
-
-

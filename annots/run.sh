@@ -47,7 +47,7 @@ do
    echo $count
    if [ "$count" -gt 0 ]
    then
-       
+
         # bsub "${args[@]}" python annots/srl_tests_new_final.py $eachfile
         bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
         break

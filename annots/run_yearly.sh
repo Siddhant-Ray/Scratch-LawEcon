@@ -49,7 +49,7 @@ do
    then
         # bsub "${args[@]}" python annots/splitter.py $eachfile
         bsub "${args[@]}" python annots/srl_yearly_final.py $eachfile
-        # break 
+        # break
    fi
    if [ "$count" -eq 2000 ]
    then

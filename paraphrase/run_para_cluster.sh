@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 2 
+    -n 2
     -W 4:00
     -R "rusage[mem=6400]"
 )
@@ -42,19 +42,19 @@ while [ ! -z "$1" ]; do
 done
 
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/cluster.py --data bbc --classifier kmeans --matrix sentences --visualize yes
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes 
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo.out python paraphrase/cluster.py --data bbc --classifier kmeans --matrix paraprobs --visualize yes
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/cluster.py --data bbc --model agglo --linkage complete --matrix_type dist 
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_average.out python paraphrase/cluster.py --data bbc --model agglo --linkage average --matrix_type dist
+# bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_complete.out python paraphrase/cluster.py --data bbc --model agglo --linkage complete --matrix_type dist
 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/spectral_precomputed.out python paraphrase/cluster.py --data bbc --model spectral --affinity precomputed --matrix_type dist 
-# bsub "${args[@]}" -oo paraphrase/outputfiles/dbscan_precomputed.out python paraphrase/cluster.py --data bbc --model dbscan --metric precomputed --matrix_type dist 
+# bsub "${args[@]}" -oo paraphrase/outputfiles/spectral_precomputed.out python paraphrase/cluster.py --data bbc --model spectral --affinity precomputed --matrix_type dist
+# bsub "${args[@]}" -oo paraphrase/outputfiles/dbscan_precomputed.out python paraphrase/cluster.py --data bbc --model dbscan --metric precomputed --matrix_type dist
 
 nclusters=(16 32 64 128 256 512 1024)
 
 for n in ${nclusters[@]}
-do 
+do
     echo "in cluster number" $n
     # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_single_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage single --matrix_type dist --nclusters $n
     # bsub "${args[@]}" -oo paraphrase/outputfiles/sentence_agglo_ward_${n}.out python paraphrase/cluster.py --data bbc --model agglo --linkage ward --matrix_type dist --nclusters $n --sentences yes
@@ -75,4 +75,3 @@ done
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_trump.out python paraphrase/cluster.py --data trump --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
 bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_custom.out python paraphrase/cluster.py --data custom --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
 # bsub "${args[@]}" -oo paraphrase/outputfiles/agglo_custom_dfactor_0.45_memsum.out python paraphrase/cluster.py --data memsum --model agglo --linkage average --matrix_type dist --custom yes --depth 0.45
-

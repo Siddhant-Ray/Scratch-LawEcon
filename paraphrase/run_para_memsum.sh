@@ -17,7 +17,7 @@ source venv_memsum/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 4 
+    -n 4
     -W 4:00
     -R "rusage[mem=6400]"
 )
@@ -42,5 +42,4 @@ while [ ! -z "$1" ]; do
 done
 
 
-bsub "${args[@]}" -oo paraphrase/outputfiles/memsum.out python paraphrase/memsum_extractor.py 
-
+bsub "${args[@]}" -oo paraphrase/outputfiles/memsum.out python paraphrase/memsum_extractor.py

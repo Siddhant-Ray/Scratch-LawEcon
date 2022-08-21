@@ -1,7 +1,7 @@
 # Summary of the paraphrase and sentence clustering
 Files in the directory:
 
-- Main: 
+- Main:
 
   * [data_prepreocessing.py](data_preprocessing.py): Code to create SBERT vectors for MRPC+NLI parapharase training data.
   * [dataloader_testcorpus.py](dataloader_testcorpus.py): Code to create SBERT vectors on test datsets like BBC, Trump, MemSum etc.
@@ -37,17 +37,17 @@ pairs sampled at random from the SNLI dataset.
   2. BBC speeches
   3. Trump Tweets
   4. Custom labelled provided by Dominik
-  5. Extracted summaries (using MemSum) on Presidential Speeches 
+  5. Extracted summaries (using MemSum) on Presidential Speeches
 
-## Status per corpora: 
+## Status per corpora:
 
 First we use our paraphrase model to compute paraphrase probabilties pairwise for all the sentences in the corpora.
 
   1. The political corpora was too big to efficiently make all sentence pairs. There were around <b> 1150000 </b> sentences, which gives <b> 13225000000 </b> pairs. This
-  doesn't scale, so we had this trick of computing the cosine similarity very fast (using efficient matrix multiplication) and filter pairs with low cosine 
-  similarity. Then we compute the paraphrase probablities on the remaining pairs. The downside is this took an huge amount of memory, so we didn't proceed 
+  doesn't scale, so we had this trick of computing the cosine similarity very fast (using efficient matrix multiplication) and filter pairs with low cosine
+  similarity. Then we compute the paraphrase probablities on the remaining pairs. The downside is this took an huge amount of memory, so we didn't proceed
   computing the paraphrase probabilites.
-  2. For the BBC corpus, we did both. We compute the pairwise sentence probabilites after tokenization. We make pairs in this case (which is slow but takes less memory) and also use the cosine similarity based matrix filtering (which is fast but takes more memory. 
+  2. For the BBC corpus, we did both. We compute the pairwise sentence probabilites after tokenization. We make pairs in this case (which is slow but takes less memory) and also use the cosine similarity based matrix filtering (which is fast but takes more memory.
   3. For the Trump tweet, we do not tokenize (as tweets don't work well with tokenization, due to not following grammatical structure). We compute the paraphrase probabilties for all pairs for this corpus.
   4. For the custom labelled corpus, we make pairs of all the sentences and compute the paraphrase probabilites. In the clustering process, we assign the cluster's majority label to all, and then we calculate the accuracy using this approach as a sanity check to see how good our clustering method is (<b> accurarcy </b> calculated using this method was <b>81% </b>).
   6. For the summaries extracted from Presidential speeches, we tokenize and compute the paraphrase probabilites on all pairs of sentences.
@@ -57,12 +57,12 @@ First we use our paraphrase model to compute paraphrase probabilties pairwise fo
   1. For this, we first initialise a similarity matrix over all possible sentence pairs, using the pairwise paraphrase probabilites. Then we create a distance matrix by subtracting this from the all ones matrix of the same shape.
 
   2. For the actual agglomerative clustering, we use this pre-computed distance matrix to fit on the model. After this, we get a linkage matrix from the model we fit with our distance matrix, and then we get the clusters from this linkage matrix.
-  
+
   3. We then merge smaller clusters to larger ones, based on a depth factor which is up to us (we decided on <b> 0.45 </b>).
 
 ## Side note:
 
-We also evaluated the paraphrase detection model on the STS dataset, which returned results which were acceptable. 
+We also evaluated the paraphrase detection model on the STS dataset, which returned results which were acceptable.
 
 - correlation with yes prob: <b> SpearmanrResult(correlation=0.7635264850015682, pvalue=5.255517463444269e-49) </b>
 - correlation with no prob: <b> SpearmanrResult(correlation=-0.7635264850015682, pvalue=5.255517463444269e-49) </b>

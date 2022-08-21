@@ -1,12 +1,12 @@
 # Summary of the sentence simplifcation
 Files in the directory:
 
-- Main: 
+- Main:
 
   * [embed_cluster.py](embed_cluster.py): Code to create SBERT vectors on the simplified sentences and run MiniBatch KMeans for clustering.
   * [evaluate_cluster.py](evaluate_cluster.py): Code to evaluate the quality of the KMeans clustering.
   * [baseline.py](baseline.py): Code to create SBERT vectors on the non-simplified sentences and run MiniBatch KMeans for clustering.
-  
+
 
 
 ## Sentence simplifcation:
@@ -33,6 +33,3 @@ Files in the directory:
 
 * Increasing cluster size improves accuracy.
 * To evaluate further, next task is to cluster on cluster IDs again, similar to bag of words and see if there are any improvements.
-
-
-

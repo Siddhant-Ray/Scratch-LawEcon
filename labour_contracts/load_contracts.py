@@ -1,6 +1,11 @@
-import os, json 
-import pandas as pd 
+from __future__ import annotations
+
+import json
+import os
+
+import pandas as pd
 from tqdm import tqdm
+
 
 def get_text(cur_art):
     output = ""
@@ -20,12 +25,15 @@ def load_articles(path):
                 try:
                     header = cur_art["header"]["text"].lower()
                     text = get_text(cur_art)
-                    yield (contract_id,header,text)
+                    yield (contract_id, header, text)
                 except:
                     pass
 
+
 def main():
-    path = "/cluster/work/lawecon/Work/dominik/powerparser/output_canadian_new/01_artsplit"
+    path = (
+        "/cluster/work/lawecon/Work/dominik/powerparser/output_canadian_new/01_artsplit"
+    )
     load_generator = load_articles(path)
     for value in load_generator:
         print(value)
@@ -33,11 +41,12 @@ def main():
 
     cols = ["id", "header", "text"]
 
-    df = pd.DataFrame(load_generator, columns = cols)
+    df = pd.DataFrame(load_generator, columns=cols)
     print(df.head())
 
     save_path = "labour_contracts/data/relatio_formatted.csv"
     df.to_csv(save_path, index=False)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

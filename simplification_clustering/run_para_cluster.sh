@@ -17,7 +17,7 @@ source venv_para/bin/activate
 
 args=(
     -G ls_lawecon
-    -n 4 
+    -n 4
     -W 4:00
     -R "rusage[mem=6400]"
 )
@@ -44,8 +44,8 @@ done
 nclusters=(16 32 64 128 256 512 1024)
 
 for n in ${nclusters[@]}
-do 
-    echo "in cluster number" $n 
+do
+    echo "in cluster number" $n
     # bsub "${args[@]}" -oo simplification_clustering/outputfiles/cluster_${n}.out python simplification_clustering/embed_cluster.py --path DisSim --n_clusters $n --model kmeans
     # bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval_${n}.out python simplification_clustering/evaluate_clusters.py --path ABCD --load true --n_clusters $n
     # bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval_baseline_${n}.out python simplification_clustering/baseline.py --path ABCD --model kmeans --n_clusters $n
@@ -54,8 +54,8 @@ done
 # bsub "${args[@]}" -oo simplification_clustering/outputfiles/hdb.out python simplification_clustering/embed_cluster.py --path ABCD --model hdbscan
 # bsub "${args[@]}" -oo simplification_clustering/outputfiles/hdb_reduced.out python simplification_clustering/embed_cluster.py --path ABCD --model hdbscan --reduction true
 
-# Eval clusters 
-# bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval.out python simplification_clustering/evaluate_clusters.py --path DisSim 
+# Eval clusters
+# bsub "${args[@]}" -oo simplification_clustering/outputfiles/eval.out python simplification_clustering/evaluate_clusters.py --path DisSim
 
 clustersizes=(16 32 64 128 256 512 1024)
 samples=10
