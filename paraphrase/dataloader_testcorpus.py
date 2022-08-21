@@ -1,4 +1,7 @@
 from __future__ import annotations
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 import argparse
 import json
@@ -26,10 +29,6 @@ from spacy.util import filter_spans
 
 nlp = spacy.load("en_core_web_sm")
 
-import pandas as pd
-
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 file = "paraphrase/test_corpora/source_corpus2.csv"
 file_bbc = "paraphrase/test_corpora/bbc_data.csv"
@@ -48,6 +47,8 @@ model = SentenceTransformer("all-MiniLM-L6-v2", device=device)
 print(device, model)
 
 # GET corpus as list of sentences
+
+
 def get_corpus(full_file_path):
     data_file = pd.read_csv(full_file_path)
     list_of_sentences = data_file["text"].to_list()
@@ -325,8 +326,10 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-dev", "--device", help="device specifier")
-    parser.add_argument("-sv", "--save", help="choose saved numpy cosine matrix")
-    parser.add_argument("-thr", "--threshold", help="theshold for filtering cosine sim")
+    parser.add_argument(
+        "-sv", "--save", help="choose saved numpy cosine matrix")
+    parser.add_argument("-thr", "--threshold",
+                        help="theshold for filtering cosine sim")
     parser.add_argument(
         "-plt", "--plot", help="if set, plot for decreasing threshold values"
     )
@@ -439,32 +442,37 @@ def main():
 
             # np.savetxt("paraphrase/figs/cosine_sim.csv", pair_cosine_matrix, delimiter=",")
             if args.data == "bbc":
-                np.save("paraphrase/data/cosine_sim_bbc.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_bbc.npy",
+                        pair_cosine_matrix)
                 np.save(
                     "paraphrase/data/cosine_sim_16_bbc.npy",
                     pair_cosine_matrix.astype(np.float16),
                 )
 
             elif args.data == "trump":
-                np.save("paraphrase/data/cosine_sim_trump.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_trump.npy",
+                        pair_cosine_matrix)
                 np.save(
                     "paraphrase/data/cosine_sim_16_trump.npy",
                     pair_cosine_matrix.astype(np.float16),
                 )
             elif args.data == "custom":
-                np.save("paraphrase/data/cosine_sim_custom.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_custom.npy",
+                        pair_cosine_matrix)
                 np.save(
                     "paraphrase/data/cosine_sim_16_custom.npy",
                     pair_cosine_matrix.astype(np.float16),
                 )
             elif args.data == "memsum":
-                np.save("paraphrase/data/cosine_sim_memsum.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_memsum.npy",
+                        pair_cosine_matrix)
                 np.save(
                     "paraphrase/data/cosine_sim_16_memsum.npy",
                     pair_cosine_matrix.astype(np.float16),
                 )
             else:
-                np.save("paraphrase/data/cosine_sim_bigcorpus.npy", pair_cosine_matrix)
+                np.save("paraphrase/data/cosine_sim_bigcorpus.npy",
+                        pair_cosine_matrix)
                 np.save(
                     "paraphrase/data/cosine_sim_16_bigcorpus.npy",
                     pair_cosine_matrix.astype(np.float16),
@@ -473,7 +481,8 @@ def main():
     else:
         if args.data == "bbc":
             print("Loading cosine matrix from saved from {} .....".format(args.data))
-            loaded_pair_cosine_matrix = np.load("paraphrase/data/cosine_sim_16_bbc.npy")
+            loaded_pair_cosine_matrix = np.load(
+                "paraphrase/data/cosine_sim_16_bbc.npy")
         else:
             print("Loading cosine matrix from saved from big corpus .....")
             loaded_pair_cosine_matrix = np.load(
@@ -510,7 +519,8 @@ def main():
             plt.xlabel("Threshold")
             plt.ylabel("Mean cosine similarity")
             plt.savefig(
-                "paraphrase/figs/threshold_cosine_mean_{}.png".format(save_name),
+                "paraphrase/figs/threshold_cosine_mean_{}.png".format(
+                    save_name),
                 format="png",
             )
 
@@ -526,7 +536,8 @@ def main():
             plt.xlabel("Threshold")
             plt.ylabel("Median cosine similarity")
             plt.savefig(
-                "paraphrase/figs/threshold_cosine_median_{}.png".format(save_name),
+                "paraphrase/figs/threshold_cosine_median_{}.png".format(
+                    save_name),
                 format="png",
             )
 
@@ -568,9 +579,11 @@ def main():
             )
 
             print(first_sentence_indices_no_equal[0].shape)
-            print(first_sentence_indices[first_sentence_indices_no_equal[0]][0:10])
+            print(
+                first_sentence_indices[first_sentence_indices_no_equal[0]][0:10])
             print(second_sentence_indices_no_equal[0].shape)
-            print(second_sentence_indices[second_sentence_indices_no_equal[0]][0:10])
+            print(
+                second_sentence_indices[second_sentence_indices_no_equal[0]][0:10])
 
             """df_new1 = filter_corpus_as_dataframe(file, first_sentence_indices.tolist())
             df_new2 = filter_corpus_as_dataframe(file, second_sentence_indices.tolist())
@@ -599,8 +612,8 @@ def main():
             print(sent_vectors1.shape)
             print(sent_vectors2.shape)
 
-            ## TODO : Dump these vectors as a pickle file, they have O(n^2) pairs now.
-            ## Not enough space to save these, save the list of indices instead
+            # TODO : Dump these vectors as a pickle file, they have O(n^2) pairs now.
+            # Not enough space to save these, save the list of indices instead
 
             np.save(
                 "paraphrase/data/sent1_indices_{}.npy".format(save_name),
@@ -611,11 +624,13 @@ def main():
                 second_sentence_indices,
             )
             np.save(
-                "paraphrase/data/sent1_indices_noequal_{}.npy".format(save_name),
+                "paraphrase/data/sent1_indices_noequal_{}.npy".format(
+                    save_name),
                 first_sentence_indices[first_sentence_indices_no_equal[0]],
             )
             np.save(
-                "paraphrase/data/sent2_indices_noequal_{}.npy".format(save_name),
+                "paraphrase/data/sent2_indices_noequal_{}.npy".format(
+                    save_name),
                 second_sentence_indices[second_sentence_indices_no_equal[0]],
             )
 

@@ -23,6 +23,8 @@ stored_file = "paraphrase/data/test_corpus1.pkl"
 model_path = "paraphrase/saved_models/_ridge_full.sav"
 
 # FILTER corpus based on indices
+
+
 def filter_corpus_as_dataframe(full_file_path, list_of_indices):
     data_file = pd.read_csv(full_file_path)["text"]
     df_new = data_file.iloc[list_of_indices]
@@ -82,7 +84,8 @@ def main():
     parser.add_argument(
         "-eload", "--load_embeddings", help="Specify embeddings file to be loaded"
     )
-    parser.add_argument("-th", "--threshold", help="Specify threshold for filtering")
+    parser.add_argument("-th", "--threshold",
+                        help="Specify threshold for filtering")
     args = parser.parse_args()
 
     if args.load_model:
@@ -94,7 +97,8 @@ def main():
         sent_vectors = stored_data["embeddings"]
         print("Input sent vectors shape", sent_vectors.shape)
 
-    weighted_vectors = pre_multiply_vectors_by_model_weights(sent_vectors, model_coeff)
+    weighted_vectors = pre_multiply_vectors_by_model_weights(
+        sent_vectors, model_coeff)
     print("Weighted_vectors_shape", weighted_vectors.shape)
     # print(weighted_vectors[0:10])
 

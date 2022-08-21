@@ -15,6 +15,8 @@ from sklearn.metrics import accuracy_score
 PATH = "simplification_clustering/datasets/"
 
 # Load mapping data
+
+
 def load_data_manf_map(path):
     non_simplified_sentences = []
     simplified_sentences = []
@@ -38,7 +40,8 @@ def load_data_manf_map(path):
 # Load actual labels
 def load_actual_labels(path):
 
-    data = pd.read_csv(path + "manifesto_map.txt", sep="\t", on_bad_lines="skip")
+    data = pd.read_csv(path + "manifesto_map.txt",
+                       sep="\t", on_bad_lines="skip")
     data.columns = ["original", "label1", "label2", "original2"]
 
     return data
@@ -52,8 +55,10 @@ def map_df(mapping_df, actual_labels):
     label2_dict = actual_labels.to_dict()["label2"]
 
     for key in label1_dict.keys():
-        mapping_df.loc[mapping_df["original"] == key, "label1"] = label1_dict[key]
-        mapping_df.loc[mapping_df["original"] == key, "label2"] = label2_dict[key]
+        mapping_df.loc[mapping_df["original"]
+                       == key, "label1"] = label1_dict[key]
+        mapping_df.loc[mapping_df["original"]
+                       == key, "label2"] = label2_dict[key]
 
     return mapping_df
 
@@ -74,7 +79,8 @@ def run(args):
 
         # Load clustered files
         clustered_frame = pd.read_csv(
-            path + "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters)
+            path +
+            "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters)
         )
         # Sort clustered frame by label ascending
         clustered_frame.sort_values(by=["label"], inplace=True)
@@ -113,11 +119,12 @@ def run(args):
             lambda x: max_cluster_label_dict[x]
         )
         clustered_frame.to_csv(
-            path + "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters),
+            path +
+            "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters),
             index=False,
         )
 
-        ## Compute cluster accuracy
+        # Compute cluster accuracy
         mapping_df_with_labels.sort_values(by=["simplified"], inplace=True)
         mapping_df_with_labels["label1"] = mapping_df_with_labels["label1"].fillna(
             "No label"
@@ -142,8 +149,10 @@ def run(args):
 # Main
 def main():
     parser = argparse.ArgumentParser(description="Evaluate dataset")
-    parser.add_argument("--path", type=str, default=PATH, help="Path to the dataset")
-    parser.add_argument("--load", type=bool, default=None, help="Path to the dataset")
+    parser.add_argument("--path", type=str, default=PATH,
+                        help="Path to the dataset")
+    parser.add_argument("--load", type=bool, default=None,
+                        help="Path to the dataset")
     parser.add_argument(
         "--n_clusters", type=int, default=None, help="Number of clusters"
     )

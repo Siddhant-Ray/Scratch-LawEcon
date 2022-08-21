@@ -1,4 +1,6 @@
 from __future__ import annotations
+from scipy import stats
+from tqdm import tqdm
 
 import argparse
 import json
@@ -23,8 +25,6 @@ from spacy.util import filter_spans
 
 nlp = spacy.load("en_core_web_sm")
 
-from tqdm import tqdm
-from scipy import stats
 
 STS_SAVED_FILE_NAME = "sts_embeddings.pkl"
 DATA_PATH = "paraphrase/test_corpora/"

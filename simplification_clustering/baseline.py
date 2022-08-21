@@ -22,6 +22,8 @@ from sklearn.model_selection import RandomizedSearchCV
 PATH = "simplification_clustering/datasets/"
 
 # Get embeddings
+
+
 def embedd_sentences(sentences):
 
     sbert_model = "all-MiniLM-L6-v2"
@@ -68,7 +70,8 @@ def evaluate(path, clustered_frame, nclusters):
 
     # Keep rows with unique original and sentences
     clustered_frame = clustered_frame.drop_duplicates(subset=["sentence"])
-    mapping_df_with_labels = mapping_df_with_labels.drop_duplicates(subset=["original"])
+    mapping_df_with_labels = mapping_df_with_labels.drop_duplicates(subset=[
+                                                                    "original"])
 
     print(mapping_df_with_labels.head(), mapping_df_with_labels.shape)
     print(clustered_frame.head(), clustered_frame.shape)
@@ -107,11 +110,12 @@ def evaluate(path, clustered_frame, nclusters):
         lambda x: max_cluster_label_dict[x]
     )
     clustered_frame.to_csv(
-        path + "manifesto_nonsimplfy_clustered_numclusters_{}.csv".format(nclusters),
+        path +
+        "manifesto_nonsimplfy_clustered_numclusters_{}.csv".format(nclusters),
         index=False,
     )
 
-    ## Compute cluster accuracy
+    # Compute cluster accuracy
     mapping_df_with_labels.sort_values(by=["original"], inplace=True)
     mapping_df_with_labels["label1"] = mapping_df_with_labels["label1"].fillna(
         "No label"
@@ -149,7 +153,7 @@ def run(args):
             index=False,
         )
 
-    ## Evaluate the clustering
+    # Evaluate the clustering
     evaluate(path, data_frame, args.n_clusters)
 
 
@@ -158,7 +162,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Run K-Means clustering on the dataset"
     )
-    parser.add_argument("--path", type=str, default=PATH, help="Path to the dataset")
+    parser.add_argument("--path", type=str, default=PATH,
+                        help="Path to the dataset")
     parser.add_argument(
         "--model", type=str, help="Choose clustering model", required=True
     )

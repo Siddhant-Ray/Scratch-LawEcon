@@ -33,6 +33,8 @@ embedding_file_memsum = "paraphrase/data/test_corpus_memsum.pkl"
 # LOAD numpy indices for pairs above a threshold for bbc
 # We want equality pairs for the distance matrix, else 0 for (i,i)
 # may give us wrong results
+
+
 def load_indices_bbc(path):
     sent1_path = path + "sent1_indices_bbc.npy"
     sent2_path = path + "sent2_indices_bbc.npy"
@@ -79,7 +81,8 @@ def kelbow_visualize(input_data, clf, title, out_path):
 
 # COMPUTE agglomerative clustering
 def custom_agglomerative_clustering(input_data, n_clusters, linkage):
-    model = AgglomerativeClustering(n_clusters, affinity="precomputed", linkage=linkage)
+    model = AgglomerativeClustering(
+        n_clusters, affinity="precomputed", linkage=linkage)
     clusters = model.fit(input_data)
     labels = clusters.labels_
     return clusters, labels
@@ -190,19 +193,23 @@ def main():
     parser.add_argument(
         "-aff", "--affinity", help="decide affinity for spectral clustering"
     )
-    parser.add_argument("-met", "--metric", help="decide metric for DBSCAN clustering")
+    parser.add_argument("-met", "--metric",
+                        help="decide metric for DBSCAN clustering")
     parser.add_argument(
         "-mtype", "--matrix_type", help="specify distance or similarity matrix"
     )
     parser.add_argument(
         "-nclus", "--nclusters", help="specify the number of clusters for agglomerative"
     )
-    parser.add_argument("-load", "--load", help="create csv from saved cluster labels")
-    parser.add_argument("-sent", "--sentences", help="cluster raw sentence vector")
+    parser.add_argument("-load", "--load",
+                        help="create csv from saved cluster labels")
+    parser.add_argument("-sent", "--sentences",
+                        help="cluster raw sentence vector")
     parser.add_argument(
         "-cust", "--custom", help="use custom clustering based on agglomerative"
     )
-    parser.add_argument("-dpt", "--depth", help="specifiy depth of merge factor")
+    parser.add_argument("-dpt", "--depth",
+                        help="specifiy depth of merge factor")
 
     args = parser.parse_args()
 
@@ -231,10 +238,10 @@ def main():
         print("Shape of sentence vectors", sentence_embeddings.shape)
 
         tuples_of_indices = zip(sent1_indices.tolist(), sent2_indices.tolist())
-        ### Shape of matrix should be sentence X sentences
-        ### This matrix has the paraphrase probabilities for certain indices
-        ### which indices have a paraphrase probability , with cosine sim
-        ### > 0.5 between the pair
+        # Shape of matrix should be sentence X sentences
+        # This matrix has the paraphrase probabilities for certain indices
+        # which indices have a paraphrase probability , with cosine sim
+        # > 0.5 between the pair
 
         matrix_init = np.zeros(
             (sentence_embeddings.shape[0], sentence_embeddings.shape[0])
@@ -269,7 +276,8 @@ def main():
         )
         print("para_probs shape", para_probs.shape)
 
-        sentence_embeddings = load_embeddings(embedding_file_trump)["embeddings"]
+        sentence_embeddings = load_embeddings(
+            embedding_file_trump)["embeddings"]
         sentences = load_embeddings(embedding_file_trump)["sentences"]
         print("Sentence vectors loaded from {} .....".format(args.data))
         print("Shape of sentence vectors", sentence_embeddings.shape)
@@ -301,8 +309,10 @@ def main():
         )
         print("para_probs shape", para_probs.shape)
 
-        sentence_embeddings = load_embeddings(embedding_file_custom)["embeddings"]
-        sentences = load_embeddings(embedding_file_custom)["sentences"].tolist()
+        sentence_embeddings = load_embeddings(
+            embedding_file_custom)["embeddings"]
+        sentences = load_embeddings(embedding_file_custom)[
+            "sentences"].tolist()
         labels = load_embeddings(embedding_file_custom)["labels"].tolist()
         print("Sentence vectors loaded from {} .....".format(args.data))
         print("Shape of sentence vectors", sentence_embeddings.shape)
@@ -338,7 +348,8 @@ def main():
         )
         print("para_probs shape", para_probs.shape)
 
-        sentence_embeddings = load_embeddings(embedding_file_memsum)["embeddings"]
+        sentence_embeddings = load_embeddings(
+            embedding_file_memsum)["embeddings"]
         sentences = load_embeddings(embedding_file_memsum)["sentences"]
         print("Sentence vectors loaded from {} .....".format(args.data))
         print("Shape of sentence vectors", sentence_embeddings.shape)
@@ -392,7 +403,8 @@ def main():
         )
         model.fit(input_distance_matrix)
         np.save(
-            "paraphrase/data/{}_matrix_{}.npy".format(args.matrix_type, args.data),
+            "paraphrase/data/{}_matrix_{}.npy".format(
+                args.matrix_type, args.data),
             input_distance_matrix,
         )
         linkage_matrix = plot_dendrogram(model, truncate_mode="level", p=3)
@@ -415,7 +427,8 @@ def main():
         for i, j in clusters.items():
             if len(j) > 5:
                 for index in j:
-                    out.append((tokenized_sents.iloc[index].tokenized_sents, i))
+                    out.append(
+                        (tokenized_sents.iloc[index].tokenized_sents, i))
         df = pd.DataFrame(out, columns=["tokenized_sents", "cluster"])
 
         if args.data == "custom":
@@ -447,7 +460,7 @@ def main():
         )
 
     else:
-        ## From the kelblow plots, we have k = 7
+        # From the kelblow plots, we have k = 7
         n_clusters = int(args.nclusters)
 
         if not args.load:

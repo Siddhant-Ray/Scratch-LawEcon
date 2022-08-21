@@ -1,4 +1,9 @@
 from __future__ import annotations
+from sklearn.metrics import f1_score
+from torch.utils.tensorboard import SummaryWriter
+from tqdm.notebook import tqdm
+from torch.optim.lr_scheduler import StepLR
+import random
 
 import json
 import math
@@ -22,15 +27,9 @@ from utils import train
 torch.manual_seed(0)
 np.random.seed(0)
 
-import random
 
 random.seed(0)
 
-from torch.optim.lr_scheduler import StepLR
-from tqdm.notebook import tqdm
-
-from torch.utils.tensorboard import SummaryWriter
-from sklearn.metrics import f1_score
 
 # Load PAWS train dataset
 with open("paraphrase/data/train_embeddings_paws1.pkl", "rb") as em1:
@@ -48,7 +47,7 @@ with open("paraphrase/data/train_labels_paws.pkl", "rb") as lbl:
 with open("paraphrase/configs/config.json", "r") as f:
     config = json.load(f)
 
-## Hyperparameters
+# Hyperparameters
 learning_rate = config["learning_rate"]
 hidden_size = config["hidden_neurons"]
 input_size1 = stored_data_1["embeddings"].shape[1]
@@ -86,7 +85,8 @@ val_dataloader = torch.utils.data.DataLoader(
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-print("train set size is {}, val set size is {}".format(len(train_set), len(val_set)))
+print("train set size is {}, val set size is {}".format(
+    len(train_set), len(val_set)))
 print("batch size is {}".format(batch_size))
 print(
     "train dataloader size is {}, val dataloader size is {}".format(
@@ -197,7 +197,8 @@ def trainIters(
         writer.add_scalar("Acc/train", print_acc_avg_train, epoch)
 
         f1score = f1_score(y_true, y_pred)
-        print("train_F1 score for epoch = {epoch}".format(epoch=epoch), "is", f1score)
+        print("train_F1 score for epoch = {epoch}".format(
+            epoch=epoch), "is", f1score)
         # breakpoint()
         writer.add_scalar("F1/train", f1score, epoch)
         train_epochs.append(epoch)
@@ -255,7 +256,8 @@ def trainIters(
             writer.add_scalar("Acc/val", print_avg_acc_val, epoch)
 
             f1score = f1_score(y_true, y_pred)
-            print("val_f1 score for epoch = {epoch}".format(epoch=epoch), "is", f1score)
+            print("val_f1 score for epoch = {epoch}".format(
+                epoch=epoch), "is", f1score)
 
             writer.add_scalar("F1/val", f1score, epoch)
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from tqdm import tqdm
 
 import argparse
 import json
@@ -21,7 +22,6 @@ from spacy.util import filter_spans
 
 nlp = spacy.load("en_core_web_sm")
 
-from tqdm import tqdm
 
 PATH = "paraphrase/figs/"
 
@@ -48,10 +48,12 @@ def filter_dataframe(df, threshold):
     threshold = float(threshold)
     df = df.loc[df["prob_score"] >= threshold]
     df = df.drop(
-        columns=["indirect words sent1", "count of verbs sent1", "verbs in sent1"]
+        columns=["indirect words sent1",
+                 "count of verbs sent1", "verbs in sent1"]
     )
     df = df.drop(
-        columns=["indirect words sent2", "count of verbs sent2", "verbs in sent2"]
+        columns=["indirect words sent2",
+                 "count of verbs sent2", "verbs in sent2"]
     )
     df = df.rename(columns={"prob_score": "paraphrase_probability"})
     return df
@@ -217,7 +219,8 @@ def evaluate_model_slow(clf, vectors):
 
         abs_diff = np.abs(vector1 - vector2)
         elem_prod = vector1 * vector2
-        combined_test = np.concatenate((vector1, vector2, abs_diff, elem_prod), axis=1)
+        combined_test = np.concatenate(
+            (vector1, vector2, abs_diff, elem_prod), axis=1)
         # print(combined_test.shape)
         # print("Metrics for test dataset......")
         t_preds = clf.predict(combined_test)
@@ -301,7 +304,8 @@ def main():
     parser.add_argument(
         "-noeq", "--noequal", help="choose whether to include same sentences as pairs"
     )
-    parser.add_argument("-k", "--knumelem", help="how many top/ bottom k to select")
+    parser.add_argument("-k", "--knumelem",
+                        help="how many top/ bottom k to select")
 
     args = parser.parse_args()
 
@@ -371,7 +375,8 @@ def main():
     print(list_of_embeddings.shape)
 
     if args.noequal and args.data == "bbc":
-        sent1_indices, sent2_indices = load_unique_indices_bbc(stored_indices_path)
+        sent1_indices, sent2_indices = load_unique_indices_bbc(
+            stored_indices_path)
         print("Loading pairs {} without equality........".format(save_name))
         print(sent1_indices.shape, sent2_indices.shape)
 
@@ -398,7 +403,7 @@ def main():
     if save_name == "trump" or save_name == "custom" or args.data == "memsum":
         sent_vectors = list_of_embeddings
     elif save_name == "bbc" or save_name == "bigcorpus":
-        ### Run the model on the sentence pairs on the big corpus
+        # Run the model on the sentence pairs on the big corpus
         sent_vectors_1 = list_of_embeddings[sent1_indices]
         sent_vectors_2 = list_of_embeddings[sent2_indices]
     else:
@@ -445,9 +450,11 @@ def main():
             )
         else:
             print(
-                "Loading para probs from {} with equal pairs.......".format(save_name)
+                "Loading para probs from {} with equal pairs.......".format(
+                    save_name)
             )
-            para_probs = np.load("paraphrase/data/para_probs_{}.npy".format(save_name))
+            para_probs = np.load(
+                "paraphrase/data/para_probs_{}.npy".format(save_name))
 
         # Set the value of k for top k/bottom k pairs
         k_value = int(args.knumelem)
@@ -460,12 +467,16 @@ def main():
             # list_of_paras, list_of_sentences, sent_dataframe = get_bbc_corpus(data_file_bbc)
             # USE SPACYYYY.....
             sent_dataframe = get_bbc_corpus_nltk(data_file_bbc)
-            df_sent1 = filter_bbc_corpus(sent_dataframe, sent1_indices.tolist())
-            df_sent2 = filter_bbc_corpus(sent_dataframe, sent2_indices.tolist())
+            df_sent1 = filter_bbc_corpus(
+                sent_dataframe, sent1_indices.tolist())
+            df_sent2 = filter_bbc_corpus(
+                sent_dataframe, sent2_indices.tolist())
 
         elif args.data != "bbc":
-            df_sent1 = filter_corpus_as_dataframe(data_file, sent1_indices.tolist())
-            df_sent2 = filter_corpus_as_dataframe(data_file, sent2_indices.tolist())
+            df_sent1 = filter_corpus_as_dataframe(
+                data_file, sent1_indices.tolist())
+            df_sent2 = filter_corpus_as_dataframe(
+                data_file, sent2_indices.tolist())
 
         print("Para probs size sanity check from {}".format(save_name))
         print(para_probs.shape)
@@ -502,20 +513,24 @@ def main():
                 SAVE_PATH + "top_{}_noequal_{}.csv".format(k_value, save_name)
             )
         else:
-            new_df.to_csv(SAVE_PATH + "top_{}_{}.csv".format(k_value, save_name))
+            new_df.to_csv(
+                SAVE_PATH + "top_{}_{}.csv".format(k_value, save_name))
 
         df_probs_bottom = pd.DataFrame(para_probs[bottom_k_indices])[0]
         # print(df_probs_bottom.head())
         # print(df_probs_bottom.shape)
         df_probs_bottom.columns = ["para_prob"]
-        new_df = pd.concat([bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
+        new_df = pd.concat(
+            [bottomk_sent1, bottomk_sent2, df_probs_bottom], axis=1)
         new_df.columns = ["sent1", "sent2", "para_probs"]
         if args.noequal:
             new_df.to_csv(
-                SAVE_PATH + "bottom_{}_noequal_{}.csv".format(k_value, save_name)
+                SAVE_PATH +
+                "bottom_{}_noequal_{}.csv".format(k_value, save_name)
             )
         else:
-            new_df.to_csv(SAVE_PATH + "bottom_{}_{}.csv".format(k_value, save_name))
+            new_df.to_csv(
+                SAVE_PATH + "bottom_{}_{}.csv".format(k_value, save_name))
 
 
 if __name__ == "__main__":

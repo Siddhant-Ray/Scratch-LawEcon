@@ -1,4 +1,17 @@
 from __future__ import annotations
+from itertools import combinations
+from spacy.util import filter_spans
+from spacy.matcher import Matcher
+import spacy
+import matplotlib.pyplot as plt
+import seaborn as sns
+from numpy.linalg import norm
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
+from torch.utils.tensorboard import SummaryWriter
 
 import argparse
 import json
@@ -22,27 +35,12 @@ from utils import train
 np.random.seed(0)
 random.seed(0)
 
-from torch.utils.tensorboard import SummaryWriter
-from sklearn.metrics import f1_score
-
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics.pairwise import cosine_similarity
-from numpy.linalg import norm
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-import spacy
-from spacy.matcher import Matcher
-from spacy.util import filter_spans
 
 nlp = spacy.load("en_core_web_sm")
 
-from itertools import combinations
 
 # Load the embeddings of the specified dataset
+
 def load_embeddings(fname1, fname2, flabel):
 
     PATH = "paraphrase/data/"
@@ -208,9 +206,11 @@ def evaluate_model(clf, fname1, fname2, flabel, out_file_train, out_file_test):
     print("Prediction probs for 10 are", t_pred_probs[0:10])
 
     print("Accuracy for test set is:", clf.score(combined_test, t_labels))
-    print("F1score for test set is: ", f1_score(t_labels, t_preds, average=None))
+    print("F1score for test set is: ", f1_score(
+        t_labels, t_preds, average=None))
 
-    ct_matrix = confusion_matrix(t_labels, t_preds, labels=[0, 1], normalize="true")
+    ct_matrix = confusion_matrix(t_labels, t_preds, labels=[
+                                 0, 1], normalize="true")
     print(ct_matrix)
 
     df_cm = pd.DataFrame(ct_matrix, index=[0, 1], columns=[0, 1])
@@ -240,7 +240,7 @@ def generate_scored_file(
     out_file_test,
 ):
 
-    ## Get paraphrase pairs with high probability ( >= 95)
+    # Get paraphrase pairs with high probability ( >= 95)
     df1 = pd.DataFrame(
         columns=[
             "sent1",

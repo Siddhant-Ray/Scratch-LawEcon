@@ -1,4 +1,5 @@
 from __future__ import annotations
+import spacy
 
 import os
 import pickle
@@ -17,11 +18,10 @@ from relatio.wrappers import run_srl
 
 nltk.download("averaged_perceptron_tagger")
 
-import spacy
 
 spacy_stopwords = spacy.lang.en.stop_words.STOP_WORDS
 
-## Flags
+# Flags
 split_sents = False
 run_srl_method = False
 run_narrative = False
@@ -31,7 +31,7 @@ plot_graph = True
 
 data_path = "labour_contracts/data/relatio_formatted.csv"
 
-## load data
+# load data
 data_frame = pd.read_csv(data_path)
 print(data_frame.head(10))
 print(data_frame.shape)
@@ -73,7 +73,8 @@ if run_srl_method:
     print(len(ids), len(sentences))
 
     srl_res = run_srl(
-        path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",  # pre-trained model
+        # pre-trained model
+        path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",
         sentences=sentences,
         cuda_device=cuda_device,
         progress_bar=True,
@@ -158,7 +159,8 @@ if gen_narratives:
     print(final_statements.columns)
     print(final_statements.head())
 
-    final_statements.to_csv("labour_contracts/data/narratives.csv", index=False)
+    final_statements.to_csv(
+        "labour_contracts/data/narratives.csv", index=False)
 
 # ANALYSE sentiments (this is mainly done very similarly as the tutorial)
 if analyse_narratives:
@@ -170,13 +172,16 @@ if analyse_narratives:
 
     # Pool ARG0, ARG1 and ARG2 together
     df1 = final_statements[["ARG0_lowdim", "ARG0_highdim"]]
-    df1.rename(columns={"ARG0_lowdim": "ARG", "ARG0_highdim": "ARG-RAW"}, inplace=True)
+    df1.rename(columns={"ARG0_lowdim": "ARG",
+               "ARG0_highdim": "ARG-RAW"}, inplace=True)
 
     df2 = final_statements[["ARG1_lowdim", "ARG1_highdim"]]
-    df2.rename(columns={"ARG1_lowdim": "ARG", "ARG1_highdim": "ARG-RAW"}, inplace=True)
+    df2.rename(columns={"ARG1_lowdim": "ARG",
+               "ARG1_highdim": "ARG-RAW"}, inplace=True)
 
     df3 = final_statements[["ARG2_lowdim", "ARG2_highdim"]]
-    df3.rename(columns={"ARG2_lowdim": "ARG", "ARG2_highdim": "ARG-RAW"}, inplace=True)
+    df3.rename(columns={"ARG2_lowdim": "ARG",
+               "ARG2_highdim": "ARG-RAW"}, inplace=True)
 
     df = df1.append(df2).reset_index(drop=True)
     df = df.append(df3).reset_index(drop=True)
@@ -189,7 +194,8 @@ if analyse_narratives:
     df = df[df["ARG"] != ""]
 
     # Rearrange the data
-    df = df.groupby(["ARG"]).apply(lambda x: x.sort_values(["count"], ascending=False))
+    df = df.groupby(["ARG"]).apply(
+        lambda x: x.sort_values(["count"], ascending=False))
     df = df.reset_index(drop=True)
     df = df.groupby(["ARG"]).head(10)
 
@@ -215,7 +221,7 @@ if analyse_narratives:
     # Low-dimensional vs. high-dimensional narrative statements
     # Replace negated verbs by "not-verb"
 
-    ## In our data, this leads to many NANs but some values are quite good
+    # In our data, this leads to many NANs but some values are quite good
 
     final_statements["B-V_lowdim_with_neg"] = np.where(
         final_statements["B-ARGM-NEG_lowdim"] == True,
@@ -263,7 +269,7 @@ if analyse_narratives:
     print(complete_narratives["narrative_highdim"].value_counts().head(10))
     print(complete_narratives["narrative_lowdim"].value_counts().head(10))
 
-    ## Change from original , filter out the NaNs
+    # Change from original , filter out the NaNs
     sample = (
         complete_narratives[
             ~(
@@ -287,12 +293,15 @@ if analyse_narratives:
         print("Low-dimensional narrative: \n %s \n" % d["narrative_lowdim"])
         print("--------------------------------------------------- \n")
 
-        write_file.write("Original sentence : \n %s \n" % sentences[d["sentence"]])
+        write_file.write("Original sentence : \n %s \n" %
+                         sentences[d["sentence"]])
         write_file.write(
             "High-dimensional narrative: \n %s \n" % d["narrative_highdim"]
         )
-        write_file.write("Low-dimensional narrative: \n %s \n" % d["narrative_lowdim"])
-        write_file.write("--------------------------------------------------- \n")
+        write_file.write("Low-dimensional narrative: \n %s \n" %
+                         d["narrative_lowdim"])
+        write_file.write(
+            "--------------------------------------------------- \n")
 
     write_file.close()
     complete_narratives.to_csv(
@@ -302,7 +311,8 @@ if analyse_narratives:
 # PLOT the directed graph
 if plot_graph:
 
-    complete_narratives = pd.read_csv("labour_contracts/data/complete_narratives.csv")
+    complete_narratives = pd.read_csv(
+        "labour_contracts/data/complete_narratives.csv")
     print(complete_narratives.columns)
     temp = complete_narratives[
         ["ARG0_lowdim", "ARG1_lowdim", "B-V_lowdim", "B-ARGM-MOD_highdim"]
@@ -317,7 +327,8 @@ if plot_graph:
     ]
     temp["B-V"] = temp["B-M"] + " " + temp["B-V"]
     temp.drop("B-M", axis=1, inplace=True)
-    temp = temp.groupby(["ARG1", "ARG0", "B-V"]).size().reset_index(name="weight")
+    temp = temp.groupby(["ARG1", "ARG0", "B-V"]
+                        ).size().reset_index(name="weight")
     temp = temp.sort_values(by="weight", ascending=False).iloc[
         0:20
     ]  # pick top 100 most frequent narratives

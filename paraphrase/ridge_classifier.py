@@ -1,4 +1,18 @@
 from __future__ import annotations
+from itertools import combinations
+from spacy.util import filter_spans
+from spacy.matcher import Matcher
+import spacy
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score
+from numpy.linalg import norm
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import confusion_matrix
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 
 import argparse
 import json
@@ -23,29 +37,11 @@ np.random.seed(0)
 random.seed(0)
 
 
-from sklearn.metrics import f1_score
-
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Ridge
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics.pairwise import cosine_similarity
-from numpy.linalg import norm
-
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import mean_squared_error
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-import spacy
-from spacy.matcher import Matcher
-from spacy.util import filter_spans
-
 nlp = spacy.load("en_core_web_sm")
 
-from itertools import combinations
 
 # Load the embeddings of the specified dataset
+
 def load_embeddings(fname1, fname2, flabel):
 
     PATH = "paraphrase/data/"
@@ -221,7 +217,8 @@ def main():
     X_train, X_test, y_train, y_test = load_embeddings(fname1, fname2, flabel)
 
     # Run the classifier model (logistic regression for now)
-    classifier, weights = run_model(X_train, X_test, y_train, y_test, args.train)
+    classifier, weights = run_model(
+        X_train, X_test, y_train, y_test, args.train)
 
     if args.eval == "mprc":
         eval_fname1 = "test_embeddings_1"

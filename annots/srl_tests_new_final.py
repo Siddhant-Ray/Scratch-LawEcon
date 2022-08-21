@@ -88,7 +88,8 @@ if file_name.endswith(".csv"):
     print(f"Using CUDA:{cuda_device}")
 
     srl_res = run_srl(
-        path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",  # pre-trained model
+        # pre-trained model
+        path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",
         sentences=split_sentences[1],
         cuda_device=cuda_device,
         progress_bar=False,

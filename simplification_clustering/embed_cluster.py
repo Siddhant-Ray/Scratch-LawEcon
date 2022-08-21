@@ -20,6 +20,8 @@ from sklearn.model_selection import RandomizedSearchCV
 PATH = "simplification_clustering/datasets/"
 
 # Get embeddings
+
+
 def embedd_sentences(sentences):
 
     sbert_model = "all-MiniLM-L6-v2"
@@ -152,7 +154,8 @@ def run(args):
     data_frame = pd.DataFrame({"sentence": sentences, "label": labels})
     if args.model == "kmeans":
         data_frame.to_csv(
-            path + "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters),
+            path +
+            "manifesto_clustered_numclusters_{}.csv".format(args.n_clusters),
             index=False,
         )
     elif args.model == "hdbscan":
@@ -171,7 +174,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Run K-Means clustering on the dataset"
     )
-    parser.add_argument("--path", type=str, default=PATH, help="Path to the dataset")
+    parser.add_argument("--path", type=str, default=PATH,
+                        help="Path to the dataset")
     parser.add_argument(
         "--model", type=str, help="Choose clustering model", required=True
     )

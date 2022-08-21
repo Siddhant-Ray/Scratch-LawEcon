@@ -59,7 +59,8 @@ for file_name in list_of_files:
         print(new_data_frame.head())
         # print(len(new_data_frame.index))
 
-        split_sentences = split_into_sentences(new_data_frame, progress_bar=True)
+        split_sentences = split_into_sentences(
+            new_data_frame, progress_bar=True)
         """for i in range(5):
             print("document id: ", split_sentences[0][i])
             print("doc_in_sentences: ", split_sentences[1][i])
@@ -79,7 +80,8 @@ for file_name in list_of_files:
         print(f"Using CUDA:{cuda_device}")
 
         srl_res = run_srl(
-            path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",  # pre-trained model
+            # pre-trained model
+            path="https://storage.googleapis.com/allennlp-public-models/openie-model.2020.03.26.tar.gz",
             sentences=split_sentences[1],
             cuda_device=cuda_device,
             progress_bar=False,

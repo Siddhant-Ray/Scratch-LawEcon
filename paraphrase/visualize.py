@@ -26,8 +26,10 @@ with open("paraphrase/data/mprc_embeddings_2.pkl", "rb") as _em2:
 with open("paraphrase/data/mprc_labels.pkl", "rb") as _lbl:
     stored_labels_mprc = pickle.load(_lbl)
 
-print(len(stored_data_mprc_1["embeddings"]), type(stored_data_mprc_1["embeddings"]))
-print(len(stored_data_mprc_2["embeddings"]), type(stored_data_mprc_2["embeddings"]))
+print(len(stored_data_mprc_1["embeddings"]),
+      type(stored_data_mprc_1["embeddings"]))
+print(len(stored_data_mprc_2["embeddings"]),
+      type(stored_data_mprc_2["embeddings"]))
 print(len(stored_labels_mprc["labels"]), type(stored_labels_mprc["labels"]))
 
 sent_vecs_mprc_1, sent_vecs1 = (
@@ -55,7 +57,7 @@ print(TSNE_embedded2.shape)
 df = pd.DataFrame({'X': TSNE_embedded2[:, 0], 'Y': TSNE_embedded2[:, 1], 'Label': target_labels})
 df.to_csv('paraphrase/plots/tSNE_values_vecs2.csv', index=False)"""
 
-### Plot functions
+# Plot functions
 
 files = [
     "paraphrase/plots/tSNE_values_mprc_vecs1.csv",

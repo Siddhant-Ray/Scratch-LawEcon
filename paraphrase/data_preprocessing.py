@@ -90,7 +90,7 @@ with open('paraphrase/data/labels.pkl', "wb") as fOut3:
     pickle.dump({'labels': train_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 
-#### Embeddings for only MPRC dataset
+# Embeddings for only MPRC dataset
 train_labels_MPRC = [int(item[0]) for item in list_of_MRPC_pairs]
 MPRC_list_1 = [item[1][0] for item in list_of_MRPC_pairs]
 MPRC_list_2 = [item[1][1] for item in list_of_MRPC_pairs]
@@ -110,7 +110,7 @@ with open('paraphrase/data/mprc_labels.pkl', "wb") as fOut_mprc3:
     pickle.dump({'labels': train_labels_MPRC}, fOut_mprc3, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 
-#### Testing vectors using MPRC test file only:
+# Testing vectors using MPRC test file only:
 
 file_path_test = "paraphrase/MSRParaphraseCorpus/msr_paraphrase_test.txt"
 
@@ -218,7 +218,7 @@ with open('paraphrase/data/test_labels_paws.pkl', "wb") as fOut3:
     pickle.dump({'labels': test_labels}, fOut3, protocol=pickle.HIGHEST_PROTOCOL)"""
 
 
-### Also try to train on PAWS dataset, generate PAWS train embeddings
+# Also try to train on PAWS dataset, generate PAWS train embeddings
 
 file_path_4 = "paraphrase/paws_corpus/train.tsv"
 

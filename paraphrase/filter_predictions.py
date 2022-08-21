@@ -1,4 +1,5 @@
 from __future__ import annotations
+import string
 
 import argparse
 import json
@@ -22,9 +23,9 @@ from spacy.util import filter_spans
 
 nlp = spacy.load("en_core_web_sm")
 
-import string
 
 # Get all verbs using a Spacy based function
+
 def get_verbs(input_sentence):
 
     sentence = input_sentence
@@ -89,11 +90,13 @@ def main():
 
     df1 = pd.DataFrame({"sent1": df.sent1})
     df1["sent1_verbs"] = df1["sent1"].apply(lambda row: get_verbs(row))
-    df1["sent1_length"] = df1["sent1"].apply(lambda row: get_sentence_length(row))
+    df1["sent1_length"] = df1["sent1"].apply(
+        lambda row: get_sentence_length(row))
 
     df2 = pd.DataFrame({"sent2": df.sent2})
     df2["sent2_verbs"] = df2["sent2"].apply(lambda row: get_verbs(row))
-    df2["sent2_length"] = df2["sent2"].apply(lambda row: get_sentence_length(row))
+    df2["sent2_length"] = df2["sent2"].apply(
+        lambda row: get_sentence_length(row))
 
     print("DF 1.......", df1.shape)
     print(df1.head())
