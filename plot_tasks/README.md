@@ -5,7 +5,7 @@ In this plotting task undertaken, custom relation plots made on the NER extracte
 ## File structure
 
 - Data for plotting
-  - [data](data/): Contains the sentiment and partisan csv files.
+  - [data](https://drive.google.com/drive/folders/119u51FmbNSLpj0kzuFvFvBWq9hOPTjOv?usp=sharing): Contains the sentiment and partisan csv files.
 - Plot code
   - [plot_task_partisan](plot_task_partisan.py): Plotting code for partisan narratives
   - [plot_task_sentiment](plot_task_sentiment.py): Plotting code for the sentiment narratives
