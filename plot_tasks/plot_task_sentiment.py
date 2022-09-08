@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # Load dataset
-sentiment_data_raw = pd.read_csv("sentiment_narratives.csv")
+sentiment_data_raw = pd.read_csv("data/sentiment_narratives.csv")
 
 # We want a scatter plot in 1-D, as matplotlib must take (x,y) as argument, we add a fake dimension of y = [0,0,0,0,0...]
 xcoords = sentiment_data_raw["sentiment_compound"]
@@ -235,4 +235,4 @@ ax2.plot((-d, d), (-d, +d), **kwargs)  # top-right diagonal
 
 plt.show()
 fig.tight_layout()
-fig.savefig("sentiment_narratives.png")
+fig.savefig("figs/sentiment_narratives.pdf")

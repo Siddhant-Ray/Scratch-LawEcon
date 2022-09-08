@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # Load dataset
-partisan_data_raw = pd.read_csv("partisan_narratives.csv")
+partisan_data_raw = pd.read_csv("data/partisan_narratives.csv")
 
 # We want a scatter plot in 1-D, as matplotlib must take (x,y) as argument, we add a fake dimension of y = [0,0,0,0,0...]
 xcoords = partisan_data_raw["log_or"]
@@ -235,4 +235,4 @@ ax2.plot((-d, d), (-d, +d), **kwargs)  # top-right diagonal
 
 plt.show()
 fig.tight_layout()
-fig.savefig("partisan_narratives.png")
+fig.savefig("figs/partisan_narratives.pdf")
