@@ -2,7 +2,7 @@
 
 Tasks undertaken:
 
-- Annotating day level and year level news files with the SRL method from the Relatio package. Files in [`annots`](annots).
+- Annotating day level and year level news files with the SRL method from the Relatio package. Files in [`srl_annotations`](srl_annotations).
 - Interactive NER linkage graph on labour contracts. Files in [`labour_contracts`](labour_contracts).
 - Paraphrase detection and clustering. Files in [`paraphrase`](paraphrase).
 - Sentence simplification and clustering. Files in [`simplification_clustering`](simplification_clustering).
