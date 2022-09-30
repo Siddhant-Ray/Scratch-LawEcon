@@ -17,7 +17,7 @@ huggingface-hub==0.9.1
 idna==3.3
 importlib-metadata==4.11.3
 Jinja2==3.0.3
-joblib==1.1.0
+joblib==1.2.0
 kiwisolver==1.4.4
 langcodes==3.3.0
 Markdown==3.4.1
