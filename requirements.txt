@@ -53,7 +53,7 @@ sentence-transformers==2.2.2
 sentencepiece==0.1.97
 setuptools-scm==7.0.5
 six==1.16.0
-smart-open==5.2.1
+smart-open==6.2.0
 spacy==3.3.0
 spacy-legacy==3.0.9
 spacy-loggers==1.0.3
